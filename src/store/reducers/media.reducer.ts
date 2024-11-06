@@ -3,6 +3,7 @@ import { Reducer } from 'redux';
 import {
   FetchContentMediaActionType,
   FetchQuestionImageActionType,
+  LogicEngineActionType,
 } from 'store/actions/actions.constants';
 
 export interface MediaState {
@@ -59,6 +60,10 @@ export const mediaReducer: Reducer<MediaState> = (
         const error = action.payload as string;
         draft.loadingImage = false;
         draft.error = error;
+        break;
+      }
+      case LogicEngineActionType.FETCH_LOGIC_ENGINE_EVALUATION: {
+        draft.media = {};
         break;
       }
       default: {
