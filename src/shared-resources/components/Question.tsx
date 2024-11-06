@@ -116,8 +116,9 @@ const Question = forwardRef(
             const { questionType } = this.parent; // Access parent context
             if (questionType === QuestionType.GRID_2) {
               return (
-                value && value.length > 0 && value.every((answer) => answer)
-              ); // Check if every answer is provided
+                value && value.some((answer) => answer && answer.trim() !== '')
+              );
+              // At least one non-empty answer is required
             }
             return true; // If not grid-2, skip validation
           }
@@ -131,8 +132,9 @@ const Question = forwardRef(
             const { questionType } = this.parent; // Access parent context
             if (questionType === QuestionType.GRID_2) {
               return (
-                value && value.length > 0 && value.every((answer) => answer)
-              ); // Check if every answer is provided
+                value && value.some((answer) => answer && answer.trim() !== '')
+              );
+              // At least one non-empty answer is required
             }
             return true; // If not grid-2, skip validation
           }

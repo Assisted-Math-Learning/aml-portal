@@ -151,6 +151,13 @@ const Questions: React.FC = () => {
         headerText={
           isCompleted
             ? 'Congratulations!'
+            : questions[currentQuestionIndex]?.questionType ===
+              QuestionType.GRID_2
+            ? `${
+                questions[currentQuestionIndex]?.description?.en
+              }: ${Object.values(
+                questions?.[currentQuestionIndex]?.numbers || {}
+              ).join(' + ')}`
             : questions[currentQuestionIndex]?.description?.en || ''
         }
         content={
