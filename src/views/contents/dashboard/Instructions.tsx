@@ -24,6 +24,8 @@ const Instructions: React.FC = () => {
   const [isMediaLoading, setisMediaLoading] = useState<boolean>(false);
   const contentMediaSelector = useSelector(mediaSelector);
   const [mediaURLs, setMediaURLs] = useState<string[]>([]);
+  const [hasWatchedEnough, setHasWatchedEnough] = useState(false);
+
   useEffect(() => {
     const urls = Object.values(contentMediaSelector).flatMap((item) =>
       item.media.signedUrls.map((urlObj: any) => urlObj.url)
@@ -34,12 +36,20 @@ const Instructions: React.FC = () => {
   const handleNextClick = () => {
     if (currentVideoIndex < mediaURLs.length - 1) {
       setCurrentVideoIndex((prevIndex) => prevIndex + 1);
+      setHasWatchedEnough(false);
     }
   };
 
   const handleBackClick = () => {
     if (currentVideoIndex > 0) {
       setCurrentVideoIndex((prevIndex) => prevIndex - 1);
+      setHasWatchedEnough(false);
+    }
+  };
+
+  const handleProgress = ({ playedSeconds }: any) => {
+    if (playedSeconds >= 10 && !hasWatchedEnough) {
+      setHasWatchedEnough(true);
     }
   };
 
@@ -75,6 +85,7 @@ const Instructions: React.FC = () => {
                     width='100%'
                     height='100%'
                     className='rounded-lg overflow-hidden'
+                    onProgress={handleProgress}
                   />
                 </div>
 
@@ -89,8 +100,13 @@ const Instructions: React.FC = () => {
             </div>
 
             <div className='md:pb-16'>
-              <Button type='button' onClick={handleStartClick}>
-                Start
+              <Button
+                type='button'
+                onClick={handleStartClick}
+                tooltipMessage='Watch the video to move forward'
+                disabled={!hasWatchedEnough}
+              >
+                Next
               </Button>
             </div>
           </div>
@@ -112,7 +128,7 @@ const Instructions: React.FC = () => {
               </div>
             )
           }
-          buttonText='Start'
+          buttonText='Next'
           onButtonClick={handleStartClick}
         />
       )}
