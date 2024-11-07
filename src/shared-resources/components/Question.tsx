@@ -10,10 +10,7 @@ import * as Yup from 'yup';
 import { QuestionType } from 'models/enums/QuestionType.enum';
 import { fetchQuestionImage } from 'store/actions/media.action';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  currentImageURLSelector,
-  isCurrentImageLoadingSelector,
-} from 'store/selectors/media.selector';
+import { currentImageURLSelector } from 'store/selectors/media.selector';
 import ToggleButtonGroup from './ToggleButtonGroup/ToggleButtonGroup';
 import Loader from './Loader/Loader';
 
@@ -55,10 +52,9 @@ const Question = forwardRef(
     const { answers, numbers, questionImage } = question;
     const dispatch = useDispatch();
     const currentImageURL = useSelector(currentImageURLSelector);
-    const currentImageLoading = useSelector(isCurrentImageLoadingSelector);
     const [imgURL, setImageURL] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
-    const [imgLoading, setImageLoading] = useState<boolean>(false);
+    const [imgLoading, setImageLoading] = useState<boolean>(true);
     const validationSchema = Yup.object({
       topAnswer: Yup.array()
         .of(
@@ -239,9 +235,13 @@ const Question = forwardRef(
       }
     }, [currentImageURL]);
 
+    const handleImageLoad = () => {
+      setImageLoading(false);
+    };
+
     useEffect(() => {
-      setImageLoading(currentImageLoading);
-    }, [currentImageLoading]);
+      setImageLoading(true);
+    }, [question]);
 
     useEffect(() => {
       setIsLoading(true);
@@ -532,8 +532,10 @@ const Question = forwardRef(
             {question?.questionImage && imgLoading && <Loader />}
             {question?.questionImage && !!imgURL && (
               <img
+                key={imgURL}
                 className='w-auto min-w-[30%] max-w-full h-auto max-h-[80vh] !mb-6 object-contain'
                 src={imgURL}
+                onLoad={handleImageLoad}
                 alt='Img'
               />
             )}

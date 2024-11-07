@@ -46,6 +46,7 @@ export const mediaReducer: Reducer<MediaState> = (
       }
       case FetchQuestionImageActionType.FETCH_QUESTION_IMAGE: {
         draft.loadingImage = true;
+        draft.currentImageUrl = '';
         break;
       }
       case FetchQuestionImageActionType.FETCH_QUESTION_IMAGE_COMPLETED: {
