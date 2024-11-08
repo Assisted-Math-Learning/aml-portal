@@ -4,10 +4,7 @@ import { StoreAction } from 'models/StoreAction';
 
 import { questionSetFetchAction } from 'store/actions/questionSet.actions';
 import { navigateTo } from 'store/actions/navigation.action';
-import {
-  fetchLogicEngineEvaluationCompleted,
-  fetchLogicEngineEvaluationError,
-} from 'store/actions/logicEngineEvaluation.action';
+import { fetchLogicEngineEvaluationError } from 'store/actions/logicEngineEvaluation.action';
 import { logicEngineEvalutionService } from 'services/api-services/logicEngineEvaluationService';
 import { localStorageService } from 'services/LocalStorageService';
 
