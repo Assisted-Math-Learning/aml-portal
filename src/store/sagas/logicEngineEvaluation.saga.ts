@@ -18,17 +18,19 @@ function* LogicEngineEvaluationFetchSaga({
     const response = yield call(
       logicEngineEvalutionService.fetchLogicEngineEvaluation,
       {
-        learner_id: payload,
+        learner_id: payload.learnerId,
       }
     );
     // not needed
     // yield put(fetchLogicEngineEvaluationCompleted(response.result?.data));
     if (response?.result?.data?.question_set_id) {
       const hasLocalData = localStorageService.getLearnerResponseData(
-        String(payload)
+        String(payload.learnerId)
       );
       if (hasLocalData) {
         yield put(navigateTo('/continue-journey'));
+      } else if (payload?.goToInstructions) {
+        yield put(navigateTo('/instructions'));
       } else {
         yield put(navigateTo('/welcome'));
       }

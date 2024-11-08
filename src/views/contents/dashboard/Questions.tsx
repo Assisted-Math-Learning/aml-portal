@@ -69,7 +69,12 @@ const Questions: React.FC = () => {
 
   const handleNextClick = () => {
     if (isCompleted && learnerId) {
-      dispatch(fetchLogicEngineEvaluation(String(learnerId)));
+      dispatch(
+        fetchLogicEngineEvaluation({
+          learnerId: String(learnerId),
+          goToInstructions: true,
+        })
+      );
     } else if (questions.length === currentQuestionIndex + 1) {
       if (questionRef.current) {
         questionRef.current.submitForm();

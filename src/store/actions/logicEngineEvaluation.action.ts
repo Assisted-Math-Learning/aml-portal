@@ -1,8 +1,11 @@
 import { LogicEngineActionType } from './actions.constants';
 
-export const fetchLogicEngineEvaluation = (learnerId: string) => ({
+export const fetchLogicEngineEvaluation = (payload: {
+  learnerId: string;
+  goToInstructions?: boolean;
+}) => ({
   type: LogicEngineActionType.FETCH_LOGIC_ENGINE_EVALUATION,
-  payload: learnerId,
+  payload,
 });
 
 export const fetchLogicEngineEvaluationCompleted = (questionSetId: string) => ({

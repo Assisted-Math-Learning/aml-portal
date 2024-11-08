@@ -34,11 +34,11 @@ function* LearnerJourneyFetchSaga({
       if (questionSetId) {
         yield put(questionSetFetchAction(questionSetId));
       } else {
-        yield put(fetchLogicEngineEvaluation(payload));
+        yield put(fetchLogicEngineEvaluation({ learnerId: payload }));
       }
     } else {
       yield put(navigateTo('/welcome'));
-      yield put(fetchLogicEngineEvaluation(payload));
+      yield put(fetchLogicEngineEvaluation({ learnerId: payload }));
     }
   } catch (e: any) {
     yield put(
