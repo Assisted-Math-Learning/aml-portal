@@ -9,13 +9,14 @@ import {
   transformQuestions,
 } from 'shared-resources/utils/helpers';
 import { fetchLogicEngineEvaluation } from 'store/actions/logicEngineEvaluation.action';
-import { syncLearnerResponse } from 'store/actions/syncLearnerResponse.action';
+import { syncFinalLearnerResponse } from 'store/actions/syncLearnerResponse.action';
 import { learnerIdSelector } from 'store/selectors/auth.selector';
 import { learnerJourneySelector } from 'store/selectors/learnerJourney.selector';
 import { questionsSetSelector } from 'store/selectors/questionSet.selector';
 import Confetti from 'react-confetti';
 import useWindowSize from 'hooks/useWindowSize';
 import { QuestionType } from 'models/enums/QuestionType.enum';
+import { isSyncInProgressSelector } from 'store/selectors/syncResponseSelector';
 
 const Questions: React.FC = () => {
   const [questions, setQuestions] = useState<any[]>([]);
@@ -27,6 +28,7 @@ const Questions: React.FC = () => {
   const questionSet = useSelector(questionsSetSelector);
   const learnerId = useSelector(learnerIdSelector);
   const learnerJourney = useSelector(learnerJourneySelector);
+  const syncLoadingSelector = useSelector(isSyncInProgressSelector);
   const dispatch = useDispatch();
   const questionRef = useRef<{ submitForm: () => void } | null>(null);
   const { width, height } = useWindowSize();
@@ -132,22 +134,24 @@ const Questions: React.FC = () => {
     setCurrentQuestionIndex((prev) => prev + 1);
 
     if (currentQuestionIndex === questions.length - 1) {
-      setIsSyncing(true);
       const learnerResponseData = localStorageService.getLearnerResponseData(
         String(learnerId)
       );
       dispatch(
-        syncLearnerResponse({
+        syncFinalLearnerResponse({
           learner_id: learnerId,
           questions_data: learnerResponseData,
         })
       );
-      setIsSyncing(false); // to be moved in store
       setIsCompleted(true); // to be moved in store
     }
   };
 
   const currentQuestion = questions[currentQuestionIndex];
+
+  useEffect(() => {
+    setIsSyncing(syncLoadingSelector);
+  }, [syncLoadingSelector]);
 
   return (
     <>
@@ -185,12 +189,14 @@ const Questions: React.FC = () => {
           </div>
         }
         buttonText={
-          isCompleted ? 'Next Set' : isSyncing ? 'Syncing...' : 'Next'
+          isSyncing ? 'Syncing...' : isCompleted ? 'Next Set' : 'Next'
         }
         onButtonClick={handleNextClick}
-        buttonDisabled={!isCompleted && (!isFormValid || isSyncing)} // Disable during sync or if the form isn't valid
+        buttonDisabled={isSyncing || (!isCompleted && !isFormValid)}
         toolTipMessage={
-          questions[currentQuestionIndex]?.questionType === QuestionType.MCQ
+          isSyncing
+            ? 'Sync in progress'
+            : questions[currentQuestionIndex]?.questionType === QuestionType.MCQ
             ? 'Select one option to continue'
             : 'Fill in all the empty blanks to continue'
         }

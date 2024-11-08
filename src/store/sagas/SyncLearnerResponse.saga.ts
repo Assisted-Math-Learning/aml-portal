@@ -1,7 +1,10 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { SyncLearnerResponseActionType } from 'store/actions/actions.constants';
 import { StoreAction } from 'models/StoreAction';
-import { syncLearnerResponseError } from 'store/actions/syncLearnerResponse.action';
+import {
+  syncLearnerResponseCompleted,
+  syncLearnerResponseError,
+} from 'store/actions/syncLearnerResponse.action';
 import { syncLearnerResponseService } from 'services/api-services/syncLearnerResponse';
 import { localStorageService } from 'services/LocalStorageService';
 
@@ -13,8 +16,7 @@ function* SyncLearnerResponseSaga({
       syncLearnerResponseService.syncLearnerResponse,
       payload
     );
-    // not needed
-    // yield put(syncLearnerResponseCompleted(response.result?.data?.message));
+    yield put(syncLearnerResponseCompleted(response.result?.data?.message));
     if (response?.responseCode === 'OK') {
       // clearing local storage now as data sync completed
       localStorageService.deleteLearnerResponseData(payload.learner_id);
@@ -32,6 +34,10 @@ function* syncLearnerResponseSaga() {
   yield all([
     takeLatest(
       SyncLearnerResponseActionType.SYNC_LEARNER_RESPONSE,
+      SyncLearnerResponseSaga
+    ),
+    takeLatest(
+      SyncLearnerResponseActionType.SYNC_FINAL_LEARNER_RESPONSE,
       SyncLearnerResponseSaga
     ),
   ]);
