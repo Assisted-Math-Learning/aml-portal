@@ -18,4 +18,5 @@ export interface InputProps {
   centerAlignText?: boolean;
   acceptSingleCharacter?: boolean;
   value?: any;
+  autoComplete?: string;
 }

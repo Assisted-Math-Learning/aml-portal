@@ -15,6 +15,7 @@ const Input: FC<InputProps> = ({
   centerAlignText,
   acceptSingleCharacter,
   value,
+  ...restProps
 }) => {
   const onValueChange = (e: any) => {
     if (!onChange) {
@@ -32,7 +33,6 @@ const Input: FC<InputProps> = ({
     }
     onChange?.({ ...e, target: { ...e?.target, value: val } });
   };
-
   return (
     <Box
       component='form'
@@ -53,6 +53,13 @@ const Input: FC<InputProps> = ({
         })}
         variant='outlined'
         value={value}
+        inputProps={{
+          autocomplete: restProps.autoComplete,
+          form: {
+            autocomplete: 'off',
+          },
+        }}
+        {...restProps}
       />
     </Box>
   );

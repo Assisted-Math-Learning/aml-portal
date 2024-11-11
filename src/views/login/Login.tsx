@@ -98,6 +98,7 @@ const Login: React.FC = () => {
                         name='username'
                         className='w-full md:w-[236px]'
                         onBlur={formikProps.handleBlur}
+                        autoComplete='new-username'
                       />
                     </div>
 
@@ -110,6 +111,7 @@ const Login: React.FC = () => {
                         type='password'
                         className='w-full md:w-[236px]'
                         onBlur={formikProps.handleBlur}
+                        autoComplete='new-password'
                       />
                     </div>
                   </div>
