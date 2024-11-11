@@ -167,6 +167,15 @@ const Question = forwardRef(
       ...Object.values(numbers).map((num) => (num || '').length)
     );
 
+    // replace empty string values with "0" which fall after first "number" element
+    const transformEmptyValuesToZero = (arr: string[]) => {
+      const firstNonEmptyIndex = arr.findIndex((e) => e !== '');
+      if (firstNonEmptyIndex === -1) return '';
+      return arr.map((val, index) =>
+        index > firstNonEmptyIndex && val === '' ? '0' : val
+      );
+    };
+
     const formik = useFormik<FormValues>({
       initialValues: {
         topAnswer: answers?.answerTop
@@ -194,8 +203,8 @@ const Question = forwardRef(
           });
         } else if (question.questionType === QuestionType.GRID_2) {
           onSubmit({
-            row1Answers: values.row1Answers,
-            row2Answers: values.row2Answers,
+            row1Answers: transformEmptyValuesToZero(values.row1Answers),
+            row2Answers: transformEmptyValuesToZero(values.row2Answers),
             questionId: question.questionId,
           });
         } else if (question.questionType === QuestionType.FIB) {
