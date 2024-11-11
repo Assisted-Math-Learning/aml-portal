@@ -31,7 +31,7 @@ function* LearnerJourneyFetchSaga({
       yield put(questionSetFetchAction(questionSetId));
     } else if (hasLearnerData) {
       yield put(navigateTo('/continue-journey'));
-      if (questionSetId) {
+      if (questionSetId && isInProgress) {
         yield put(questionSetFetchAction(questionSetId));
       } else {
         yield put(fetchLogicEngineEvaluation({ learnerId: payload }));

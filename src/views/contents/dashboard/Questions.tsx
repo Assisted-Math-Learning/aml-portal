@@ -36,7 +36,7 @@ const Questions: React.FC = () => {
   useEffect(() => {
     if (questionSet?.questions) {
       const { questions } = questionSet;
-
+      setIsCompleted(false);
       if (questions) {
         const transformedQuestions = transformQuestions(questions);
         const savedResponses = localStorageService.getLearnerResponseData(
