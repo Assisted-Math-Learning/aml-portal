@@ -1,5 +1,5 @@
 import { SagaPayloadType } from 'types/SagaPayload.type';
-import { all, call, delay, put, takeLatest } from 'redux-saga/effects';
+import { all, call, put, takeLatest } from 'redux-saga/effects';
 import {
   AuthActionType,
   CSRFTokenActionType,
@@ -16,6 +16,7 @@ import { authService } from 'services/api-services/AuthService';
 import { localStorageService } from 'services/LocalStorageService';
 import { fetchLearnerJourney } from 'store/actions/learnerJourney.actions';
 import { navigateTo } from 'store/actions/navigation.action';
+import * as Sentry from '@sentry/react';
 import {
   fetchCSRFTokenCompleted,
   fetchCSRFTokenFailed,
@@ -28,6 +29,12 @@ function* loginSaga(data: LoginSagaPayloadType): any {
   try {
     const response = yield call(authService.login, data.payload);
     if (response.responseCode === 'OK' && response?.result?.data) {
+      if (response?.result?.data?.username) {
+        Sentry.setUser({
+          id: response?.result?.data?.identifier,
+          username: response?.result?.data?.username,
+        });
+      }
       yield put(authLoginCompletedAction(response?.result?.data));
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
     }
@@ -42,6 +49,12 @@ function* fetchLoggedInUserSaga(): any {
   try {
     const response = yield call(authService.fetchMe);
     if (response.responseCode === 'OK' && response?.result?.data) {
+      if (response?.result?.data?.username) {
+        Sentry.setUser({
+          id: response?.result?.data?.identifier,
+          username: response?.result?.data?.username,
+        });
+      }
       yield put(authFetchMeCompletedAction(response?.result?.data));
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
     }
@@ -69,6 +82,7 @@ function* logoutSaga(): any {
       localStorageService.removeCSRFToken();
       yield put(navigateTo('/login'));
       yield put(authLogoutCompletedAction());
+      Sentry.setUser(null);
     }
   } catch (e: any) {
     localStorageService.removeCSRFToken();

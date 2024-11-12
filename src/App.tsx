@@ -1,9 +1,12 @@
-import React, { Suspense, useEffect } from 'react';
+import ENV_CONFIG from 'constant/env.config';
+import React, { Suspense } from 'react';
 import { Provider } from 'react-redux';
 import store from 'store';
 import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NavigationHandler from 'shared-resources/components/NavigationHandler';
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 import { errorBoundaryHelper } from './utils/helpers/errorBoundary.helper';
 import ErrorFallbackComponent from './utils/components/ErrorFallbackComponent';
 import Loader from './shared-resources/components/Loader/Loader';
@@ -15,11 +18,22 @@ import UnauthenticatedRouteHOC from './HOC/UnauthenticatedRoute';
 import Login from './views/login/Login';
 import AML404Component from './utils/components/AML404Component';
 
+Sentry.init({
+  dsn: ENV_CONFIG.VITE_SENTRY_DSN,
+  autoSessionTracking: true,
+  integrations: [new Integrations.BrowserTracing()],
+  tracesSampleRate: 1.0,
+  environment: ENV_CONFIG.APP_ENV,
+});
+
 const App: React.FC = () => (
   <Provider store={store}>
     <ErrorBoundary
       FallbackComponent={ErrorFallbackComponent}
-      onError={errorBoundaryHelper}
+      onError={(error, info) => {
+        Sentry.captureException(error); // Capture the error in Sentry
+        errorBoundaryHelper(error, info); // Your custom error handler
+      }}
     >
       <Suspense fallback={<Loader />}>
         <BrowserRouter>
