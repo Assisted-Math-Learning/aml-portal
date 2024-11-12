@@ -7,6 +7,7 @@ import Axios, {
   RawAxiosRequestHeaders,
 } from 'axios';
 import * as uuid from 'uuid';
+import * as Sentry from '@sentry/react';
 import { localStorageService } from '../LocalStorageService';
 
 interface RequestConfig extends AxiosRequestConfig {
@@ -202,6 +203,28 @@ export class BaseApiService {
       this.removeFromRequestMap(config.requestId);
       return response?.data as T;
     } catch (error: any) {
+      Sentry.setContext('API Request', {
+        url: `${BASE_URL}${config.url}`,
+        method: config.method,
+        params: JSON.stringify(config.params),
+        data: JSON.stringify(config.data),
+        error: JSON.stringify(error?.response?.data),
+      });
+      // eslint-disable-next line no-console
+      console.log(
+        'ERROR',
+        {
+          url: `${BASE_URL}${config.url}`,
+          method: config.method,
+          params: JSON.stringify(config.params),
+          data: JSON.stringify(config.data),
+        },
+        `API Error: ${config.method} ${config.url}`,
+        JSON.stringify(error?.response?.data)
+      );
+      Sentry.captureException(
+        new Error(`API Error: ${config.method} ${config.url}`)
+      );
       if (error.response && error.response.data) {
         // eslint-disable-next line no-console
         console.log(error.response.data);
