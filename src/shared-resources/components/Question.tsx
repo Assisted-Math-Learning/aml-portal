@@ -272,21 +272,17 @@ const Question = forwardRef(
           <>
             {/* Top labels */}
             <div className='flex justify-center self-end'>
-              {Array.from({
-                length: question.answers?.answerTop?.length - 1,
-              }).map((_, index) => (
-                <div
-                  key={index}
-                  className='w-[46px] mr-2 p-2 text-[#A5A5A5] text-center flex items-center justify-center font-bold text-[20px]'
-                >
-                  {['U', 'T', 'H', 'Th', 'TTh', 'L'][
-                    question.answers?.answerTop?.length - index
-                  ] || ''}
-                </div>
-              ))}
-              <div className='w-[46px] p-2 text-[#A5A5A5] text-center flex items-center justify-center font-bold text-[20px]'>
-                U
-              </div>
+              {['U', 'T', 'H', 'Th', 'TTh', 'L']
+                .slice(0, String(question.answers?.result)?.length || 1)
+                .reverse()
+                .map((label, index) => (
+                  <div
+                    key={index}
+                    className='w-[46px] mr-[.35rem] p-2 text-[#A5A5A5] text-center flex items-center justify-center font-bold text-[20px]'
+                  >
+                    {label}
+                  </div>
+                ))}
             </div>
 
             {/* Top answer inputs */}
