@@ -1,5 +1,6 @@
 import ENV_CONFIG from 'constant/env.config';
 import Axios, {
+  AxiosInstance,
   AxiosRequestConfig,
   AxiosRequestHeaders,
   CancelToken,
@@ -8,6 +9,7 @@ import Axios, {
 } from 'axios';
 import * as uuid from 'uuid';
 import * as Sentry from '@sentry/react';
+import { toastService } from 'services/ToastService';
 import { localStorageService } from '../LocalStorageService';
 
 interface RequestConfig extends AxiosRequestConfig {
@@ -24,13 +26,43 @@ const BASE_URL = ENV_CONFIG.BACKEND_URL as string;
 export class BaseApiService {
   private static instance: BaseApiService;
 
+  private axiosInstance: AxiosInstance;
+
   private requestMap = new Map<string, CancelTokenSource>();
+
+  private constructor() {
+    // Set up Axios instance with interceptor
+    this.axiosInstance = Axios.create({
+      baseURL: BASE_URL,
+      withCredentials: true,
+    });
+
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          this.handleUnauthorizedError();
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
 
   public static getInstance(): BaseApiService {
     if (!this.instance) {
       this.instance = new BaseApiService();
     }
     return this.instance;
+  }
+
+  private handleUnauthorizedError() {
+    localStorageService.removeCSRFToken();
+    toastService.showError(
+      'Your session has expired. Please login again to continue.'
+    );
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 2000);
   }
 
   public get<T = any>(
@@ -193,16 +225,15 @@ export class BaseApiService {
   ): Promise<T> {
     const cancelToken = this.addToRequestMap(config.requestId);
     try {
-      const response = await Axios.request({
-        baseURL: BASE_URL,
-        cancelToken,
+      const response = await this.axiosInstance.request({
         ...config,
-        withCredentials: true,
+        cancelToken,
         headers: await this.generateHeaders(config.headers, useAuth ?? true),
       });
       this.removeFromRequestMap(config.requestId);
       return response?.data as T;
     } catch (error: any) {
+      this.removeFromRequestMap(config.requestId);
       Sentry.setContext('API Request', {
         url: `${BASE_URL}${config.url}`,
         method: config.method,

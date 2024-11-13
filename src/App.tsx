@@ -5,6 +5,7 @@ import store from 'store';
 import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NavigationHandler from 'shared-resources/components/NavigationHandler';
+import { ToastContainer } from 'react-toastify';
 import * as Sentry from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
 import { errorBoundaryHelper } from './utils/helpers/errorBoundary.helper';
@@ -17,6 +18,7 @@ import AuthenticatedRouteHOC from './HOC/AuthenticatedRoute';
 import UnauthenticatedRouteHOC from './HOC/UnauthenticatedRoute';
 import Login from './views/login/Login';
 import AML404Component from './utils/components/AML404Component';
+import 'react-toastify/dist/ReactToastify.css';
 
 Sentry.init({
   dsn: ENV_CONFIG.VITE_SENTRY_DSN,
@@ -28,6 +30,11 @@ Sentry.init({
 
 const App: React.FC = () => (
   <Provider store={store}>
+    <ToastContainer
+      hideProgressBar
+      pauseOnFocusLoss={false}
+      toastClassName='relative flex p-2 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer font-medium'
+    />
     <ErrorBoundary
       FallbackComponent={ErrorFallbackComponent}
       onError={(error, info) => {

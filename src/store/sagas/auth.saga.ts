@@ -21,6 +21,7 @@ import {
   fetchCSRFTokenCompleted,
   fetchCSRFTokenFailed,
 } from 'store/actions/csrfToken.action';
+import { toastService } from 'services/ToastService';
 
 interface LoginSagaPayloadType extends SagaPayloadType {
   payload: AuthLoginActionPayloadType;
@@ -35,10 +36,12 @@ function* loginSaga(data: LoginSagaPayloadType): any {
           username: response?.result?.data?.username,
         });
       }
+      toastService.showSuccess('Logged In successfully');
       yield put(authLoginCompletedAction(response?.result?.data));
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
     }
   } catch (e: any) {
+    toastService.showError(`${e?.response?.data?.error?.message}`);
     yield put(
       authLoginErrorAction(e?.response?.data?.error?.code || e?.message)
     );
@@ -83,9 +86,11 @@ function* logoutSaga(): any {
       yield put(navigateTo('/login'));
       yield put(authLogoutCompletedAction());
       Sentry.setUser(null);
+      toastService.showSuccess('Logged out successfully');
     }
   } catch (e: any) {
     localStorageService.removeCSRFToken();
+    toastService.showError(`${e?.message}`);
     yield put(authFetchMeErrorAction(e?.message));
   }
 }
