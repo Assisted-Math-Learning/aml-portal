@@ -25,7 +25,13 @@ Sentry.init({
   tracesSampleRate: 1.0,
   environment: ENV_CONFIG.APP_ENV,
 });
-console.log('ENV', ENV_CONFIG.APP_ENV, ENV_CONFIG.VITE_SENTRY_DSN);
+console.log(
+  'ENV 2',
+  process?.env,
+  import.meta?.env,
+  process?.env?.VITE_SENTRY_DSN,
+  ENV_CONFIG
+);
 const App: React.FC = () => (
   <Provider store={store}>
     <ErrorBoundary
