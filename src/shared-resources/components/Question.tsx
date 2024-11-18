@@ -240,14 +240,14 @@ const Question = forwardRef(
     });
 
     const handleSetFieldValue = (
-      activeField: keyof FormValues,
+      _activeField: keyof FormValues,
       value?: string
     ) => {
-      const activeFieldPath = activeField.split('.'); // example: if activeField is 'topAnswers.0, then fullActiveFieldPath is 'topAnswers[0]'
+      const activeFieldPath = _activeField.split('.'); // example: if _activeField is 'topAnswers.0, then fullActiveFieldPath is 'topAnswers[0]'
       const fullActiveFieldPath =
         `${activeFieldPath?.[0]}` + '[' + `${[activeFieldPath?.[1]]}` + ']'; // eslint-disable-line no-useless-concat
       if (activeFieldPath.length === 1)
-        formik.setFieldValue(activeField, value);
+        formik.setFieldValue(_activeField, value);
       else formik.setFieldValue(fullActiveFieldPath, value);
     };
 
