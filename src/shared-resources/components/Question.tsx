@@ -33,6 +33,8 @@ interface QuestionProps {
   };
   onSubmit: (gridData: any) => void;
   onValidityChange: (validity: boolean) => void;
+  keyPressed?: string;
+  backSpacePressed?: boolean;
 }
 
 interface FormValues {
@@ -48,13 +50,26 @@ interface FormValues {
 
 // Using forwardRef to forward refs to the parent component
 const Question = forwardRef(
-  ({ question, onSubmit, onValidityChange }: QuestionProps, ref) => {
+  (
+    {
+      question,
+      onSubmit,
+      onValidityChange,
+      keyPressed,
+      backSpacePressed,
+    }: QuestionProps,
+    ref
+  ) => {
     const { answers, numbers, questionImage } = question;
     const dispatch = useDispatch();
     const currentImageURL = useSelector(currentImageURLSelector);
     const [imgURL, setImageURL] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [imgLoading, setImageLoading] = useState<boolean>(true);
+    const [activeField, setActiveField] = useState<keyof FormValues | null>(
+      null
+    );
+
     const validationSchema = Yup.object({
       topAnswer: Yup.array()
         .of(
@@ -219,9 +234,30 @@ const Question = forwardRef(
           });
         }
         // Reset the form
+        setActiveField(null);
         formik.resetForm();
       },
     });
+
+    const handleSetFieldValue = (
+      activeField: keyof FormValues,
+      value?: string
+    ) => {
+      const activeFieldPath = activeField.split('.'); // example: if activeField is 'topAnswers.0, then fullActiveFieldPath is 'topAnswers[0]'
+      const fullActiveFieldPath =
+        `${activeFieldPath?.[0]}` + '[' + `${[activeFieldPath?.[1]]}` + ']'; // eslint-disable-line no-useless-concat
+      if (activeFieldPath.length === 1)
+        formik.setFieldValue(activeField, value);
+      else formik.setFieldValue(fullActiveFieldPath, value);
+    };
+
+    useEffect(() => {
+      if (activeField) {
+        if (keyPressed !== '' || backSpacePressed) {
+          handleSetFieldValue(activeField, keyPressed);
+        }
+      }
+    }, [keyPressed, backSpacePressed]);
 
     // Expose the submitForm method to the parent component
     useImperativeHandle(ref, () => ({
@@ -296,6 +332,11 @@ const Question = forwardRef(
                       <input
                         type='text'
                         name={`topAnswer.${index}`}
+                        onFocus={() =>
+                          setActiveField(
+                            `topAnswer.${index}` as keyof FormValues
+                          )
+                        }
                         autoComplete='off'
                         value={char === 'B' ? '' : char} // If 'B', keep input empty
                         onChange={formik.handleChange}
@@ -333,7 +374,7 @@ const Question = forwardRef(
             )}
             {/* Numbers */}
             <div className='flex flex-col space-y-2 self-end'>
-              {Object.keys(numbers).map((key, idx) => (
+              {Object.keys(numbers).map((key) => (
                 <div key={key} className='flex justify-end space-x-2'>
                   {numbers[key].split('').map((digit, index) => (
                     <div
@@ -360,6 +401,11 @@ const Question = forwardRef(
                   <input
                     type='text'
                     name={`resultAnswer.${index}`}
+                    onFocus={() =>
+                      setActiveField(
+                        `resultAnswer.${index}` as keyof FormValues
+                      )
+                    }
                     autoComplete='off'
                     value={formik.values?.resultAnswer?.[index]}
                     onChange={formik.handleChange}
@@ -424,6 +470,11 @@ const Question = forwardRef(
                       key={`row1-${index}`}
                       type='text'
                       name={`row1Answers.${index}`}
+                      onFocus={() =>
+                        setActiveField(
+                          `row1Answers.${index}` as keyof FormValues
+                        )
+                      }
                       autoComplete='off'
                       value={formik.values?.row1Answers?.[index]}
                       onChange={formik.handleChange}
@@ -465,6 +516,11 @@ const Question = forwardRef(
                       key={`row2-${index}`}
                       type='text'
                       name={`row2Answers.${index}`}
+                      onFocus={() =>
+                        setActiveField(
+                          `row2Answers.${index}` as keyof FormValues
+                        )
+                      }
                       value={formik.values?.row2Answers?.[index]}
                       onChange={formik.handleChange}
                       autoComplete='off'
@@ -504,6 +560,7 @@ const Question = forwardRef(
               <input
                 type='text'
                 name='fibAnswer'
+                onFocus={() => setActiveField(`fibAnswer`)}
                 autoComplete='off'
                 value={formik.values.fibAnswer}
                 onChange={formik.handleChange}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FocusEventHandler } from 'react';
 import MatButton from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import cx from 'classnames';
@@ -10,6 +10,7 @@ interface Props {
   children?: React.ReactNode;
   disabled?: boolean;
   tooltipMessage?: string; // Tooltip message as a prop
+  onBlur?: FocusEventHandler<HTMLButtonElement>;
 }
 
 const Button: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const Button: React.FC<Props> = ({
   onClick,
   disabled,
   tooltipMessage, // Tooltip message from props
+  onBlur,
 }) => {
   const button = (
     <MatButton
@@ -32,6 +34,7 @@ const Button: React.FC<Props> = ({
       variant='contained'
       disabled={disabled}
       disableRipple
+      onBlur={onBlur}
     >
       {children}
     </MatButton>

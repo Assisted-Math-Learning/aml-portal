@@ -1,3 +1,4 @@
+import { QuestionType } from 'models/enums/QuestionType.enum';
 import { SkillType } from 'models/enums/skillType.enum';
 
 export interface QuestionSet {
@@ -61,6 +62,7 @@ export interface Question {
   identifier: string;
   benchmark_time: number;
   question_type: string;
+  questionType?: QuestionType;
   operation: string;
   name: Description;
   description: Description;

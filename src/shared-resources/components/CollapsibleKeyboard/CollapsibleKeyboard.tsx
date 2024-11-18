@@ -9,7 +9,7 @@ import { KEYBOARD_KEYS } from '../../../constant/constants';
 
 type Props = {
   onKeyClick?: (key: string) => void;
-  onBackSpaceClick?: () => void;
+  onBackSpaceClick?: (bool: boolean) => void;
 };
 
 const CollapsibleKeyboard: React.FC<Props> = ({
@@ -23,7 +23,11 @@ const CollapsibleKeyboard: React.FC<Props> = ({
   const keyboardKeys = useMemo(
     () =>
       KEYBOARD_KEYS.map((key) => (
-        <KeyboardButton key={key} onClick={() => onKeyClick?.(key)}>
+        <KeyboardButton
+          key={key}
+          onClick={() => onKeyClick?.(key)}
+          onBlur={() => onKeyClick?.('')}
+        >
           {key}
         </KeyboardButton>
       )),
@@ -55,7 +59,10 @@ const CollapsibleKeyboard: React.FC<Props> = ({
       >
         <div className='grid grid-cols-3 gap-2.5'>
           {keyboardKeys}
-          <KeyboardButton onClick={() => onBackSpaceClick?.()}>
+          <KeyboardButton
+            onClick={() => onBackSpaceClick?.(true)}
+            onBlur={() => onBackSpaceClick?.(false)}
+          >
             <BackspaceOutlinedIcon className='text-[#49454F] !text-4xl' />
           </KeyboardButton>
         </div>

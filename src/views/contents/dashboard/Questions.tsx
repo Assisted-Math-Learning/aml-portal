@@ -38,6 +38,8 @@ const Questions: React.FC = () => {
   const dispatch = useDispatch();
   const questionRef = useRef<{ submitForm: () => void } | null>(null);
   const { width, height } = useWindowSize();
+  const [keyPressed, setKeyPressed] = useState<string>();
+  const [backSpacePressed, setBackSpacePressed] = useState<boolean>();
 
   useEffect(() => {
     const makeInitialDecisions = async () => {
@@ -213,6 +215,14 @@ const Questions: React.FC = () => {
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  const handleKeyClick = (key: string) => {
+    setKeyPressed(key);
+  };
+
+  const handleBackSpaceClick = (clicked: any) => {
+    setBackSpacePressed(clicked);
+  };
+
   return (
     <>
       {isCompleted && <Confetti width={width} height={height} />}
@@ -242,6 +252,8 @@ const Questions: React.FC = () => {
                 question={questions[currentQuestionIndex]}
                 onSubmit={(gridData) => handleQuestionSubmit(gridData)}
                 onValidityChange={(value: boolean) => setIsFormValid(value)}
+                keyPressed={keyPressed}
+                backSpacePressed={backSpacePressed}
               />
             ) : (
               ''
@@ -260,6 +272,10 @@ const Questions: React.FC = () => {
             ? 'Select one option to continue'
             : 'Fill in all the empty blanks to continue'
         }
+        onKeyClick={handleKeyClick}
+        onBackSpaceClick={handleBackSpaceClick}
+        currentQuestion={currentQuestion}
+        noKeyboard={isCompleted}
       />
     </>
   );

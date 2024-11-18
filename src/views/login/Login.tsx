@@ -46,8 +46,8 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className='flex flex-col h-full'>
-      <p className='md:w-[65%] md:text-center text-3xl md:text-4xl font-semibold text-headingTextColor pl-8 pt-6 pb-4'>
+    <div className='flex flex-col h-full pl-20 pr-20'>
+      <p className='md:w-[65%] md:text-start text-3xl md:text-4xl font-semibold text-headingTextColor pt-6 pb-4'>
         Welcome to Assisted Math Learning
       </p>
 
@@ -81,9 +81,9 @@ const Login: React.FC = () => {
           }, [formikProps.isValid]);
           return (
             <Form className='h-full'>
-              <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-center p-6 overflow-y-auto md:h-[80%] max-h-full'>
+              <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between p-6 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
                 {/* Input container */}
-                <div className='w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center md:ml-6'>
+                <div className='w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
                   {/* Title */}
                   <p className='text-2xl md:text-3xl font-semibold text-headingTextColor py-2 text-center'>
                     LOGIN
