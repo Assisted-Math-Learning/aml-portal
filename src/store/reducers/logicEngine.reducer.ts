@@ -8,7 +8,7 @@ export interface LogicEngineState {
 }
 
 const initialState: LogicEngineState = {
-  loading: undefined,
+  loading: false,
 };
 export const logicEngineReducer: Reducer<LogicEngineState> = (
   // eslint-disable-next-line @typescript-eslint/default-param-last
