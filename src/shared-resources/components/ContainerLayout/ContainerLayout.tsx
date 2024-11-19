@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 import React from 'react';
 import Button from 'shared-resources/components/Button/Button';
 import { webRoutes } from 'utils/constants/webRoutes.constants';
@@ -50,7 +51,10 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
               />
             </div>
           )}
-        <div className='w-full md:w-auto mt-8 mb-10 md:mt-0 flex justify-center'>
+        <div
+          tabIndex={0}
+          className='w-full md:w-auto mt-8 mb-10 md:mt-0 flex justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
+        >
           <Button
             type='button'
             onClick={onButtonClick}

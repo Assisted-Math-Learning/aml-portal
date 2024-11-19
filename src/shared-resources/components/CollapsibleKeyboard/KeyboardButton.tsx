@@ -13,6 +13,7 @@ const KeyboardButton: React.FC<Props> = ({ children, onClick, onBlur }) => (
     className='keyboard-button !h-[75px] !w-[70px] !border-none !bg-white !text-black !text-4xl font-semibold !font-quicksand'
     onClick={onClick}
     onBlur={onBlur}
+    tabIndex={-1}
   >
     {children}
   </Button>

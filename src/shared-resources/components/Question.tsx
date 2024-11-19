@@ -1,4 +1,4 @@
-/* eslint-disable func-names, react/no-this-in-sfc,  no-unsafe-optional-chaining, no-lonely-if */
+/* eslint-disable func-names, react/no-this-in-sfc,  no-unsafe-optional-chaining, no-lonely-if, jsx-a11y/no-autofocus */
 import React, {
   forwardRef,
   useEffect,
@@ -163,8 +163,11 @@ const Question = forwardRef(
           'Answer is required for Fill in the Blank',
           function (value) {
             const { questionType } = this.parent; // Access parent context
+            if (value === '.') {
+              return false; // Invalid if only a period
+            }
             if (questionType === QuestionType.FIB) {
-              return !!value; // Return true if value is provided
+              return !!value; // Return true if value is provided (not null or empty)
             }
             return true; // Skip validation if not 'fib'
           }
@@ -434,6 +437,7 @@ const Question = forwardRef(
                         `resultAnswer.${index}` as keyof FormValues
                       )
                     }
+                    autoFocus
                     autoComplete='off'
                     value={formik.values?.resultAnswer?.[index]}
                     onChange={formik.handleChange}
@@ -551,6 +555,7 @@ const Question = forwardRef(
                       }
                       value={formik.values?.row2Answers?.[index]}
                       onChange={formik.handleChange}
+                      autoFocus
                       autoComplete='off'
                       maxLength={1}
                       className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
@@ -589,6 +594,7 @@ const Question = forwardRef(
                 type='text'
                 name='fibAnswer'
                 onFocus={() => setActiveField(`fibAnswer`)}
+                autoFocus
                 autoComplete='off'
                 value={formik.values.fibAnswer}
                 onChange={formik.handleChange}

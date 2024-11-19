@@ -11,6 +11,7 @@ interface Props {
   disabled?: boolean;
   tooltipMessage?: string; // Tooltip message as a prop
   onBlur?: FocusEventHandler<HTMLButtonElement>;
+  tabIndex?: number;
 }
 
 const Button: React.FC<Props> = ({
@@ -21,6 +22,7 @@ const Button: React.FC<Props> = ({
   disabled,
   tooltipMessage, // Tooltip message from props
   onBlur,
+  tabIndex,
 }) => {
   const button = (
     <MatButton
@@ -35,6 +37,7 @@ const Button: React.FC<Props> = ({
       disabled={disabled}
       disableRipple
       onBlur={onBlur}
+      tabIndex={tabIndex}
     >
       {children}
     </MatButton>

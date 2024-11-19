@@ -44,6 +44,7 @@ const CollapsibleKeyboard: React.FC<Props> = ({
         })}
         disableRipple
         onClick={toggleExpanded}
+        tabIndex={-1}
       >
         <KeyboardClosedStateIcon />
       </IconButton>
@@ -71,6 +72,7 @@ const CollapsibleKeyboard: React.FC<Props> = ({
           className={cx('!p-0 h-fit')}
           disableRipple
           onClick={toggleExpanded}
+          tabIndex={-1}
         >
           <PlayArrowRoundedIcon className='!h-16 !w-16 !text-keyboardButtonActiveBg' />
         </IconButton>
