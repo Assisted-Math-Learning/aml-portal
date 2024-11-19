@@ -41,8 +41,14 @@ const Questions: React.FC = () => {
   const questionRef = useRef<{ submitForm: () => void } | null>(null);
   const { width, height } = useWindowSize();
   const isLogicEngineLoading = useSelector(islogicEngineLoadingSelector);
-  const [keyPressed, setKeyPressed] = useState<string>();
-  const [backSpacePressed, setBackSpacePressed] = useState<boolean>();
+  const [keyPressed, setKeyPressed] = useState<{
+    key: string;
+    counter: number;
+  }>({ key: '', counter: 0 });
+  const [backSpacePressed, setBackSpacePressed] = useState<{
+    isBackSpaced: boolean;
+    counter: number;
+  }>({ isBackSpaced: false, counter: 0 });
 
   useEffect(() => {
     const makeInitialDecisions = async () => {
@@ -84,6 +90,22 @@ const Questions: React.FC = () => {
 
     makeInitialDecisions();
   }, [questionSet, learnerJourney, learnerId]);
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (questionRef.current && isFormValid) {
+        questionRef.current.submitForm();
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFormValid]);
 
   useEffect(() => {
     const syncData = () => {
@@ -226,11 +248,14 @@ const Questions: React.FC = () => {
     );
 
   const handleKeyClick = (key: string) => {
-    setKeyPressed(key);
+    setKeyPressed((prev) => ({ key, counter: prev.counter + 1 }));
   };
 
   const handleBackSpaceClick = (clicked: any) => {
-    setBackSpacePressed(clicked);
+    setBackSpacePressed((prev) => ({
+      isBackSpaced: clicked,
+      counter: prev.counter + 1,
+    }));
   };
 
   return (

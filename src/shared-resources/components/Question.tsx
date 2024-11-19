@@ -1,4 +1,4 @@
-/* eslint-disable func-names, react/no-this-in-sfc,  no-unsafe-optional-chaining */
+/* eslint-disable func-names, react/no-this-in-sfc,  no-unsafe-optional-chaining, no-lonely-if */
 import React, {
   forwardRef,
   useEffect,
@@ -33,8 +33,14 @@ interface QuestionProps {
   };
   onSubmit: (gridData: any) => void;
   onValidityChange: (validity: boolean) => void;
-  keyPressed?: string;
-  backSpacePressed?: boolean;
+  keyPressed?: {
+    key: string;
+    counter: number;
+  };
+  backSpacePressed?: {
+    isBackSpaced: boolean;
+    counter: number;
+  };
 }
 
 interface FormValues {
@@ -252,9 +258,31 @@ const Question = forwardRef(
     };
 
     useEffect(() => {
-      if (activeField) {
-        if (keyPressed !== '' || backSpacePressed) {
-          handleSetFieldValue(activeField, keyPressed);
+      if (
+        backSpacePressed &&
+        keyPressed &&
+        activeField &&
+        (backSpacePressed?.counter > 0 || keyPressed?.counter > 0)
+      ) {
+        if (keyPressed?.key !== '' || !!backSpacePressed?.isBackSpaced) {
+          if (question.questionType !== QuestionType.FIB) {
+            handleSetFieldValue(activeField, keyPressed?.key);
+          } else {
+            // FIB questions
+            if (backSpacePressed.isBackSpaced) {
+              // Handle backspace functionality
+              const updatedValue = String(
+                formik.values?.[activeField] || ''
+              ).slice(0, -1); // Remove the last character
+              handleSetFieldValue(activeField, updatedValue);
+            } else if (keyPressed?.key !== '') {
+              // Handle regular keypress
+              handleSetFieldValue(
+                activeField,
+                formik.values?.[activeField] + (keyPressed?.key || '')
+              );
+            }
+          }
         }
       }
     }, [keyPressed, backSpacePressed]);
