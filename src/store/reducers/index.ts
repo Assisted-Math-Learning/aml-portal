@@ -9,6 +9,7 @@ import { csrfTokenReducer } from './csrfToken.reducer';
 import { contentReducer } from './content.reducer';
 import { mediaReducer } from './media.reducer';
 import { syncResponseReducer } from './syncResponse.reducer';
+import { logicEngineReducer } from './logicEngine.reducer';
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -20,6 +21,7 @@ const appReducer = combineReducers({
   contentReducer,
   mediaReducer,
   syncResponseReducer,
+  logicEngineReducer,
 });
 
 export const rootReducer = (state: any, action: any) => {

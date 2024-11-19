@@ -14,7 +14,7 @@ export const syncFinalLearnerResponse = (
   questionSetId: string
 ) => ({
   type: SyncLearnerResponseActionType.SYNC_FINAL_LEARNER_RESPONSE,
-  payload: { learnerId, questionSetId },
+  payload: { learnerId, questionSetId, callLogicEngine: true },
 });
 
 export const syncLearnerResponseCompleted = () => ({

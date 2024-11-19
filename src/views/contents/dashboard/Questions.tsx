@@ -19,6 +19,8 @@ import {
   isIntermediateSyncInProgressSelector,
   isSyncInProgressSelector,
 } from 'store/selectors/syncResponseSelector';
+import { islogicEngineLoadingSelector } from 'store/selectors/logicEngine.selector';
+import Loader from 'shared-resources/components/Loader/Loader';
 import { indexedDBService } from '../../../services/IndexedDBService';
 import { IDBDataStatus } from '../../../types/enum';
 
@@ -38,6 +40,7 @@ const Questions: React.FC = () => {
   const dispatch = useDispatch();
   const questionRef = useRef<{ submitForm: () => void } | null>(null);
   const { width, height } = useWindowSize();
+  const isLogicEngineLoading = useSelector(islogicEngineLoadingSelector);
   const [keyPressed, setKeyPressed] = useState<string>();
   const [backSpacePressed, setBackSpacePressed] = useState<boolean>();
 
@@ -214,6 +217,13 @@ const Questions: React.FC = () => {
   };
 
   const currentQuestion = questions[currentQuestionIndex];
+
+  if (isSyncing || isLogicEngineLoading)
+    return (
+      <div className='flex justify-center items-center h-[80vh] '>
+        <Loader />
+      </div>
+    );
 
   const handleKeyClick = (key: string) => {
     setKeyPressed(key);

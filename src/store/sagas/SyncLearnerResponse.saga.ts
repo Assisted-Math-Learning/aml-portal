@@ -7,6 +7,7 @@ import {
 } from 'store/actions/syncLearnerResponse.action';
 import { syncLearnerResponseService } from 'services/api-services/syncLearnerResponse';
 import _ from 'lodash';
+import { fetchLogicEngineEvaluation } from 'store/actions/logicEngineEvaluation.action';
 import { IDBDataStatus } from '../../types/enum';
 import { indexedDBService } from '../../services/IndexedDBService';
 import { LearnerJourneyStatus } from '../../models/enums/learnerJourney.enum';
@@ -16,7 +17,8 @@ import { toastService } from '../../services/ToastService';
 function* SyncLearnerResponseSaga({
   payload,
 }: StoreAction<SyncLearnerResponseActionType>): any {
-  const { learnerId, questionSetId, logoutOnSuccess } = payload;
+  const { learnerId, questionSetId, logoutOnSuccess, callLogicEngine } =
+    payload;
   const criteria = {
     status: IDBDataStatus.NOOP,
     learner_id: learnerId,
@@ -59,6 +61,10 @@ function* SyncLearnerResponseSaga({
         questions_data: learnerResponseData,
       }
     );
+
+    if (callLogicEngine && learnerId) {
+      yield put(fetchLogicEngineEvaluation({ learnerId }));
+    }
 
     if (response?.responseCode === 'OK') {
       const learnerJourney = response?.result?.data;
