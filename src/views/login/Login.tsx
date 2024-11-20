@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import { fetchCSRFToken } from 'store/actions/csrfToken.action';
 import { localStorageService } from 'services/LocalStorageService';
 import { authErrorSelector } from 'store/selectors/auth.selector';
+import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import { authLoginAction } from '../../store/actions/auth.action';
 import FormikInput from '../../shared-resources/components/Input/FormikInput';
 import Button from '../../shared-resources/components/Button/Button';
@@ -65,20 +66,12 @@ const Login: React.FC = () => {
           const areFieldsFilled =
             !!formikProps.values.username && !!formikProps.values.password;
           const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              formikProps.handleSubmit();
-            }
+            event.preventDefault();
+            formikProps.handleSubmit();
           };
 
-          useEffect(() => {
-            // Adding global keydown listener
-            window.addEventListener('keydown', handleKeyDown);
-            return () => {
-              // Cleaning up event listener on component unmount
-              window.removeEventListener('keydown', handleKeyDown);
-            };
-          }, [formikProps.isValid]);
+          useEnterKeyHandler(handleKeyDown, [formikProps.isValid]);
+
           return (
             <Form className='h-full'>
               <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between p-6 pl-0 overflow-y-auto md:h-[80%] max-h-full'>

@@ -12,16 +12,15 @@ import {
   mediaSelector,
 } from 'store/selectors/media.selector';
 import { questionsSetSelector } from 'store/selectors/questionSet.selector';
+import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 
 const Instructions: React.FC = () => {
   const navigate = useNavigate();
   // const videoUrls = useSelector(videoUrlsSelector); // Get video URLs from Redux
 
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
   const questionSet = useSelector(questionsSetSelector);
   const mediaLoading = useSelector(isMediaLoadingSelector);
-  const [isMediaLoading, setisMediaLoading] = useState<boolean>(false);
   const contentMediaSelector = useSelector(mediaSelector);
   const [mediaURLs, setMediaURLs] = useState<string[]>([]);
   const [hasWatchedEnough, setHasWatchedEnough] = useState(false);
@@ -54,12 +53,11 @@ const Instructions: React.FC = () => {
   };
 
   const handleStartClick = () => {
-    navigate('/questions');
+    if (hasWatchedEnough) {
+      navigate('/questions');
+    }
   };
-
-  useEffect(() => {
-    setisMediaLoading(mediaLoading);
-  }, [mediaLoading]);
+  useEnterKeyHandler(handleStartClick);
 
   return (
     <>
@@ -80,7 +78,6 @@ const Instructions: React.FC = () => {
                 <div className='flex-1 h-full'>
                   <ReactPlayer
                     url={mediaURLs[currentVideoIndex]}
-                    playing={isPlaying}
                     controls
                     width='100%'
                     height='100%'

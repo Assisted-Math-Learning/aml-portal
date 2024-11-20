@@ -1,3 +1,4 @@
+import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,8 @@ const ContinueJourney: React.FC = () => {
   const handleResumeClick = () => {
     navigate('/questions');
   };
+
+  useEnterKeyHandler(handleResumeClick);
 
   return (
     <ContainerLayout

@@ -21,6 +21,7 @@ import {
 } from 'store/selectors/syncResponseSelector';
 import { islogicEngineLoadingSelector } from 'store/selectors/logicEngine.selector';
 import Loader from 'shared-resources/components/Loader/Loader';
+import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import { indexedDBService } from '../../../services/IndexedDBService';
 import { IDBDataStatus } from '../../../types/enum';
 
@@ -90,22 +91,6 @@ const Questions: React.FC = () => {
 
     makeInitialDecisions();
   }, [questionSet, learnerJourney, learnerId]);
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      if (questionRef.current && isFormValid) {
-        questionRef.current.submitForm();
-      }
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFormValid]);
 
   useEffect(() => {
     const syncData = () => {
@@ -239,7 +224,17 @@ const Questions: React.FC = () => {
   };
 
   const currentQuestion = questions[currentQuestionIndex];
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (isCompleted) {
+      handleNextClick();
+    }
+    if (questionRef.current && isFormValid) {
+      questionRef.current.submitForm();
+    }
+    event.preventDefault();
+  };
 
+  useEnterKeyHandler(handleKeyDown, [isFormValid, isCompleted]);
   if (isSyncing || isLogicEngineLoading)
     return (
       <div className='flex justify-center items-center h-[80vh] '>

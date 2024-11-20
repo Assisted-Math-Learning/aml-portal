@@ -1,3 +1,4 @@
+import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +20,8 @@ const Welcome: React.FC = () => {
   const handleStartClick = () => {
     navigate('/instructions'); // Redirect to instructions
   };
+
+  useEnterKeyHandler(handleStartClick);
 
   return (
     <ContainerLayout
