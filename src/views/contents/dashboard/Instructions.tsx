@@ -53,10 +53,11 @@ const Instructions: React.FC = () => {
   };
 
   const handleStartClick = () => {
-    if (hasWatchedEnough) {
+    if (!mediaURLs.length || (mediaURLs && hasWatchedEnough)) {
       navigate('/questions');
     }
   };
+
   useEnterKeyHandler(handleStartClick);
 
   return (
@@ -78,6 +79,7 @@ const Instructions: React.FC = () => {
                 <div className='flex-1 h-full'>
                   <ReactPlayer
                     url={mediaURLs[currentVideoIndex]}
+                    playing
                     controls
                     width='100%'
                     height='100%'
