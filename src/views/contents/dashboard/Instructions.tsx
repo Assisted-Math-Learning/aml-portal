@@ -53,7 +53,7 @@ const Instructions: React.FC = () => {
   };
 
   const handleStartClick = () => {
-    if (!mediaURLs.length || (mediaURLs && hasWatchedEnough)) {
+    if (!mediaURLs.length || (!!mediaURLs.length && hasWatchedEnough)) {
       navigate('/questions');
     }
   };
