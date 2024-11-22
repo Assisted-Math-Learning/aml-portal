@@ -63,10 +63,12 @@ const Instructions: React.FC = () => {
   return (
     <>
       {mediaURLs.length ? (
-        <div className='flex flex-col'>
+        <div className='flex flex-col h-full pl-20 pr-20'>
           <QuestionHeader HeaderText='Instructions' />
-          <div className='flex md:gap-[85px] items-end flex-col md:flex-row'>
-            <div className='md:w-[962px] h-[250px] sm:h-[350px] md:h-[450px] max-h-[480px] md:ml-[60px] mt-[61px] flex items-center justify-center'>
+          <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between p-6 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
+            {/* Input container */}
+            <div className='w-full h-full md:w-[65%] mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
+              {' '}
               <div className='flex items-center justify-between w-full h-full'>
                 <button
                   className='text-gray-600 hover:text-gray-800 disabled:opacity-50'

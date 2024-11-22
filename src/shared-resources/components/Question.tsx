@@ -11,6 +11,11 @@ import { QuestionType } from 'models/enums/QuestionType.enum';
 import { fetchQuestionImage } from 'store/actions/media.action';
 import { useDispatch, useSelector } from 'react-redux';
 import { currentImageURLSelector } from 'store/selectors/media.selector';
+import cx from 'classnames';
+import {
+  ArithmaticOperations,
+  operationMap,
+} from 'models/enums/ArithmaticOperations.enum';
 import ToggleButtonGroup from './ToggleButtonGroup/ToggleButtonGroup';
 import Loader from './Loader/Loader';
 
@@ -29,6 +34,7 @@ interface QuestionProps {
     questionId: string;
     options?: string[];
     name?: { en: string };
+    operation: ArithmaticOperations;
     questionImage?: string;
   };
   onSubmit: (gridData: any) => void;
@@ -86,7 +92,9 @@ const Question = forwardRef(
               if (!answers?.isPrefil) {
                 return true; // Skip validation if isPrefill is false
               }
-              return /^\d$/.test(value) || value === '#'; // Valid when it's a digit or #
+              return question.operation === ArithmaticOperations.SUBTRACTION
+                ? /^\d{1,2}$|^#$/.test(value)
+                : /^\d$/.test(value) || value === '#'; // Valid when it's a digit or #
             }
           )
         )
@@ -202,9 +210,14 @@ const Question = forwardRef(
 
     const formik = useFormik<FormValues>({
       initialValues: {
-        topAnswer: answers?.answerTop
-          ?.split('')
-          ?.map((val) => (val === 'B' ? '' : val)),
+        topAnswer:
+          question.operation === ArithmaticOperations.SUBTRACTION
+            ? answers?.answerTop
+                ?.split('|') // Spliting for subtraction
+                ?.map((val) => (val === 'B' ? '' : val)) // Handling blank input
+            : answers?.answerTop
+                ?.split('')
+                ?.map((val) => (val === 'B' ? '' : val)),
         resultAnswer: answers?.answerResult
           ?.split('')
           ?.map((val) => (val === 'B' ? '' : val)),
@@ -224,6 +237,7 @@ const Question = forwardRef(
             questionId: question.questionId,
             topAnswer: values.topAnswer,
             resultAnswer: values.resultAnswer,
+            operation: question.operation,
           });
         } else if (question.questionType === QuestionType.GRID_2) {
           onSubmit({
@@ -369,10 +383,21 @@ const Question = forwardRef(
                           )
                         }
                         autoComplete='off'
-                        value={char === 'B' ? '' : char} // If 'B', keep input empty
+                        value={char}
                         onChange={formik.handleChange}
-                        maxLength={1}
-                        className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                        maxLength={
+                          question.operation ===
+                          ArithmaticOperations.SUBTRACTION
+                            ? 2
+                            : 1
+                        } // Allow multiple digits for subtraction
+                        className={cx(
+                          'border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold  focus:outline-none focus:border-primary',
+                          question.operation ===
+                            ArithmaticOperations.SUBTRACTION
+                            ? 'text-[24px]'
+                            : 'text-[36px]'
+                        )}
                         onKeyPress={(e) => {
                           if (!/[0-9]/.test(e.key)) e.preventDefault(); // Only allow numbers
                         }}
@@ -383,10 +408,14 @@ const Question = forwardRef(
                           }
                         }}
                         disabled={
-                          (answers.answerTop[index] || '') !== '' &&
-                          (answers.answerTop[index] || '') !== 'B' &&
-                          char === (answers.answerTop[index] || '')
-                        } // Disable if it matches the initial value
+                          ((answers.answerTop[index] || '') !== '' &&
+                            (answers.answerTop[index] || '') !== 'B' &&
+                            char === (answers.answerTop[index] || '')) ||
+                          (answers.answerTop.split('|')[index] !== '' &&
+                            answers.answerTop.split('|')[index] !== 'B' &&
+                            char === answers.answerTop.split('|')[index])
+                        }
+                        // Disable if it matches the initial value
                       />
                     )}
 
@@ -400,19 +429,30 @@ const Question = forwardRef(
                       )}
                   </div>
                 ))}
-                <div className='w-12 h-10 flex items-center justify-center font-bold text-[36px]' />
+                {question.operation === ArithmaticOperations.ADDITION && (
+                  <div className='w-12 h-10 flex items-center justify-center font-bold text-[36px]' />
+                )}
               </div>
             )}
             {/* Numbers */}
             <div className='flex flex-col space-y-2 self-end'>
-              {Object.keys(numbers).map((key) => (
+              {Object.keys(numbers).map((key, idx) => (
                 <div key={key} className='flex justify-end space-x-2'>
                   {numbers[key].split('').map((digit, index) => (
                     <div
                       key={index}
-                      className='w-[46px] h-10 flex items-center justify-center font-bold text-[36px]'
+                      className='w-[46px] h-10 flex items-center justify-center font-bold text-[36px] relative'
                     >
                       {digit}
+                      {question.operation ===
+                        ArithmaticOperations.SUBTRACTION &&
+                        !!answers.isPrefil &&
+                        idx === 0 &&
+                        formik.values.topAnswer?.[index] !== '#' && (
+                          <div className='absolute inset-0'>
+                            <div className='absolute w-full h-0 border-t-4 border-dotted border-red-700 rotate-45 top-1/2 -translate-y-1/2' />
+                          </div>
+                        )}
                     </div>
                   ))}
                 </div>
@@ -421,7 +461,9 @@ const Question = forwardRef(
 
             {/* Separator */}
             <div className='w-full relative'>
-              <span className='absolute bottom-4 left-4'>+</span>
+              <span className='absolute bottom-4 left-4'>
+                {operationMap[question.operation]}
+              </span>
               <hr className='w-full text-black border border-black' />
             </div>
             {/* Result answer inputs */}
@@ -537,7 +579,7 @@ const Question = forwardRef(
               {/* Row 2 Inputs */}
               <div className='flex'>
                 <div className='w-[75px] border border-gray-900 p-4 flex items-center justify-center font-bold text-[36px]'>
-                  +
+                  {operationMap[question.operation]}
                 </div>
                 {formik.values?.row2Answers?.map((value, index) => (
                   <div
@@ -587,7 +629,10 @@ const Question = forwardRef(
         {question.questionType === QuestionType.FIB && (
           <div className='flex flex-row items-center justify-center relative'>
             <p className='text-4xl flex flex-row font-semibold text-headingTextColor ml-[60px] pt-[23px] pb-[22px] px-[7px]'>
-              {Object.values(question?.numbers || {}).join(' + ')}=
+              {Object.values(question?.numbers || {}).join(
+                operationMap[question.operation]
+              )}
+              =
             </p>
             <div className='flex flex-col space-y-2 w-[236px]'>
               <input

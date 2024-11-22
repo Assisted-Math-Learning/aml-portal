@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { QuestionType } from 'models/enums/QuestionType.enum';
 
 type LearnerResponse = {
@@ -27,8 +28,14 @@ export function getUserInitials(name: string): string {
 
 export const transformQuestions = (apiQuestions: any): any =>
   apiQuestions.map((apiQuestion: any) => {
-    const { question_body, identifier, question_type, description, name } =
-      apiQuestion;
+    const {
+      question_body,
+      identifier,
+      question_type,
+      description,
+      name,
+      operation,
+    } = apiQuestion;
 
     // Construct answers only if present
     const answers = question_body?.answers
@@ -66,6 +73,7 @@ export const transformQuestions = (apiQuestions: any): any =>
       questionType: question_type, // Adding questionType from the API
       description, // Adding description from the API
       name,
+      operation,
       ...(answers && { answers }), // Include only if answers exist
       ...(numbers && { numbers }), // Include only if numbers exist
       ...(options && { options }), // Include only if it's an MCQ question
@@ -77,7 +85,7 @@ export function convertSingleResponseToLearnerResponse(
   item: any,
   questionSetId: string
 ): QuestionData {
-  const { questionId, start_time, end_time, answers } = item;
+  const { questionId, start_time, end_time, answers, operation } = item;
 
   let result = '';
   let answer_top = '';
@@ -93,11 +101,13 @@ export function convertSingleResponseToLearnerResponse(
   }
 
   if (answers?.topAnswer) {
-    answer_top = answers.topAnswer.join('');
+    answer_top =
+      operation === ArithmaticOperations.SUBTRACTION
+        ? answers.topAnswer.join('|')
+        : answers.topAnswer.join('');
   } else if (answers?.row1Answers) {
     answer_top = answers.row1Answers.join('');
   }
-
   // Build the learner response
   const learner_response: LearnerResponse = { result };
   if (answer_top) {

@@ -22,6 +22,8 @@ import {
 import { islogicEngineLoadingSelector } from 'store/selectors/logicEngine.selector';
 import Loader from 'shared-resources/components/Loader/Loader';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
+import _ from 'lodash';
+import { operationMap } from 'models/enums/ArithmaticOperations.enum';
 import { indexedDBService } from '../../../services/IndexedDBService';
 import { IDBDataStatus } from '../../../types/enum';
 
@@ -164,32 +166,27 @@ const Questions: React.FC = () => {
   const handleQuestionSubmit = async (gridData: any) => {
     const currentTime = new Date().toISOString();
     const newAnswer = {
-      topAnswer: gridData.topAnswer,
-      resultAnswer: gridData.resultAnswer,
-      row1Answers: gridData?.row1Answers,
-      row2Answers: gridData?.row2Answers,
-      fibAnswer: gridData?.fibAnswer,
-      mcqAnswer: gridData?.mcqAnswer,
-      questionId: gridData.questionId,
+      ...gridData,
       start_time: currentQuestionIndex === 0 ? currentTime : '',
       end_time:
         currentQuestionIndex === questions.length - 1 ? currentTime : '',
     };
-
     const filteredAnswer = {
       questionId: newAnswer.questionId,
       start_time: newAnswer.start_time,
       end_time: newAnswer.end_time,
-      answers: Object.fromEntries(
-        Object.entries({
+      answers: _.omitBy(
+        {
           topAnswer: newAnswer.topAnswer,
           resultAnswer: newAnswer.resultAnswer,
-          row1Answers: newAnswer?.row1Answers,
-          row2Answers: newAnswer?.row2Answers,
-          fibAnswer: newAnswer?.fibAnswer,
-          mcqAnswer: newAnswer?.mcqAnswer,
-        }).filter(([, value]) => value !== undefined)
+          row1Answers: newAnswer.row1Answers,
+          row2Answers: newAnswer.row2Answers,
+          fibAnswer: newAnswer.fibAnswer,
+          mcqAnswer: newAnswer.mcqAnswer,
+        },
+        _.isUndefined
       ),
+      operation: newAnswer?.operation,
     };
 
     const transformedAnswer = convertSingleResponseToLearnerResponse(
@@ -266,7 +263,9 @@ const Questions: React.FC = () => {
                 questions[currentQuestionIndex]?.description?.en
               }: ${Object.values(
                 questions?.[currentQuestionIndex]?.numbers || {}
-              ).join(' + ')}`
+              ).join(
+                operationMap[questions?.[currentQuestionIndex].operation]
+              )}`
             : questions[currentQuestionIndex]?.description?.en || ''
         }
         content={
