@@ -9,12 +9,12 @@ type Props = {
 };
 
 const Header: React.FC<Props> = ({ learnerId, username }) => (
-  <div className='p-4 border-b-[1px] border-black flex justify-between'>
+  <div className='py-1 px-4 border-b-[1px] border-black flex justify-between'>
     <div className='flex gap-4 items-center'>
       <img
         src='/assets/logo.svg'
         alt='logo'
-        className='h-[68px] w-[68px] rounded-full'
+        className='h-[64px] w-[64px] rounded-full'
       />
       <p className='font-publicSans text-2xl'>
         AML v{ENV_CONFIG.APP_VERSION ?? '1.0.0'}

@@ -36,7 +36,7 @@ const ProfileWithMenu: React.FC<Props> = ({ onLogout, username }) => {
           disableRipple
           className='!p-0'
         >
-          <Avatar className='!h-[75px] !w-[75px] !bg-primary border-4 border-disabled'>
+          <Avatar className='!h-[68px] !w-[68px] !bg-primary border-4 border-disabled'>
             {getUserInitials(username || 'U')}
           </Avatar>
         </IconButton>

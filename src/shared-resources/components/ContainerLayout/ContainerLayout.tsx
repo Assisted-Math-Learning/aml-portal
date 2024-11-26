@@ -19,6 +19,7 @@ interface ContainerLayoutProps {
   onBackSpaceClick?: (bool: boolean) => void;
   currentQuestion?: Question;
   noKeyboard?: boolean;
+  attemptCount?: string;
 }
 
 const ContainerLayout: React.FC<ContainerLayoutProps> = ({
@@ -32,14 +33,18 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
   onBackSpaceClick,
   currentQuestion,
   noKeyboard,
+  attemptCount,
 }) => {
   const location = useLocation();
   return (
     <div className='flex flex-col h-full pl-20 pr-20'>
       <QuestionHeader HeaderText={headerText} />
-      <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between p-6 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
-        <div className='w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
+      <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between px-6 py-10 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
+        <div className='relative w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
           {content}
+          <span className='absolute left-[46%] bottom-[-34px] text-2xl font-semibold text-headingTextColor'>
+            {attemptCount || ''}
+          </span>
         </div>
         {location.pathname === webRoutes.questions.root() &&
           currentQuestion?.questionType !== QuestionType.MCQ &&

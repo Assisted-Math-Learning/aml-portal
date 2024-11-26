@@ -286,6 +286,9 @@ const Questions: React.FC = () => {
               )}`
             : questions[currentQuestionIndex]?.description?.en || ''
         }
+        attemptCount={
+          isCompleted ? '' : `${currentQuestionIndex + 1} / ${questions.length}`
+        }
         content={
           <div className='text-4xl font-semibold text-headingTextColor'>
             {isCompleted ? (
