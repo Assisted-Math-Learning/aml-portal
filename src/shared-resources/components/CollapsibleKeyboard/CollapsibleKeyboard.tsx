@@ -36,7 +36,11 @@ const CollapsibleKeyboard: React.FC<Props> = ({
   );
 
   return (
-    <div className='relative h-[379px] w-[389px] overflow-hidden'>
+    <div
+      className='relative h-[379px] w-[389px] overflow-hidden'
+      onMouseDown={(e) => e.preventDefault()}
+      role='presentation'
+    >
       <IconButton
         className={cx('!p-0 absolute top-1/2 -translate-y-1/2', {
           '!hidden': expanded,

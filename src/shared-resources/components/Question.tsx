@@ -275,31 +275,28 @@ const Question = forwardRef(
     };
 
     useEffect(() => {
+      if (!keyPressed || !backSpacePressed || !activeField) return;
+
+      const isKeyPressed = keyPressed.key !== '';
+      const { isBackSpaced } = backSpacePressed;
+
       if (
-        backSpacePressed &&
-        keyPressed &&
-        activeField &&
-        (backSpacePressed?.counter > 0 || keyPressed?.counter > 0)
+        (backSpacePressed.counter > 0 || keyPressed.counter > 0) &&
+        (isKeyPressed || isBackSpaced)
       ) {
-        if (keyPressed?.key !== '' || !!backSpacePressed?.isBackSpaced) {
-          if (question.questionType !== QuestionType.FIB) {
-            handleSetFieldValue(activeField, keyPressed?.key);
-          } else {
-            // FIB questions
-            if (backSpacePressed.isBackSpaced) {
-              // Handle backspace functionality
-              const updatedValue = String(
-                formik.values?.[activeField] || ''
-              ).slice(0, -1); // Remove the last character
-              handleSetFieldValue(activeField, updatedValue);
-            } else if (keyPressed?.key !== '') {
-              // Handle regular keypress
-              handleSetFieldValue(
-                activeField,
-                formik.values?.[activeField] + (keyPressed?.key || '')
-              );
-            }
-          }
+        let updatedValue = String(formik.values?.[activeField] || '');
+
+        if (isBackSpaced) {
+          updatedValue = updatedValue.slice(0, -1);
+        } else if (isKeyPressed) {
+          updatedValue += keyPressed.key;
+        }
+
+        handleSetFieldValue(activeField, updatedValue);
+        // Resetting backSpacePressed after handling it
+
+        if (isBackSpaced) {
+          backSpacePressed.isBackSpaced = false;
         }
       }
     }, [keyPressed, backSpacePressed]);
@@ -549,6 +546,7 @@ const Question = forwardRef(
                           `row1Answers.${index}` as keyof FormValues
                         )
                       }
+                      autoFocus={index === 0}
                       autoComplete='off'
                       value={formik.values?.row1Answers?.[index]}
                       onChange={formik.handleChange}
@@ -597,7 +595,6 @@ const Question = forwardRef(
                       }
                       value={formik.values?.row2Answers?.[index]}
                       onChange={formik.handleChange}
-                      autoFocus
                       autoComplete='off'
                       maxLength={1}
                       className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
