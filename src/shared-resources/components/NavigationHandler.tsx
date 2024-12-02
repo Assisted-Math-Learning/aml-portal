@@ -81,8 +81,13 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
   );
 
   useEffect(() => {
-    if (learnerId && questionSet) {
-      intervalRef.current = setTimeout(() => {
+    if (
+      learnerId &&
+      questionSet &&
+      !timeoutRef.current &&
+      !intervalRef.current
+    ) {
+      timeoutRef.current = setTimeout(() => {
         intervalRef.current = setInterval(syncLearnerResponseData, 120000);
         syncLearnerResponseData();
       }, 120000);
