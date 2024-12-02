@@ -180,6 +180,7 @@ const Questions: React.FC = () => {
       questionRef.current.submitForm();
     }
   };
+  const currentQuestion = questions[currentQuestionIndex];
 
   const handleQuestionSubmit = async (gridData: any) => {
     const currentTime = new Date().toISOString();
@@ -196,6 +197,7 @@ const Questions: React.FC = () => {
       answers: _.omitBy(
         {
           topAnswer: newAnswer.topAnswer,
+          answerIntermediate: newAnswer.answerIntermediate,
           resultAnswer: newAnswer.resultAnswer,
           row1Answers: newAnswer.row1Answers,
           row2Answers: newAnswer.row2Answers,
@@ -209,7 +211,8 @@ const Questions: React.FC = () => {
 
     const transformedAnswer = convertSingleResponseToLearnerResponse(
       filteredAnswer,
-      questionSet!.identifier
+      questionSet!.identifier,
+      currentQuestion.answers?.answerIntermediate
     );
 
     const criteria = {
@@ -238,7 +241,6 @@ const Questions: React.FC = () => {
     setCurrentQuestionIndex((prev) => prev + 1);
   };
 
-  const currentQuestion = questions[currentQuestionIndex];
   const handleKeyDown = (event: KeyboardEvent) => {
     if (isCompleted) {
       handleNextClick();

@@ -5,6 +5,7 @@ import { QuestionType } from 'models/enums/QuestionType.enum';
 type LearnerResponse = {
   result: string;
   answer_top?: string;
+  answerIntermediate?: string;
 };
 
 type QuestionData = {
@@ -52,6 +53,12 @@ export const transformQuestions = (apiQuestions: any): any =>
           ...(question_body.answers.answerResult !== undefined && {
             answerResult: question_body.answers.answerResult,
           }),
+          ...(question_body.answers.answerIntermediate !== undefined && {
+            answerIntermediate: question_body.answers.answerIntermediate,
+          }),
+          ...(question_body.answers.isIntermediatePrefill !== undefined && {
+            isIntermediatePrefill: question_body.answers.isIntermediatePrefill,
+          }),
         }
       : undefined;
 
@@ -81,14 +88,44 @@ export const transformQuestions = (apiQuestions: any): any =>
     };
   });
 
+function formatAnswerIntermediate(
+  flatArray: string[],
+  originalAnswerIntermediate: string
+): string {
+  const parts = originalAnswerIntermediate.split('#');
+  let flatArrayIndex = 0;
+  const updatedParts = parts.map((part) => {
+    const partLength = part.length;
+    const flatPart = flatArray.slice(
+      flatArrayIndex,
+      flatArrayIndex + partLength
+    );
+    flatArrayIndex += partLength;
+    const updatedPart = part
+      .split('')
+      .map((char, index) => {
+        if (char === 'B') {
+          return flatPart[index];
+        }
+        return char;
+      })
+      .join('');
+
+    return updatedPart;
+  });
+
+  return updatedParts.join('#');
+}
+
 export function convertSingleResponseToLearnerResponse(
   item: any,
-  questionSetId: string
+  questionSetId: string,
+  originalAnswerIntermediate?: string
 ): QuestionData {
   const { questionId, start_time, end_time, answers, operation } = item;
-
   let result = '';
   let answer_top = '';
+  let answerIntermediate = '';
 
   if (answers?.resultAnswer) {
     result = answers.resultAnswer.join('');
@@ -98,6 +135,13 @@ export function convertSingleResponseToLearnerResponse(
     result = answers.mcqAnswer;
   } else if (answers?.row2Answers) {
     result = answers.row2Answers.join('');
+  }
+
+  if (answers?.answerIntermediate && originalAnswerIntermediate) {
+    answerIntermediate = formatAnswerIntermediate(
+      answers.answerIntermediate,
+      originalAnswerIntermediate
+    );
   }
 
   if (answers?.topAnswer) {
@@ -114,6 +158,10 @@ export function convertSingleResponseToLearnerResponse(
     learner_response.answer_top = answer_top;
   }
 
+  if (answerIntermediate) {
+    learner_response.answerIntermediate = answerIntermediate;
+  }
+
   // Return the transformed question data
   return {
     question_id: questionId,
@@ -122,15 +170,6 @@ export function convertSingleResponseToLearnerResponse(
     question_set_id: questionSetId,
     learner_response,
   };
-}
-
-export function convertResponseToLearnerResponse(
-  response: any[],
-  questionSetId: string
-): QuestionData[] {
-  return response.map((item) =>
-    convertSingleResponseToLearnerResponse(item, questionSetId)
-  );
 }
 
 export function convertToCamelCase(input: {

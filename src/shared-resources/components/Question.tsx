@@ -26,6 +26,8 @@ interface QuestionProps {
       isPrefil: boolean;
       answerTop: string;
       answerResult: string;
+      answerIntermediate: string;
+      isIntermediatePrefill?: boolean;
     };
     numbers: {
       [key: string]: string;
@@ -58,6 +60,7 @@ interface FormValues {
   fibAnswer: string;
   mcqAnswer: string;
   questionId: string;
+  answerIntermediate: string[];
 }
 
 // Using forwardRef to forward refs to the parent component
@@ -114,7 +117,28 @@ const Question = forwardRef(
           }
           return value && value.length > 0; // Ensure the array has at least one valid entry
         }),
-
+      answerIntermediate: Yup.array()
+        .of(
+          Yup.string()
+            .required('Required')
+            .matches(/^\d$/, 'Must be a single digit')
+        )
+        .test(
+          'is-intermediate-required',
+          'Intermediate answer is required',
+          function (value) {
+            const { questionType, operation } = this.parent;
+            if (
+              questionType === 'Grid-1' &&
+              operation === 'Multiplication' &&
+              value
+            ) {
+              // Ensure all inputs are filled for Multiplication
+              return value.every((input) => input !== '');
+            }
+            return true; // Skip validation for other cases
+          }
+        ),
       resultAnswer: Yup.array()
         .of(
           Yup.string()
@@ -221,6 +245,11 @@ const Question = forwardRef(
         resultAnswer: answers?.answerResult
           ?.split('')
           ?.map((val) => (val === 'B' ? '' : val)),
+        answerIntermediate: answers?.answerIntermediate
+          ?.split('#') // Split into rows
+          .flatMap(
+            (row) => row.split('').map((val) => (val === 'B' ? '' : val)) // Map each character, ignoring `B`
+          ),
         row1Answers: Array(maxLength).fill(''),
         row2Answers: Array(maxLength).fill(''),
         questionType: question.questionType,
@@ -238,6 +267,7 @@ const Question = forwardRef(
             topAnswer: values.topAnswer,
             resultAnswer: values.resultAnswer,
             operation: question.operation,
+            answerIntermediate: values.answerIntermediate,
           });
         } else if (question.questionType === QuestionType.GRID_2) {
           onSubmit({
@@ -463,6 +493,71 @@ const Question = forwardRef(
               </span>
               <hr className='w-full text-black border border-black' />
             </div>
+
+            {/* Intermediate Inputs (Only for Multiplication) */}
+            {question.operation === ArithmaticOperations.MULTIPLICATION &&
+              answers?.isIntermediatePrefill && (
+                <div className='flex flex-col space-y-2 self-end'>
+                  {answers.answerIntermediate
+                    .split('#')
+                    .map((row, rowIndex) => (
+                      <div
+                        key={`row-${rowIndex}`}
+                        className='flex justify-end space-x-2'
+                      >
+                        {row.split('').map((char, index) => {
+                          // Calculate the flat index for the flattened structure
+                          const flatIndex =
+                            answers.answerIntermediate
+                              .split('#')
+                              .slice(0, rowIndex) // Get rows before the current row
+                              .reduce((acc, r) => acc + r.length, 0) + index; // Sum lengths + current index
+
+                          return (
+                            <input
+                              key={`intermediate-${rowIndex}-${index}`}
+                              type='text'
+                              name={`answerIntermediate.${flatIndex}`}
+                              onFocus={() =>
+                                setActiveField(
+                                  `answerIntermediate.${flatIndex}` as keyof FormValues
+                                )
+                              }
+                              value={
+                                formik.values.answerIntermediate[flatIndex]
+                              }
+                              autoComplete='off'
+                              onChange={formik.handleChange}
+                              maxLength={1}
+                              className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                              disabled={char !== 'B' && char !== ''}
+                              onKeyPress={(e) => {
+                                if (!/[0-9]/.test(e.key)) e.preventDefault();
+                              }}
+                              onPaste={(e) => {
+                                const pasteData =
+                                  e.clipboardData.getData('text');
+                                if (!/^[0-9]*$/.test(pasteData)) {
+                                  e.preventDefault(); // Prevent paste if it contains non-numeric characters
+                                }
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                </div>
+              )}
+
+            {/* Separator */}
+            {answers.isIntermediatePrefill && (
+              <div className='w-full relative'>
+                <span className='absolute bottom-4 left-4'>
+                  {operationMap[ArithmaticOperations.ADDITION]}
+                </span>
+                <hr className='w-full text-black border border-black' />
+              </div>
+            )}
             {/* Result answer inputs */}
             <div className='flex space-x-2'>
               <div className='w-12 h-10 flex items-center justify-center font-bold text-[36px]' />
