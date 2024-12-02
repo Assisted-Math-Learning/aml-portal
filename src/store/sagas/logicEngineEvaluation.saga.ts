@@ -11,6 +11,7 @@ import {
 import { logicEngineEvalutionService } from 'services/api-services/logicEngineEvaluationService';
 import _ from 'lodash';
 import { indexedDBService } from '../../services/IndexedDBService';
+import { IDBDataStatus } from '../../types/enum';
 
 function* LogicEngineEvaluationFetchSaga({
   payload,
@@ -46,6 +47,21 @@ function* LogicEngineEvaluationFetchSaga({
           localDataForNewQSID
         ).map((data: any) => data.id);
         yield call(indexedDBService.deleteObjectsByIds, localDataIdsForOldQS);
+      }
+
+      const dataStuckInSyncingState = localDataForNewQSID
+        .filter((data: any) => data.status === IDBDataStatus.SYNCING)
+        .map((data: any) => data.id);
+
+      /**
+       * Moving stuck data back to noop from syncing
+       */
+      if (dataStuckInSyncingState.length) {
+        yield call(
+          indexedDBService.updateStatusByIds,
+          dataStuckInSyncingState,
+          IDBDataStatus.NOOP
+        );
       }
 
       if (localDataForNewQSID.length) {

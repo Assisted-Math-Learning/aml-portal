@@ -25,13 +25,16 @@ function* SyncLearnerResponseSaga({
   const dateTime = new Date().toDateString();
 
   const criteria = {
-    status: IDBDataStatus.NOOP,
     learner_id: learnerId,
     question_set_id: questionSetId,
   };
-  const learnerResponseData = yield call(
+  const allLearnerResponseData = yield call(
     indexedDBService.queryObjectsByKeys,
     criteria
+  );
+
+  const learnerResponseData = allLearnerResponseData.filter(
+    (data: any) => data.status === IDBDataStatus.NOOP
   );
 
   if (!learnerResponseData.length) {
@@ -70,6 +73,7 @@ function* SyncLearnerResponseSaga({
       {
         learner_id: learnerId,
         questions_data: learnerResponseData,
+        all_data: allLearnerResponseData,
       }
     );
 
@@ -166,13 +170,16 @@ function* SyncFinalLearnerResponseSaga({
   const dateTime = new Date().toDateString();
 
   const criteria = {
-    status: IDBDataStatus.NOOP,
     learner_id: learnerId,
     question_set_id: questionSetId,
   };
-  const learnerResponseData = yield call(
+  const allLearnerResponseData = yield call(
     indexedDBService.queryObjectsByKeys,
     criteria
+  );
+
+  const learnerResponseData = allLearnerResponseData.filter(
+    (data: any) => data.status === IDBDataStatus.NOOP
   );
 
   if (!learnerResponseData.length) {
@@ -211,6 +218,7 @@ function* SyncFinalLearnerResponseSaga({
       {
         learner_id: learnerId,
         questions_data: learnerResponseData,
+        all_data: allLearnerResponseData,
       }
     );
 
