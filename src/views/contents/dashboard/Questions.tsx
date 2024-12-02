@@ -286,9 +286,9 @@ const Questions: React.FC = () => {
               )}`
             : questions[currentQuestionIndex]?.description?.en || ''
         }
-        attemptCount={
-          isCompleted ? '' : `${currentQuestionIndex + 1} / ${questions.length}`
-        }
+        currentQuestionIndex={currentQuestionIndex}
+        questionsLength={questions.length}
+        showAttemptCount={!isCompleted}
         content={
           <div className='text-4xl font-semibold text-headingTextColor'>
             {isCompleted ? (
@@ -326,6 +326,7 @@ const Questions: React.FC = () => {
         onBackSpaceClick={handleBackSpaceClick}
         currentQuestion={currentQuestion}
         noKeyboard={isCompleted}
+        taxonomy={questionSet?.taxonomy}
       />
     </>
   );

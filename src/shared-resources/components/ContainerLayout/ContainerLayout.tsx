@@ -3,10 +3,12 @@ import React from 'react';
 import Button from 'shared-resources/components/Button/Button';
 import { webRoutes } from 'utils/constants/webRoutes.constants';
 import { QuestionType } from 'models/enums/QuestionType.enum';
-import { Question } from 'models/entities/QuestionSet';
+import { Question, QuestionSet } from 'models/entities/QuestionSet';
 import { useLocation } from 'react-router-dom';
 import CollapsibleKeyboard from '../CollapsibleKeyboard/CollapsibleKeyboard';
 import QuestionHeader from '../QuestionHeader/QuestionHeader';
+import SkillTaxonomyHeader from '../SkillTaxonomyHeader/SkillTaxonomyHeader';
+import QuestionsProgressBar from '../QuestionsProgressBar/QuestionsProgressBar';
 
 interface ContainerLayoutProps {
   headerText: string;
@@ -19,7 +21,10 @@ interface ContainerLayoutProps {
   onBackSpaceClick?: (bool: boolean) => void;
   currentQuestion?: Question;
   noKeyboard?: boolean;
-  attemptCount?: string;
+  taxonomy?: QuestionSet['taxonomy'];
+  currentQuestionIndex?: number;
+  questionsLength?: number;
+  showAttemptCount?: boolean;
 }
 
 const ContainerLayout: React.FC<ContainerLayoutProps> = ({
@@ -33,17 +38,30 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
   onBackSpaceClick,
   currentQuestion,
   noKeyboard,
-  attemptCount,
+  taxonomy,
+  currentQuestionIndex = 0,
+  questionsLength = 0,
+  showAttemptCount,
 }) => {
   const location = useLocation();
+
   return (
     <div className='flex flex-col h-full pl-20 pr-20'>
+      <SkillTaxonomyHeader taxonomy={taxonomy} />
+      {showAttemptCount && (
+        <QuestionsProgressBar
+          currentQuestionIndex={currentQuestionIndex}
+          questionsLength={questionsLength}
+        />
+      )}
       <QuestionHeader HeaderText={headerText} />
       <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between px-6 py-10 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
         <div className='relative w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
           {content}
           <span className='absolute left-[46%] bottom-[-34px] text-2xl font-semibold text-headingTextColor'>
-            {attemptCount || ''}
+            {showAttemptCount
+              ? `${currentQuestionIndex + 1} / ${questionsLength}`
+              : ''}
           </span>
         </div>
         {location.pathname === webRoutes.questions.root() &&
