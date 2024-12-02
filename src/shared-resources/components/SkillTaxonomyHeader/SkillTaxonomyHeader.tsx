@@ -15,9 +15,10 @@ const SkillTaxonomyHeader: React.FC<SkillTaxonomyHeaderProps> = ({
       skillTaxonomy.push(taxonomy.l1_skill);
     }
 
-    if (taxonomy?.l2_skill.length) {
-      skillTaxonomy.push(...taxonomy.l2_skill);
-    }
+    // TODO: Uncomment this when l2 skills are ready to be displayed
+    // if (taxonomy?.l2_skill.length) {
+    //   skillTaxonomy.push(...taxonomy.l2_skill);
+    // }
 
     // TODO: Uncomment this when l3 skills are available, currently l3_skills are null[]
     // if (taxonomy?.l3_skill.length) {
