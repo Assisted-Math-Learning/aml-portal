@@ -22,13 +22,17 @@ import {
   fetchCSRFTokenFailed,
 } from 'store/actions/csrfToken.action';
 import { toastService } from 'services/ToastService';
+import { getTranslatedString } from 'shared-resources/components/MultiLangText/MultiLangText';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { SupportedLanguages } from 'types/enum';
 
 interface LoginSagaPayloadType extends SagaPayloadType {
   payload: AuthLoginActionPayloadType;
 }
 function* loginSaga(data: LoginSagaPayloadType): any {
   try {
-    const response = yield call(authService.login, data.payload);
+    const { language, ...dataPayload } = data.payload;
+    const response = yield call(authService.login, dataPayload);
     if (response.responseCode === 'OK' && response?.result?.data) {
       if (response?.result?.data?.username) {
         // Sentry.setUser({
@@ -36,7 +40,9 @@ function* loginSaga(data: LoginSagaPayloadType): any {
         //   username: response?.result?.data?.username,
         // });
       }
-      toastService.showSuccess('Logged In successfully');
+      toastService.showSuccess(
+        getTranslatedString(language, multiLangLabels.logged_in_successfully)
+      );
       yield put(authLoginCompletedAction(response?.result?.data));
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
     }
@@ -78,7 +84,12 @@ function* fetchCSRFTokenSaga(): any {
   }
 }
 
-function* logoutSaga(): any {
+function* logoutSaga(data: {
+  type: string;
+  payload: {
+    language: keyof typeof SupportedLanguages;
+  };
+}): any {
   try {
     const response = yield call(authService.logout);
     if (response) {
@@ -86,7 +97,12 @@ function* logoutSaga(): any {
       yield put(navigateTo('/login'));
       yield put(authLogoutCompletedAction());
       // Sentry.setUser(null);
-      toastService.showSuccess('Logged out successfully');
+      toastService.showSuccess(
+        getTranslatedString(
+          data.payload.language,
+          multiLangLabels.logged_out_successfully
+        )
+      );
     }
   } catch (e: any) {
     localStorageService.removeCSRFToken();

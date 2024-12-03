@@ -5,6 +5,9 @@ import ConfirmationDialog from 'shared-resources/components/CustomDialog/Confirm
 import { syncLearnerResponse } from 'store/actions/syncLearnerResponse.action';
 import { allQuestionSetsCompletedSelector } from 'store/selectors/logicEngine.selector';
 import { LanguageProvider } from 'context/LanguageContext';
+import { useLanguage } from 'context/LanguageContext';
+import { getTranslatedString } from 'shared-resources/components/MultiLangText/MultiLangText';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { AuthContext } from '../../context/AuthContext';
 import {
   isAuthLoadingSelector,
@@ -24,6 +27,8 @@ const Layout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
+  const { language } = useLanguage();
 
   const isUserLoading = useSelector(isAuthLoadingSelector);
   const learnerId = useSelector(learnerIdSelector);
@@ -54,7 +59,7 @@ const Layout: React.FC = () => {
           questionSet.identifier
         }_${Date.now()} SYNCING ON LOGOUT ${new Date().toDateString()}`
       );
-      dispatch(syncLearnerResponse(true));
+      dispatch(syncLearnerResponse(true, language));
     }
   };
 
@@ -88,24 +93,25 @@ const Layout: React.FC = () => {
   const authContextValue = useMemo(() => ({ onLogout: handleLogoutClick }), []);
 
   return isUserLoading ? null : (
-    <LanguageProvider>
-      <AuthContext.Provider value={authContextValue}>
-        <div className='flex flex-col h-full'>
-          <Header learnerId={learnerId} username={userSelector?.username} />
-          <div className='flex-1'>
-            <Outlet />
-          </div>
-
-          <ConfirmationDialog
-            open={isDialogOpen}
-            title='Logout?'
-            description='Your progress will be saved automatically'
-            onClose={handleCloseDialog}
-            onConfirm={handleConfirmLogout}
-          />
+    <AuthContext.Provider value={authContextValue}>
+      <div className='flex flex-col h-full'>
+        <Header learnerId={learnerId} username={userSelector?.username} />
+        <div className='flex-1'>
+          <Outlet />
         </div>
-      </AuthContext.Provider>
-    </LanguageProvider>
+
+        <ConfirmationDialog
+          open={isDialogOpen}
+          title={`${getTranslatedString(language, multiLangLabels.logout)}?`}
+          description={getTranslatedString(
+            language,
+            multiLangLabels.your_progress_will_be_saved_automatically
+          )}
+          onClose={handleCloseDialog}
+          onConfirm={handleConfirmLogout}
+        />
+      </div>
+    </AuthContext.Provider>
   );
 };
 

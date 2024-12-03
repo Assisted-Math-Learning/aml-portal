@@ -44,7 +44,7 @@ function* SyncLearnerResponseSaga({
   console.log(
     `${questionSetId}_${Date.now()} STARTING INTERMEDIATE SYNC ${new Date().toString()}`
   );
-  const { logoutOnSuccess } = payload;
+  const { logoutOnSuccess, language } = payload;
 
   const lsKey = `${questionSetId}__${Date.now()}`;
 
@@ -68,7 +68,7 @@ function* SyncLearnerResponseSaga({
     localStorage.setItem(lsKey, 'NO DATA FOR SYNC');
     yield put(syncLearnerResponseCompleted());
     if (logoutOnSuccess) {
-      yield put(authLogoutAction());
+      yield put(authLogoutAction(language));
     }
     return;
   }
@@ -161,7 +161,7 @@ function* SyncLearnerResponseSaga({
       yield put(syncLearnerResponseCompleted());
       if (logoutOnSuccess) {
         toastService.showInfo('Progress saved successfully.');
-        yield put(authLogoutAction());
+        yield put(authLogoutAction(language));
       }
     }
   } catch (e: any) {

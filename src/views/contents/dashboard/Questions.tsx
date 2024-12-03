@@ -24,10 +24,16 @@ import Loader from 'shared-resources/components/Loader/Loader';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import _ from 'lodash';
 import { operationMap } from 'models/enums/ArithmaticOperations.enum';
+import { useLanguage } from 'context/LanguageContext';
+import MultiLangText, {
+  getTranslatedString,
+} from 'shared-resources/components/MultiLangText/MultiLangText';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { indexedDBService } from '../../../services/IndexedDBService';
 import { IDBDataStatus } from '../../../types/enum';
 
 const Questions: React.FC = () => {
+  const { language } = useLanguage();
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isFormValid, setIsFormValid] = useState(false);
@@ -261,14 +267,18 @@ const Questions: React.FC = () => {
             ? 'Congratulations!'
             : questions[currentQuestionIndex]?.questionType ===
               QuestionType.GRID_2
-            ? `${
-                questions[currentQuestionIndex]?.description?.en
-              }: ${Object.values(
+            ? `${getTranslatedString(
+                language,
+                questions[currentQuestionIndex]?.description
+              )}: ${Object.values(
                 questions?.[currentQuestionIndex]?.numbers || {}
               ).join(
                 operationMap[questions?.[currentQuestionIndex].operation]
               )}`
-            : questions[currentQuestionIndex]?.description?.en || ''
+            : getTranslatedString(
+                language,
+                questions[currentQuestionIndex]?.description
+              ) || ''
         }
         currentQuestionIndex={currentQuestionIndex}
         questionsLength={questions.length}
@@ -277,8 +287,18 @@ const Questions: React.FC = () => {
           <div className='text-4xl font-semibold text-headingTextColor'>
             {isCompleted ? (
               <div>
-                <p>Congratulations! You've completed this question set.</p>
-                <p>Click "Next" to move on to the next question set.</p>
+                <MultiLangText
+                  component='p'
+                  labelMap={
+                    multiLangLabels.congratulations_youve_completed_this_question_set
+                  }
+                />
+                <MultiLangText
+                  component='p'
+                  labelMap={
+                    multiLangLabels.click_next_to_move_on_to_the_next_question_set
+                  }
+                />
               </div>
             ) : questions.length && currentQuestion ? (
               <Question
@@ -295,7 +315,11 @@ const Questions: React.FC = () => {
           </div>
         }
         buttonText={
-          isSyncing ? 'Syncing...' : isCompleted ? 'Next Set' : 'Next'
+          isSyncing
+            ? 'Syncing...'
+            : isCompleted
+            ? getTranslatedString(language, multiLangLabels.next_set)
+            : getTranslatedString(language, multiLangLabels.next)
         }
         onButtonClick={handleNextClick}
         buttonDisabled={isSyncing || (!isCompleted && !isFormValid)}
@@ -303,7 +327,10 @@ const Questions: React.FC = () => {
           isSyncing
             ? 'Sync in progress'
             : questions[currentQuestionIndex]?.questionType === QuestionType.MCQ
-            ? 'Select one option to continue'
+            ? getTranslatedString(
+                language,
+                multiLangLabels.select_one_option_to_continue
+              )
             : 'Fill in all the empty blanks to continue'
         }
         onKeyClick={handleKeyClick}

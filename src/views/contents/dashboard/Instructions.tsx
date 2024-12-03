@@ -13,6 +13,11 @@ import {
 } from 'store/selectors/media.selector';
 import { questionsSetSelector } from 'store/selectors/questionSet.selector';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
+import MultiLangText, {
+  getTranslatedString,
+} from 'shared-resources/components/MultiLangText/MultiLangText';
+import { useLanguage } from 'context/LanguageContext';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 
 const Instructions: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +29,8 @@ const Instructions: React.FC = () => {
   const contentMediaSelector = useSelector(mediaSelector);
   const [mediaURLs, setMediaURLs] = useState<string[]>([]);
   const [hasWatchedEnough, setHasWatchedEnough] = useState(false);
+
+  const { language } = useLanguage();
 
   useEffect(() => {
     const urls = Object.values(contentMediaSelector).flatMap((item) =>
@@ -64,7 +71,12 @@ const Instructions: React.FC = () => {
     <>
       {mediaURLs.length ? (
         <div className='flex flex-col h-full pl-20 pr-20'>
-          <QuestionHeader HeaderText='Instructions' />
+          <QuestionHeader
+            HeaderText={getTranslatedString(
+              language,
+              multiLangLabels.instructions
+            )}
+          />
           <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between p-6 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
             {/* Input container */}
             <div className='w-full h-full md:w-[65%] mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
@@ -104,7 +116,10 @@ const Instructions: React.FC = () => {
               <Button
                 type='button'
                 onClick={handleStartClick}
-                tooltipMessage='Watch the video to move forward'
+                tooltipMessage={getTranslatedString(
+                  language,
+                  multiLangLabels.watch_the_video_to_move_forward
+                )}
                 disabled={!hasWatchedEnough}
               >
                 Next
@@ -114,22 +129,39 @@ const Instructions: React.FC = () => {
         </div>
       ) : (
         <ContainerLayout
-          headerText='Instructions'
+          headerText={getTranslatedString(
+            language,
+            multiLangLabels.instructions
+          )}
           content={
             questionSet?.instruction_text ? (
               <p className='text-lg'>{questionSet.instruction_text}</p>
             ) : (
               <div className='text-lg'>
-                <p>Here are the instructions for the questions:</p>
+                <MultiLangText
+                  component='p'
+                  labelMap={multiLangLabels.instructions_for_the_questions}
+                />
                 <ul>
-                  <li>Read each question carefully.</li>
-                  <li>Select the correct answer.</li>
-                  <li>Click "Next" to proceed to the next question.</li>
+                  <MultiLangText
+                    component='li'
+                    labelMap={multiLangLabels.read_each_question_carefully}
+                  />
+                  <MultiLangText
+                    component='li'
+                    labelMap={multiLangLabels.select_enter_the_correct_answer}
+                  />
+                  <MultiLangText
+                    component='li'
+                    labelMap={
+                      multiLangLabels.click_next_to_proceed_to_the_next_question
+                    }
+                  />
                 </ul>
               </div>
             )
           }
-          buttonText='Next'
+          buttonText={getTranslatedString(language, multiLangLabels.next)}
           onButtonClick={handleStartClick}
         />
       )}

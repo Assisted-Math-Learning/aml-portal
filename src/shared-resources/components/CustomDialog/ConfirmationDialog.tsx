@@ -7,6 +7,8 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import MultiLangText from '../MultiLangText/MultiLangText';
 
 interface ConfirmationDialogProps {
   open: boolean;
@@ -48,14 +50,14 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           variant='outlined'
           className='border-blue-500 text-blue-500 px-4 py-2 rounded hover:border-blue-700'
         >
-          Cancel
+          <MultiLangText labelMap={multiLangLabels.cancel} />
         </Button>
         <Button
           onClick={onConfirm}
           variant='contained'
           className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700'
         >
-          Confirm
+          <MultiLangText labelMap={multiLangLabels.confirm} />
         </Button>
       </DialogActions>
     </div>

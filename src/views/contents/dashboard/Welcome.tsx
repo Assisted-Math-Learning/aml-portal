@@ -1,15 +1,23 @@
+import { useLanguage } from 'context/LanguageContext';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ContainerLayout from 'shared-resources/components/ContainerLayout/ContainerLayout';
+import MultiLangText, {
+  getTranslatedString,
+} from 'shared-resources/components/MultiLangText/MultiLangText';
 import { loggedInUserSelector } from 'store/selectors/auth.selector';
 import { questionsSetSelector } from 'store/selectors/questionSet.selector';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 
 const Welcome: React.FC = () => {
   const navigate = useNavigate();
   const userSelector = useSelector(loggedInUserSelector);
   const questionsSet = useSelector(questionsSetSelector);
+
+  const { language } = useLanguage();
+
   const [questions, setQuestions] = useState<any>();
   useEffect(() => {
     if (questionsSet?.questions) {
@@ -25,13 +33,17 @@ const Welcome: React.FC = () => {
 
   return (
     <ContainerLayout
-      headerText={`Hello, ${userSelector?.username || 'Learner'}`}
+      headerText={`${getTranslatedString(language, multiLangLabels.hello)}, ${
+        userSelector?.username || 'Learner'
+      }`}
       content={
-        <span className='text-4xl font-semibold text-headingTextColor'>
-          Press Start to Begin
-        </span>
+        <MultiLangText
+          component='span'
+          className='text-4xl font-semibold text-headingTextColor'
+          labelMap={multiLangLabels.press_start_to_begin}
+        />
       }
-      buttonText='Start'
+      buttonText={getTranslatedString(language, multiLangLabels.start)}
       onButtonClick={handleStartClick}
       buttonDisabled={!questions?.length}
       toolTipMessage='No questions available'

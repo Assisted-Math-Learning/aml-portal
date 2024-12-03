@@ -22,6 +22,7 @@ import {
 } from 'models/enums/ArithmaticOperations.enum';
 import ToggleButtonGroup from './ToggleButtonGroup/ToggleButtonGroup';
 import Loader from './Loader/Loader';
+import MultiLangText from './MultiLangText/MultiLangText';
 
 interface QuestionProps {
   question: {
@@ -811,7 +812,11 @@ const Question = forwardRef(
 
         {question.questionType === QuestionType.MCQ && !!question.options && (
           <div className='flex flex-col space-y-2 justify-center items-center'>
-            <span className='mb-6'>{question?.name?.en}</span>
+            <MultiLangText
+              labelMap={question?.name}
+              component='span'
+              className='mb-6'
+            />
             {question?.questionImage && imgLoading && !imgError && <Loader />}
             {question?.questionImage && !!imgURL && !imgError ? (
               <img

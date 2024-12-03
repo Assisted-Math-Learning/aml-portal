@@ -66,7 +66,7 @@ const ProfileWithMenu: React.FC<Props> = ({ onLogout, username }) => {
             handleClose();
           }}
         >
-          Logout
+          <MultiLangText labelMap={multiLangLabels.logout} />
         </MenuItem>
         <MenuItem
           onClick={(e) => {

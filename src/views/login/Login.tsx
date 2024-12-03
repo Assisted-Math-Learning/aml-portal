@@ -7,6 +7,11 @@ import { fetchCSRFToken } from 'store/actions/csrfToken.action';
 import { localStorageService } from 'services/LocalStorageService';
 import { authErrorSelector } from 'store/selectors/auth.selector';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
+import MultiLangText, {
+  getTranslatedString,
+} from 'shared-resources/components/MultiLangText/MultiLangText';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { useLanguage } from 'context/LanguageContext';
 import { authLoginAction } from '../../store/actions/auth.action';
 import FormikInput from '../../shared-resources/components/Input/FormikInput';
 import Button from '../../shared-resources/components/Button/Button';
@@ -15,6 +20,9 @@ const Login: React.FC = () => {
   const dispatch = useDispatch();
   const errorCode = useSelector(authErrorSelector);
   const [showError, setShowError] = useState(false);
+
+  const { language } = useLanguage();
+
   useEffect(() => {
     if (
       errorCode === 'INVALID_CREDENTIALS' ||
@@ -58,22 +66,39 @@ const Login: React.FC = () => {
     const loginValues = {
       password: values.password,
       username: values.username?.toLowerCase(),
+      language,
     };
     dispatch(authLoginAction(loginValues));
   };
 
   return (
     <div className='flex flex-col h-full pl-20 pr-20'>
-      <p className='md:w-[65%] md:text-start text-3xl md:text-4xl font-semibold text-headingTextColor pt-6 pb-4'>
-        Welcome to Assisted Math Learning
-      </p>
+      <MultiLangText
+        component='p'
+        className='md:w-[65%] md:text-start text-3xl md:text-4xl font-semibold text-headingTextColor pt-6 pb-4'
+        labelMap={multiLangLabels.welcome_to_assisted_math_learning}
+      />
 
       <Formik
         initialValues={initialValues}
         onSubmit={handleSubmit}
         validationSchema={yup.object().shape({
-          username: yup.string().required('Username is required'),
-          password: yup.string().required('Password is required'),
+          username: yup
+            .string()
+            .required(
+              getTranslatedString(
+                language,
+                multiLangLabels.username_is_required
+              )
+            ),
+          password: yup
+            .string()
+            .required(
+              getTranslatedString(
+                language,
+                multiLangLabels.password_is_required
+              )
+            ),
         })}
         validateOnChange // Disable validation on every keystroke
         validateOnBlur={false} // Validate only when the field loses focus (onBlur)
@@ -94,16 +119,20 @@ const Login: React.FC = () => {
                 {/* Input container */}
                 <div className='w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
                   {/* Title */}
-                  <p className='text-2xl md:text-3xl font-semibold text-headingTextColor py-2 text-center'>
-                    LOGIN
-                  </p>
+                  <MultiLangText
+                    component='p'
+                    className='text-2xl uppercase md:text-3xl font-semibold text-headingTextColor py-2 text-center'
+                    labelMap={multiLangLabels.login}
+                  />
 
                   {/* Username & Password Inputs */}
                   <div className='flex flex-col gap-6 md:gap-8 w-full max-w-96 px-4 md:px-0'>
                     <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-between'>
-                      <p className='text-lg md:text-2xl w-full md:w-36 text-headingTextColor'>
-                        USERNAME
-                      </p>
+                      <MultiLangText
+                        component='p'
+                        className='text-lg uppercase md:text-2xl w-full md:w-36 text-headingTextColor'
+                        labelMap={multiLangLabels.username}
+                      />
                       <FormikInput
                         name='username'
                         className='w-full md:w-[236px]'
@@ -113,9 +142,11 @@ const Login: React.FC = () => {
                     </div>
 
                     <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-between'>
-                      <p className='text-lg md:text-2xl w-full md:w-36 text-headingTextColor'>
-                        PASSWORD
-                      </p>
+                      <MultiLangText
+                        component='p'
+                        className='text-lg uppercase md:text-2xl w-full md:w-36 text-headingTextColor'
+                        labelMap={multiLangLabels.password}
+                      />
                       <FormikInput
                         name='password'
                         type='password'
@@ -142,7 +173,7 @@ const Login: React.FC = () => {
                     className='w-[236px]' // Maintaining button size
                     disabled={!areFieldsFilled}
                   >
-                    Login
+                    {getTranslatedString(language, multiLangLabels.login)}
                   </Button>
                 </div>
               </div>
