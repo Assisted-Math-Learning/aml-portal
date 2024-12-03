@@ -5,6 +5,8 @@ export const AUTH_TOKEN = 'auth_token';
 export const PREV_LINK = 'prev_link';
 export const CSRF_TOKEN = 'csrf-token';
 
+export const CONTENT_LANG = 'content_lang';
+
 export class LocalStorageService {
   private static _instance: LocalStorageService;
 

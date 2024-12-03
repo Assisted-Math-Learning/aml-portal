@@ -13,3 +13,8 @@ export enum IDBDataStatus {
   SYNCING = 'syncing',
   SYNCED = 'synced',
 }
+
+export enum SupportedLanguages {
+  en = 'en',
+  kn = 'kn',
+}

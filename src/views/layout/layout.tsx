@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import ConfirmationDialog from 'shared-resources/components/CustomDialog/ConfirmationDialog';
 import { syncLearnerResponse } from 'store/actions/syncLearnerResponse.action';
 import { allQuestionSetsCompletedSelector } from 'store/selectors/logicEngine.selector';
+import { LanguageProvider } from 'context/LanguageContext';
 import { AuthContext } from '../../context/AuthContext';
-import { authLogoutAction } from '../../store/actions/auth.action';
 import {
   isAuthLoadingSelector,
   learnerIdSelector,
@@ -88,22 +88,24 @@ const Layout: React.FC = () => {
   const authContextValue = useMemo(() => ({ onLogout: handleLogoutClick }), []);
 
   return isUserLoading ? null : (
-    <AuthContext.Provider value={authContextValue}>
-      <div className='flex flex-col h-full'>
-        <Header learnerId={learnerId} username={userSelector?.username} />
-        <div className='flex-1'>
-          <Outlet />
-        </div>
+    <LanguageProvider>
+      <AuthContext.Provider value={authContextValue}>
+        <div className='flex flex-col h-full'>
+          <Header learnerId={learnerId} username={userSelector?.username} />
+          <div className='flex-1'>
+            <Outlet />
+          </div>
 
-        <ConfirmationDialog
-          open={isDialogOpen}
-          title='Logout?'
-          description='Your progress will be saved automatically'
-          onClose={handleCloseDialog}
-          onConfirm={handleConfirmLogout}
-        />
-      </div>
-    </AuthContext.Provider>
+          <ConfirmationDialog
+            open={isDialogOpen}
+            title='Logout?'
+            description='Your progress will be saved automatically'
+            onClose={handleCloseDialog}
+            onConfirm={handleConfirmLogout}
+          />
+        </div>
+      </AuthContext.Provider>
+    </LanguageProvider>
   );
 };
 
