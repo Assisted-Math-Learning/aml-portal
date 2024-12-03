@@ -10,6 +10,7 @@ import Axios, {
 import * as uuid from 'uuid';
 import * as Sentry from '@sentry/react';
 import { toastService } from 'services/ToastService';
+import { removeCookie } from 'shared-resources/utils/helpers';
 import { localStorageService } from '../LocalStorageService';
 
 interface RequestConfig extends AxiosRequestConfig {
@@ -40,7 +41,7 @@ export class BaseApiService {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        if ([401, 403].includes(error.response?.status)) {
           this.handleUnauthorizedError();
         }
         return Promise.reject(error);
@@ -57,6 +58,7 @@ export class BaseApiService {
 
   private handleUnauthorizedError() {
     localStorageService.removeCSRFToken();
+    removeCookie('connect.sid');
     toastService.showError(
       'Your session has expired. Please login again to continue.'
     );
@@ -234,13 +236,13 @@ export class BaseApiService {
       return response?.data as T;
     } catch (error: any) {
       this.removeFromRequestMap(config.requestId);
-      Sentry.setContext('API Request', {
-        url: `${BASE_URL}${config.url}`,
-        method: config.method,
-        params: JSON.stringify(config.params),
-        data: JSON.stringify(config.data),
-        error: JSON.stringify(error?.response?.data),
-      });
+      // Sentry.setContext('API Request', {
+      //   url: `${BASE_URL}${config.url}`,
+      //   method: config.method,
+      //   params: JSON.stringify(config.params),
+      //   data: JSON.stringify(config.data),
+      //   error: JSON.stringify(error?.response?.data),
+      // });
       // eslint-disable-next line no-console
       console.log(
         'ERROR',
@@ -253,9 +255,9 @@ export class BaseApiService {
         `API Error: ${config.method} ${config.url}`,
         JSON.stringify(error?.response?.data)
       );
-      Sentry.captureException(
-        new Error(`API Error: ${config.method} ${config.url}`)
-      );
+      // Sentry.captureException(
+      //   new Error(`API Error: ${config.method} ${config.url}`)
+      // );
       if (error.response && error.response.data) {
         // eslint-disable-next line no-console
         console.log(error.response.data);

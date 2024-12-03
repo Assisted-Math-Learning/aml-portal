@@ -151,3 +151,7 @@ export function convertToCamelCase(input: {
     mediaType: input.mediaType,
   };
 }
+
+export const removeCookie = (cookieName: string) => {
+  document.cookie = `${cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+};

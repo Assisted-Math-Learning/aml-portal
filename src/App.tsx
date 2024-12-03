@@ -21,13 +21,13 @@ import AML404Component from './utils/components/AML404Component';
 import 'react-toastify/dist/ReactToastify.css';
 import { indexedDBService } from './services/IndexedDBService';
 
-Sentry.init({
-  dsn: ENV_CONFIG.VITE_SENTRY_DSN,
-  autoSessionTracking: true,
-  integrations: [new Integrations.BrowserTracing()],
-  tracesSampleRate: 1.0,
-  environment: ENV_CONFIG.APP_ENV,
-});
+// Sentry.init({
+//   dsn: ENV_CONFIG.VITE_SENTRY_DSN,
+//   autoSessionTracking: true,
+//   integrations: [new Integrations.BrowserTracing()],
+//   tracesSampleRate: 1.0,
+//   environment: ENV_CONFIG.APP_ENV,
+// });
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -52,7 +52,7 @@ const App: React.FC = () => {
       <ErrorBoundary
         FallbackComponent={ErrorFallbackComponent}
         onError={(error, info) => {
-          Sentry.captureException(error); // Capture the error in Sentry
+          // Sentry.captureException(error); // Capture the error in Sentry
           errorBoundaryHelper(error, info); // Your custom error handler
         }}
       >

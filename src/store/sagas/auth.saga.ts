@@ -31,10 +31,10 @@ function* loginSaga(data: LoginSagaPayloadType): any {
     const response = yield call(authService.login, data.payload);
     if (response.responseCode === 'OK' && response?.result?.data) {
       if (response?.result?.data?.username) {
-        Sentry.setUser({
-          id: response?.result?.data?.identifier,
-          username: response?.result?.data?.username,
-        });
+        // Sentry.setUser({
+        //   id: response?.result?.data?.identifier,
+        //   username: response?.result?.data?.username,
+        // });
       }
       toastService.showSuccess('Logged In successfully');
       yield put(authLoginCompletedAction(response?.result?.data));
@@ -53,10 +53,10 @@ function* fetchLoggedInUserSaga(): any {
     const response = yield call(authService.fetchMe);
     if (response.responseCode === 'OK' && response?.result?.data) {
       if (response?.result?.data?.username) {
-        Sentry.setUser({
-          id: response?.result?.data?.identifier,
-          username: response?.result?.data?.username,
-        });
+        // Sentry.setUser({
+        //   id: response?.result?.data?.identifier,
+        //   username: response?.result?.data?.username,
+        // });
       }
       yield put(authFetchMeCompletedAction(response?.result?.data));
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
@@ -85,7 +85,7 @@ function* logoutSaga(): any {
       localStorageService.removeCSRFToken();
       yield put(navigateTo('/login'));
       yield put(authLogoutCompletedAction());
-      Sentry.setUser(null);
+      // Sentry.setUser(null);
       toastService.showSuccess('Logged out successfully');
     }
   } catch (e: any) {
