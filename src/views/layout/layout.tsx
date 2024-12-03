@@ -52,7 +52,7 @@ const Layout: React.FC = () => {
           questionSet.identifier
         }_${Date.now()} SYNCING ON LOGOUT ${new Date().toDateString()}`
       );
-      dispatch(syncLearnerResponse(learnerId, questionSet.identifier, true));
+      dispatch(syncLearnerResponse(true));
     }
   };
 

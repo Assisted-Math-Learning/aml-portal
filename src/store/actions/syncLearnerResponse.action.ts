@@ -1,20 +1,12 @@
 import { SyncLearnerResponseActionType } from './actions.constants';
 
-export const syncLearnerResponse = (
-  learnerId: string,
-  questionSetId: string,
-  logoutOnSuccess = false
-) => ({
+export const syncLearnerResponse = (logoutOnSuccess = false) => ({
   type: SyncLearnerResponseActionType.SYNC_LEARNER_RESPONSE,
-  payload: { learnerId, questionSetId, logoutOnSuccess },
+  payload: { logoutOnSuccess },
 });
 
-export const syncFinalLearnerResponse = (
-  learnerId: string,
-  questionSetId: string
-) => ({
+export const syncFinalLearnerResponse = () => ({
   type: SyncLearnerResponseActionType.SYNC_FINAL_LEARNER_RESPONSE,
-  payload: { learnerId, questionSetId, callLogicEngine: true },
 });
 
 export const syncLearnerResponseCompleted = () => ({
