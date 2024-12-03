@@ -42,7 +42,8 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
-    if (csrfTokenDeleted()) {
+    localStorageService.removeCSRFToken();
+    if (!localStorageService.getCSRFToken()) {
       dispatch(fetchCSRFToken());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
