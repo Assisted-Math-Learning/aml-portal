@@ -25,9 +25,21 @@ const Login: React.FC = () => {
       setShowError(false);
     }
   }, [errorCode]);
+
+  const csrfTokenDeleted = (): boolean => {
+    if (
+      localStorageService.getCSRFToken() ||
+      document.cookie.includes('_csrf')
+    ) {
+      localStorageService.removeCSRFToken();
+      document.cookie = '_csrf=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      return csrfTokenDeleted();
+    }
+    return true;
+  };
+
   useEffect(() => {
-    localStorageService.removeCSRFToken();
-    if (!localStorageService.getCSRFToken()) {
+    if (csrfTokenDeleted()) {
       dispatch(fetchCSRFToken());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
