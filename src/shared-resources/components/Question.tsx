@@ -405,7 +405,9 @@ const Question = forwardRef(
                           }
                         }}
                         disabled={
-                          ((answers.answerTop[index] || '') !== '' &&
+                          (question.operation ===
+                            ArithmaticOperations.ADDITION &&
+                            (answers.answerTop[index] || '') !== '' &&
                             (answers.answerTop[index] || '') !== 'B' &&
                             char === (answers.answerTop[index] || '')) ||
                           (answers.answerTop.split('|')[index] !== '' &&
