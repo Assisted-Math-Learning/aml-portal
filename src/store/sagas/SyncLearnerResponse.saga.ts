@@ -1,4 +1,4 @@
-import { all, call, put, takeLatest } from 'redux-saga/effects';
+import { all, call, put, takeLatest, select } from 'redux-saga/effects';
 import { SyncLearnerResponseActionType } from 'store/actions/actions.constants';
 import { StoreAction } from 'models/StoreAction';
 import {
@@ -13,16 +13,42 @@ import { indexedDBService } from '../../services/IndexedDBService';
 import { LearnerJourneyStatus } from '../../models/enums/learnerJourney.enum';
 import { authLogoutAction } from '../actions/auth.action';
 import { toastService } from '../../services/ToastService';
+import { questionsSetSelector } from '../selectors/questionSet.selector';
+import { learnerIdSelector } from '../selectors/auth.selector';
+import {
+  isIntermediateSyncInProgressSelector,
+  isSyncInProgressSelector,
+} from '../selectors/syncResponseSelector';
 
 function* SyncLearnerResponseSaga({
   payload,
 }: StoreAction<SyncLearnerResponseActionType>): any {
-  const { learnerId, questionSetId, logoutOnSuccess, callLogicEngine } =
-    payload;
+  const learnerId = yield select(learnerIdSelector);
+  const questionSet = yield select(questionsSetSelector);
+  const isSyncing = yield select(isSyncInProgressSelector);
+  const questionSetId = questionSet?.identifier;
+
+  if (isSyncing) {
+    console.log('SKIPPING SYNC, SYNC ALREADY IN PROGRESS');
+    return;
+  }
+
+  if (!learnerId || !questionSetId) {
+    console.log('SKIPPING SYNC, LEARNER ID OR QUESTION SET MISSING');
+    return;
+  }
+  localStorage.setItem(
+    `${questionSetId}_${Date.now()}`,
+    'STARTING INTERMEDIATE SYNC'
+  );
+  console.log(
+    `${questionSetId}_${Date.now()} STARTING INTERMEDIATE SYNC ${new Date().toString()}`
+  );
+  const { logoutOnSuccess } = payload;
 
   const lsKey = `${questionSetId}__${Date.now()}`;
 
-  const dateTime = new Date().toDateString();
+  const dateTime = new Date().toString();
 
   const criteria = {
     learner_id: learnerId,
@@ -76,10 +102,6 @@ function* SyncLearnerResponseSaga({
         all_data: allLearnerResponseData,
       }
     );
-
-    if (callLogicEngine && learnerId) {
-      yield put(fetchLogicEngineEvaluation({ learnerId }));
-    }
 
     if (response?.responseCode === 'OK') {
       const learnerJourney = response?.result?.data;
@@ -159,15 +181,32 @@ function* SyncLearnerResponseSaga({
   }
 }
 
-function* SyncFinalLearnerResponseSaga({
-  payload,
-}: StoreAction<SyncLearnerResponseActionType>): any {
-  const { learnerId, questionSetId, logoutOnSuccess, callLogicEngine } =
-    payload;
+function* SyncFinalLearnerResponseSaga(): any {
+  const learnerId = yield select(learnerIdSelector);
+  const questionSet = yield select(questionsSetSelector);
+  const isSyncing = yield select(isSyncInProgressSelector);
+  const isIntermediateSyncing = yield select(
+    isIntermediateSyncInProgressSelector
+  );
+  const questionSetId = questionSet?.identifier;
+
+  if (isIntermediateSyncing) {
+    console.log('SKIPPING SYNC, SYNC ALREADY IN PROGRESS');
+    return;
+  }
+
+  if (!learnerId || !questionSetId) {
+    console.log('SKIPPING SYNC, LEARNER ID OR QUESTION SET MISSING');
+    return;
+  }
+  localStorage.setItem(`${questionSetId}_${Date.now()}`, 'STARTING FINAL SYNC');
+  console.log(
+    `${questionSetId}_${Date.now()} STARTING FINAL SYNC ${new Date().toString()}`
+  );
 
   const lsKey = `${questionSetId}__${Date.now()}`;
 
-  const dateTime = new Date().toDateString();
+  const dateTime = new Date().toString();
 
   const criteria = {
     learner_id: learnerId,
@@ -186,14 +225,7 @@ function* SyncFinalLearnerResponseSaga({
     console.log('No data for sync');
     localStorage.setItem(lsKey, 'NO DATA FOR SYNC');
     yield put(syncLearnerResponseCompleted());
-    if (logoutOnSuccess) {
-      yield put(authLogoutAction());
-    }
     return;
-  }
-
-  if (logoutOnSuccess) {
-    toastService.showInfo('Saving progress');
   }
 
   const objIds = learnerResponseData.map((data: any) => data.id) as number[];
@@ -222,7 +254,7 @@ function* SyncFinalLearnerResponseSaga({
       }
     );
 
-    if (callLogicEngine && learnerId) {
+    if (learnerId) {
       yield put(fetchLogicEngineEvaluation({ learnerId }));
     }
 
@@ -282,10 +314,6 @@ function* SyncFinalLearnerResponseSaga({
       }
 
       yield put(syncLearnerResponseCompleted());
-      if (logoutOnSuccess) {
-        toastService.showInfo('Progress saved successfully.');
-        yield put(authLogoutAction());
-      }
     }
   } catch (e: any) {
     localStorage.setItem(
@@ -293,9 +321,6 @@ function* SyncFinalLearnerResponseSaga({
       JSON.stringify({ payload: learnerResponseData, dateTime, error: e })
     );
     yield call(indexedDBService.updateStatusByIds, objIds, IDBDataStatus.NOOP);
-    if (logoutOnSuccess) {
-      toastService.showError('Progress could not be saved');
-    }
     yield put(
       syncLearnerResponseError(
         (e?.errors && e.errors[0]?.message) || e?.message
