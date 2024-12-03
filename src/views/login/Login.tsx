@@ -26,14 +26,17 @@ const Login: React.FC = () => {
     }
   }, [errorCode]);
 
-  const csrfTokenDeleted = (): boolean => {
+  const csrfTokenDeleted = (attemptCount = 0): boolean => {
+    if (attemptCount >= 10) {
+      return false;
+    }
     if (
       localStorageService.getCSRFToken() ||
       document.cookie.includes('_csrf')
     ) {
       localStorageService.removeCSRFToken();
       document.cookie = '_csrf=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      return csrfTokenDeleted();
+      return csrfTokenDeleted(attemptCount + 1);
     }
     return true;
   };
