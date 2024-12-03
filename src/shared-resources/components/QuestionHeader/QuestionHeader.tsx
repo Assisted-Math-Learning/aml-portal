@@ -10,7 +10,7 @@ const QuestionHeader: React.FC<QuestionheaderProps> = (
   const { HeaderText } = props;
   return (
     <div>
-      <p className='md:w-[65%] md:text-start text-3xl md:text-4xl font-semibold text-headingTextColor pt-6 pb-4'>
+      <p className='md:w-[65%] md:text-start text-3xl md:text-4xl font-semibold text-headingTextColor pt-6 -mb-1'>
         {HeaderText}
       </p>
     </div>

@@ -15,10 +15,10 @@ const QuestionsProgressBar: React.FC<QuestionsProgressBarProps> = ({
       : 0;
 
   return (
-    <div className='mt-6'>
-      <div className='w-full h-3 bg-slate-300 rounded-[9999px] relative'>
+    <div className='mt-3 -mb-7'>
+      <div className='w-full h-2 bg-slate-300 rounded-[9999px] relative'>
         <div
-          className='absolute top-0 left-0 h-3 rounded-[9999px] bg-primary'
+          className='absolute top-0 left-0 h-2 rounded-[9999px] bg-primary'
           style={{
             width: `${barWidth}%`,
           }}
