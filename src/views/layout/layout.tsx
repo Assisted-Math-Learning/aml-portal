@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import ConfirmationDialog from 'shared-resources/components/CustomDialog/ConfirmationDialog';
 import { syncLearnerResponse } from 'store/actions/syncLearnerResponse.action';
+import { allQuestionSetsCompletedSelector } from 'store/selectors/logicEngine.selector';
 import { AuthContext } from '../../context/AuthContext';
 import { authLogoutAction } from '../../store/actions/auth.action';
 import {
@@ -32,6 +33,7 @@ const Layout: React.FC = () => {
     isIntermediateSyncInProgressSelector
   );
   const questionSet = useSelector(questionsSetSelector);
+  const allSetsCompleted = useSelector(allQuestionSetsCompletedSelector);
 
   const [isDialogOpen, setDialogOpen] = useState(false);
 
@@ -57,6 +59,9 @@ const Layout: React.FC = () => {
   };
 
   const onLogout = () => {
+    if (allSetsCompleted) {
+      dispatch(authLogoutAction());
+    }
     if (!isSyncing && !isIntermediateSyncing) {
       syncLearnerResponseData();
     } else {

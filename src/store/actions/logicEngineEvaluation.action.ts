@@ -8,8 +8,9 @@ export const fetchLogicEngineEvaluation = (payload: {
   payload,
 });
 
-export const fetchLogicEngineEvaluationCompleted = () => ({
+export const fetchLogicEngineEvaluationCompleted = (payload: string) => ({
   type: LogicEngineActionType.FETCH_LOGIC_ENGINE_EVALUATION_COMPLETED,
+  payload,
 });
 
 export const fetchLogicEngineEvaluationError = (error: string) => ({

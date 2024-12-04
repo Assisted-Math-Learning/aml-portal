@@ -8,3 +8,8 @@ export const islogicEngineLoadingSelector = createSelector(
   [logicEngineState],
   (state: LogicEngineState) => Boolean(state.loading)
 );
+
+export const allQuestionSetsCompletedSelector = createSelector(
+  [logicEngineState],
+  (state: LogicEngineState) => Boolean(state.allQuestionSetsCompleted)
+);

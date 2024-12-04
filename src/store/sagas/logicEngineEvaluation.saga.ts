@@ -24,7 +24,11 @@ function* LogicEngineEvaluationFetchSaga({
         learner_id: learnerId,
       }
     );
-    yield put(fetchLogicEngineEvaluationCompleted());
+    yield put(
+      fetchLogicEngineEvaluationCompleted(
+        response?.result?.data?.question_set_id
+      )
+    );
     if (response?.result?.data?.question_set_id) {
       const newQSID = response?.result?.data?.question_set_id;
 
