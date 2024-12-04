@@ -267,7 +267,7 @@ const Question = forwardRef(
             topAnswer: values.topAnswer,
             resultAnswer: values.resultAnswer,
             operation: question.operation,
-            answerIntermediate: values.answerIntermediate,
+            answerIntermediate: values?.answerIntermediate,
           });
         } else if (question.questionType === QuestionType.GRID_2) {
           onSubmit({
@@ -498,9 +498,10 @@ const Question = forwardRef(
 
             {/* Intermediate Inputs (Only for Multiplication) */}
             {question.operation === ArithmaticOperations.MULTIPLICATION &&
-              answers?.isIntermediatePrefill && (
+              answers?.isIntermediatePrefill &&
+              !!answers?.answerIntermediate && (
                 <div className='flex flex-col space-y-2 self-end'>
-                  {answers.answerIntermediate
+                  {answers?.answerIntermediate
                     .split('#')
                     .map((row, rowIndex) => (
                       <div
@@ -510,7 +511,7 @@ const Question = forwardRef(
                         {row.split('').map((char, index) => {
                           // Calculate the flat index for the flattened structure
                           const flatIndex =
-                            answers.answerIntermediate
+                            answers?.answerIntermediate
                               .split('#')
                               .slice(0, rowIndex) // Get rows before the current row
                               .reduce((acc, r) => acc + r.length, 0) + index; // Sum lengths + current index
@@ -526,7 +527,7 @@ const Question = forwardRef(
                                 )
                               }
                               value={
-                                formik.values.answerIntermediate[flatIndex]
+                                formik.values?.answerIntermediate?.[flatIndex]
                               }
                               autoComplete='off'
                               onChange={formik.handleChange}
@@ -552,7 +553,7 @@ const Question = forwardRef(
               )}
 
             {/* Separator */}
-            {answers.isIntermediatePrefill && (
+            {answers?.isIntermediatePrefill && (
               <div className='w-full relative'>
                 <span className='absolute bottom-4 left-4'>
                   {operationMap[ArithmaticOperations.ADDITION]}

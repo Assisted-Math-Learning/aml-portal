@@ -53,11 +53,11 @@ export const transformQuestions = (apiQuestions: any): any =>
           ...(question_body.answers.answerResult !== undefined && {
             answerResult: question_body.answers.answerResult,
           }),
-          ...(question_body.answers.answerIntermediate !== undefined && {
-            answerIntermediate: question_body.answers.answerIntermediate,
+          ...(question_body.answers?.answerIntermediate !== undefined && {
+            answerIntermediate: question_body.answers?.answerIntermediate,
           }),
-          ...(question_body.answers.isIntermediatePrefill !== undefined && {
-            isIntermediatePrefill: question_body.answers.isIntermediatePrefill,
+          ...(question_body.answers?.isIntermediatePrefill !== undefined && {
+            isIntermediatePrefill: question_body.answers?.isIntermediatePrefill,
           }),
         }
       : undefined;

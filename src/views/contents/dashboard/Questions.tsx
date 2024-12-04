@@ -179,7 +179,7 @@ const Questions: React.FC = () => {
       answers: _.omitBy(
         {
           topAnswer: newAnswer.topAnswer,
-          answerIntermediate: newAnswer.answerIntermediate,
+          answerIntermediate: newAnswer?.answerIntermediate,
           resultAnswer: newAnswer.resultAnswer,
           row1Answers: newAnswer.row1Answers,
           row2Answers: newAnswer.row2Answers,
