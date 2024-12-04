@@ -304,32 +304,48 @@ const Question = forwardRef(
       else formik.setFieldValue(fullActiveFieldPath, value);
     };
 
+    const separateKeys = (input: string) => {
+      const [mainKey, subKey] = input.split('.');
+      return { mainKey, subKey };
+    };
+
     useEffect(() => {
       if (!keyPressed || !backSpacePressed || !activeField) return;
 
       const isKeyPressed = keyPressed.key !== '';
       const { isBackSpaced } = backSpacePressed;
+      const { mainKey, subKey } = separateKeys(activeField);
+      const isTopAnswerField = mainKey === 'topAnswer';
+      const isSubtraction =
+        question.operation === ArithmaticOperations.SUBTRACTION;
+
+      let updatedValue =
+        isSubtraction && isTopAnswerField
+          ? String((formik.values as any)?.[mainKey]?.[subKey] || '')
+          : String(formik.values?.[activeField] || '');
 
       if (
         (backSpacePressed.counter > 0 || keyPressed.counter > 0) &&
         (isKeyPressed || isBackSpaced)
       ) {
-        let updatedValue = String(formik.values?.[activeField] || '');
-
         if (isBackSpaced) {
           updatedValue = updatedValue.slice(0, -1);
         } else if (isKeyPressed) {
-          updatedValue += keyPressed.key;
+          // eslint-disable-next-line no-nested-ternary
+          const maxLength = isTopAnswerField ? (isSubtraction ? 2 : 1) : 9;
+          if (updatedValue.length < maxLength) {
+            updatedValue += keyPressed.key;
+          }
+
+          keyPressed.key = '';
         }
 
         handleSetFieldValue(activeField, updatedValue);
-        // Resetting backSpacePressed after handling it
-
         if (isBackSpaced) {
           backSpacePressed.isBackSpaced = false;
         }
       }
-    }, [keyPressed, backSpacePressed]);
+    }, [keyPressed, backSpacePressed, activeField]);
 
     // Expose the submitForm method to the parent component
     useImperativeHandle(ref, () => ({
