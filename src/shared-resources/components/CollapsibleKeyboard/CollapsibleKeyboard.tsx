@@ -37,7 +37,7 @@ const CollapsibleKeyboard: React.FC<Props> = ({
 
   return (
     <div
-      className='relative h-[379px] w-[389px] overflow-hidden'
+      className='relative lg:h-[379px] lg:w-[389px] h-[330px] w-[320px] overflow-hidden'
       onMouseDown={(e) => e.preventDefault()}
       role='presentation'
     >
@@ -55,7 +55,7 @@ const CollapsibleKeyboard: React.FC<Props> = ({
 
       <div
         className={cx(
-          'bg-disabled absolute top-1/2 -translate-y-1/2 w-full h-full rounded-tl-[20px] rounded-bl-[20px] flex justify-between items-center py-[30px] pl-[38px] pr-[17px] transition-all duration-300 ease-in',
+          'bg-disabled absolute top-1/2 -translate-y-1/2 w-full h-full rounded-tl-[20px] rounded-bl-[20px] flex justify-between items-center py-[30px] lg:pl-[38px] pl-8 lg:pr-[17px] pr-2 transition-all duration-300 ease-in',
           {
             'translate-x-0': expanded,
             'translate-x-full': !expanded,

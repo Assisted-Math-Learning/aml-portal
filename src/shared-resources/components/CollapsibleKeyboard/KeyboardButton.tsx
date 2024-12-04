@@ -10,7 +10,7 @@ type Props = {
 
 const KeyboardButton: React.FC<Props> = ({ children, onClick, onBlur }) => (
   <Button
-    className='keyboard-button !h-[75px] !w-[70px] !border-none !bg-white !text-black !text-4xl font-semibold !font-quicksand'
+    className='keyboard-button lg:!h-[75px] !h-[65px] !w-[60px] lg:!w-[70px] !border-none !bg-white !text-black lg:!text-4xl !text-3xl font-semibold !font-quicksand'
     onClick={onClick}
     onBlur={onBlur}
     tabIndex={-1}

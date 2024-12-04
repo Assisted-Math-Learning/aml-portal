@@ -67,7 +67,7 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
         {location.pathname === webRoutes.questions.root() &&
           currentQuestion?.questionType !== QuestionType.MCQ &&
           !noKeyboard && (
-            <div className='fixed right-0 top-[20%]'>
+            <div className='fixed right-0 top-1/2 -translate-y-1/2'>
               <CollapsibleKeyboard
                 onKeyClick={onKeyClick}
                 onBackSpaceClick={onBackSpaceClick}
