@@ -61,6 +61,7 @@ const Layout: React.FC = () => {
   const onLogout = () => {
     if (allSetsCompleted) {
       dispatch(authLogoutAction());
+      return;
     }
     if (!isSyncing && !isIntermediateSyncing) {
       syncLearnerResponseData();
