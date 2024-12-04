@@ -19,17 +19,13 @@ export const getTranslatedString = (
 
 const MultiLangText: React.FC<MultiLangTextProps> = ({
   labelMap = {},
-  component: Component,
+  component: Component = 'span',
   enforceLang,
   ...props
 }) => {
   const { language } = useLanguage();
 
   const text = getTranslatedString(enforceLang ?? language, labelMap);
-
-  if (!Component) {
-    return text;
-  }
 
   return <Component {...props}>{text}</Component>;
 };

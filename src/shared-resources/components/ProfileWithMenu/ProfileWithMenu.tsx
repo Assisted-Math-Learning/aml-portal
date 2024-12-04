@@ -5,7 +5,6 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import './ProfileWithMenu.scss';
 import { getUserInitials } from 'shared-resources/utils/helpers';
-import { useLanguage } from 'context/LanguageContext';
 import { SupportedLanguages } from 'types/enum';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import ToggleSwitch from '../ToggleSwitch/ToggleSwitch';
@@ -14,10 +13,16 @@ import MultiLangText from '../MultiLangText/MultiLangText';
 type Props = {
   onLogout?: () => void;
   username?: string;
+  handleLanguageChange: (_: any, checked: boolean) => void;
+  language: keyof typeof SupportedLanguages;
 };
 
-const ProfileWithMenu: React.FC<Props> = ({ onLogout, username }) => {
-  const { language, setLanguage } = useLanguage();
+const ProfileWithMenu: React.FC<Props> = ({
+  onLogout,
+  username,
+  handleLanguageChange,
+  language,
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -25,10 +30,6 @@ const ProfileWithMenu: React.FC<Props> = ({ onLogout, username }) => {
   };
   const handleClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleLanguageChange = (_: any, checked: boolean) => {
-    setLanguage(checked ? SupportedLanguages.kn : SupportedLanguages.en);
   };
 
   return (

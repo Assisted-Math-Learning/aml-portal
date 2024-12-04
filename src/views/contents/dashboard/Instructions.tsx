@@ -122,7 +122,7 @@ const Instructions: React.FC = () => {
                 )}
                 disabled={!hasWatchedEnough}
               >
-                Next
+                {getTranslatedString(language, multiLangLabels.next)}
               </Button>
             </div>
           </div>

@@ -1,5 +1,7 @@
+import { useLanguage } from 'context/LanguageContext';
 import { QuestionSet } from 'models/entities/QuestionSet';
 import React, { useMemo } from 'react';
+import { getTranslatedString } from '../MultiLangText/MultiLangText';
 
 type SkillTaxonomyHeaderProps = {
   taxonomy?: QuestionSet['taxonomy'];
@@ -8,6 +10,8 @@ type SkillTaxonomyHeaderProps = {
 const SkillTaxonomyHeader: React.FC<SkillTaxonomyHeaderProps> = ({
   taxonomy,
 }) => {
+  const { language } = useLanguage();
+
   const questionTaxonomySkills = useMemo(() => {
     const skillTaxonomy = [];
 
@@ -33,7 +37,12 @@ const SkillTaxonomyHeader: React.FC<SkillTaxonomyHeaderProps> = ({
       {questionTaxonomySkills.map((skill, index) => (
         <React.Fragment key={skill?.identifier}>
           {index !== 0 && <span> &gt; </span>}
-          <span>{skill?.name.en}</span>
+          <span>
+            {getTranslatedString(
+              language,
+              skill?.name as Record<'en' | 'kn', string>
+            )}
+          </span>
         </React.Fragment>
       ))}
     </div>
