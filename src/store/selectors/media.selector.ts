@@ -28,3 +28,8 @@ export const isCurrentImageLoadingSelector = createSelector(
   [mediaState],
   (state: MediaState) => Boolean(state.loadingImage)
 );
+
+export const imageErrorSelector = createSelector(
+  [mediaState],
+  (state: MediaState) => state.imageError
+);

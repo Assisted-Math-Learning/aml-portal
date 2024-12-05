@@ -12,6 +12,7 @@ export interface MediaState {
   media: { [key: string]: any };
   currentImageUrl: string;
   loadingImage: boolean;
+  imageError?: string;
 }
 
 const initialState: MediaState = {
@@ -47,20 +48,22 @@ export const mediaReducer: Reducer<MediaState> = (
       case FetchQuestionImageActionType.FETCH_QUESTION_IMAGE: {
         draft.loadingImage = true;
         draft.currentImageUrl = '';
+        draft.imageError = undefined;
         break;
       }
       case FetchQuestionImageActionType.FETCH_QUESTION_IMAGE_COMPLETED: {
         const imageURL: any = action.payload as {
           currentImageURL: string;
         };
-        draft.currentImageUrl = imageURL?.currentImageURL;
         draft.loadingImage = false;
+        draft.currentImageUrl = imageURL?.currentImageURL;
+        draft.imageError = undefined;
         break;
       }
       case FetchQuestionImageActionType.FETCH_QUESTION_IMAGE_ERROR: {
         const error = action.payload as string;
         draft.loadingImage = false;
-        draft.error = error;
+        draft.imageError = error;
         break;
       }
       case LogicEngineActionType.FETCH_LOGIC_ENGINE_EVALUATION: {

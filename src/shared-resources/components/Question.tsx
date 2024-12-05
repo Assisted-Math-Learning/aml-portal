@@ -10,7 +10,11 @@ import * as Yup from 'yup';
 import { QuestionType } from 'models/enums/QuestionType.enum';
 import { fetchQuestionImage } from 'store/actions/media.action';
 import { useDispatch, useSelector } from 'react-redux';
-import { currentImageURLSelector } from 'store/selectors/media.selector';
+import {
+  currentImageURLSelector,
+  imageErrorSelector,
+  isCurrentImageLoadingSelector,
+} from 'store/selectors/media.selector';
 import cx from 'classnames';
 import {
   ArithmaticOperations,
@@ -78,12 +82,15 @@ const Question = forwardRef(
     const { answers, numbers, questionImage } = question;
     const dispatch = useDispatch();
     const currentImageURL = useSelector(currentImageURLSelector);
-    const [imgURL, setImageURL] = useState<string>('');
+    const currentImageLoading = useSelector(isCurrentImageLoadingSelector);
+    const imageError = useSelector(imageErrorSelector);
+    const [imgURL, setImageURL] = useState<string | null>('');
     const [isLoading, setIsLoading] = useState(true);
     const [imgLoading, setImageLoading] = useState<boolean>(true);
     const [activeField, setActiveField] = useState<keyof FormValues | null>(
       null
     );
+    const [imgError, setImgError] = useState(false);
 
     const validationSchema = Yup.object({
       topAnswer: Yup.array()
@@ -373,6 +380,8 @@ const Question = forwardRef(
     };
 
     useEffect(() => {
+      setImageURL(null);
+      setImgError(false);
       setImageLoading(true);
     }, [question]);
 
@@ -384,6 +393,16 @@ const Question = forwardRef(
 
       return () => clearTimeout(timer);
     }, [question]);
+
+    useEffect(() => {
+      setImageLoading(true);
+    }, [currentImageLoading]);
+
+    useEffect(() => {
+      if (imageError) {
+        setImgError(true);
+      }
+    }, [imageError]);
 
     return isLoading ? (
       <Loader />
@@ -781,15 +800,22 @@ const Question = forwardRef(
         {question.questionType === QuestionType.MCQ && !!question.options && (
           <div className='flex flex-col space-y-2 justify-center items-center'>
             <span className='mb-6'>{question?.name?.en}</span>
-            {question?.questionImage && imgLoading && <Loader />}
-            {question?.questionImage && !!imgURL && (
+            {question?.questionImage && imgLoading && !imgError && <Loader />}
+            {question?.questionImage && !!imgURL && !imgError ? (
               <img
                 key={imgURL}
                 className='w-auto min-w-[30%] max-w-full h-auto max-h-[80vh] !mb-6 object-contain'
                 src={imgURL}
                 onLoad={handleImageLoad}
+                onError={() => setImgError(true)}
                 alt='Img'
               />
+            ) : (
+              imgError && (
+                <div className='text-red-500 text-lg pb-10 mt-0'>
+                  Connectivity Error!! Unable to load the image.
+                </div>
+              )
             )}
             <ToggleButtonGroup
               selectedValue={formik.values.mcqAnswer}
