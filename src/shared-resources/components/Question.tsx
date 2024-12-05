@@ -579,6 +579,18 @@ const Question = forwardRef(
             )}
             {/* Result answer inputs */}
             <div className='flex space-x-2'>
+              {Array(
+                maxLength - formik.values?.resultAnswer?.length > 0
+                  ? maxLength - formik.values?.resultAnswer?.length
+                  : 0
+              )
+                .fill(null)
+                .map((_, i) => (
+                  <div
+                    key={`extra-space-${i}`}
+                    className='w-[40px] h-[61px] border-transparent'
+                  />
+                ))}
               <div className='w-12 h-10 flex items-center justify-center font-bold text-[36px]' />
               {formik.values?.resultAnswer?.map((value, index) => (
                 <div key={`result-${index}`}>
