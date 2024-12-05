@@ -1,12 +1,8 @@
-import { SupportedLanguages } from 'types/enum';
 import { SyncLearnerResponseActionType } from './actions.constants';
 
-export const syncLearnerResponse = (
-  logoutOnSuccess = false,
-  language: keyof typeof SupportedLanguages = SupportedLanguages.en
-) => ({
+export const syncLearnerResponse = (logoutOnSuccess = false) => ({
   type: SyncLearnerResponseActionType.SYNC_LEARNER_RESPONSE,
-  payload: { logoutOnSuccess, language },
+  payload: { logoutOnSuccess },
 });
 
 export const syncFinalLearnerResponse = () => ({

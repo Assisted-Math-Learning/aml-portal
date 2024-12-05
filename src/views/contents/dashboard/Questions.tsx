@@ -264,7 +264,7 @@ const Questions: React.FC = () => {
       <ContainerLayout
         headerText={
           isCompleted
-            ? 'Congratulations!'
+            ? getTranslatedString(language, multiLangLabels.congratulations)
             : questions[currentQuestionIndex]?.questionType ===
               QuestionType.GRID_2
             ? `${getTranslatedString(
@@ -316,7 +316,7 @@ const Questions: React.FC = () => {
         }
         buttonText={
           isSyncing
-            ? 'Syncing...'
+            ? getTranslatedString(language, multiLangLabels.syncing)
             : isCompleted
             ? getTranslatedString(language, multiLangLabels.next_set)
             : getTranslatedString(language, multiLangLabels.next)
@@ -325,13 +325,16 @@ const Questions: React.FC = () => {
         buttonDisabled={isSyncing || (!isCompleted && !isFormValid)}
         toolTipMessage={
           isSyncing
-            ? 'Sync in progress'
+            ? getTranslatedString(language, multiLangLabels.sync_in_progress)
             : questions[currentQuestionIndex]?.questionType === QuestionType.MCQ
             ? getTranslatedString(
                 language,
                 multiLangLabels.select_one_option_to_continue
               )
-            : 'Fill in all the empty blanks to continue'
+            : getTranslatedString(
+                language,
+                multiLangLabels.fill_in_all_the_empty_blanks_to_continue
+              )
         }
         onKeyClick={handleKeyClick}
         onBackSpaceClick={handleBackSpaceClick}

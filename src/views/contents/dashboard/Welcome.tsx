@@ -34,7 +34,8 @@ const Welcome: React.FC = () => {
   return (
     <ContainerLayout
       headerText={`${getTranslatedString(language, multiLangLabels.hello)}, ${
-        userSelector?.username || 'Learner'
+        userSelector?.username ||
+        getTranslatedString(language, multiLangLabels.learner)
       }`}
       content={
         <MultiLangText
@@ -46,7 +47,10 @@ const Welcome: React.FC = () => {
       buttonText={getTranslatedString(language, multiLangLabels.start)}
       onButtonClick={handleStartClick}
       buttonDisabled={!questions?.length}
-      toolTipMessage='No questions available'
+      toolTipMessage={getTranslatedString(
+        language,
+        multiLangLabels.no_questions_available
+      )}
     />
   );
 };

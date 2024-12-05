@@ -24,7 +24,10 @@ const Completed: React.FC = () => {
           HeaderText={`${getTranslatedString(
             language,
             multiLangLabels.hello
-          )}, ${userSelector?.username || 'Learner'}`}
+          )}, ${
+            userSelector?.username ||
+            getTranslatedString(language, multiLangLabels.learner)
+          }`}
         />
         <div className='flex md:gap-[85px] items-end flex-col md:flex-row'>
           <div className='md:w-full h-[250px] sm:h-[350px] md:h-[450px] max-h-[480px] p-20 border-[1px] md:mx-[60px] border-black mt-[61px] flex items-center justify-center'>

@@ -11,7 +11,10 @@ import * as uuid from 'uuid';
 import * as Sentry from '@sentry/react';
 import { toastService } from 'services/ToastService';
 import { removeCookie } from 'shared-resources/utils/helpers';
-import { localStorageService } from '../LocalStorageService';
+import { getTranslatedString } from 'shared-resources/components/MultiLangText/MultiLangText';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { SupportedLanguages } from 'types/enum';
+import { CONTENT_LANG, localStorageService } from '../LocalStorageService';
 
 interface RequestConfig extends AxiosRequestConfig {
   requestId?: string;
@@ -57,10 +60,17 @@ export class BaseApiService {
   }
 
   private handleUnauthorizedError() {
+    const language =
+      localStorageService.getLocalStorageValue(CONTENT_LANG) ??
+      SupportedLanguages.en;
+
     localStorageService.removeCSRFToken();
     removeCookie('connect.sid');
     toastService.showError(
-      'Your session has expired. Please login again to continue.'
+      getTranslatedString(
+        language as keyof typeof SupportedLanguages,
+        multiLangLabels.your_session_has_expired_please_sign_in_again_to_continue
+      )
     );
     setTimeout(() => {
       window.location.href = '/login';

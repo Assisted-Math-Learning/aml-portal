@@ -35,7 +35,10 @@ const ContinueJourney: React.FC = () => {
       headerText={`${getTranslatedString(
         language,
         multiLangLabels.welcome_back
-      )} ${userSelector?.username || 'Learner'}`}
+      )} ${
+        userSelector?.username ||
+        getTranslatedString(language, multiLangLabels.learner)
+      }`}
       content={
         <MultiLangText
           component='div'
@@ -48,7 +51,10 @@ const ContinueJourney: React.FC = () => {
       buttonText={getTranslatedString(language, multiLangLabels.resume)}
       onButtonClick={handleResumeClick}
       buttonDisabled={!questions?.length}
-      toolTipMessage='No questions available'
+      toolTipMessage={getTranslatedString(
+        language,
+        multiLangLabels.no_questions_available
+      )}
     />
   );
 };

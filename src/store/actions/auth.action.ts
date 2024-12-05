@@ -1,12 +1,10 @@
 import { User } from 'models/entities/User';
-import { SupportedLanguages } from 'types/enum';
 import { AuthActionType } from './actions.constants';
 
 // TODO: MOVE TO SPECIFIC TYPE FILE
 export interface AuthLoginActionPayloadType {
   username: string;
   password: string;
-  language: keyof typeof SupportedLanguages;
 }
 
 export const authLoginAction = (payload: AuthLoginActionPayloadType) => ({
@@ -36,13 +34,8 @@ export const authFetchMeErrorAction = (message: string) => ({
   payload: message,
 });
 
-export const authLogoutAction = (
-  language: keyof typeof SupportedLanguages = SupportedLanguages.en
-) => ({
+export const authLogoutAction = () => ({
   type: AuthActionType.LOGOUT,
-  payload: {
-    language,
-  },
 });
 
 export const authLogoutCompletedAction = () => ({

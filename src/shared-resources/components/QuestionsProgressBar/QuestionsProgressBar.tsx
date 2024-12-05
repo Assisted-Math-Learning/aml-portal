@@ -1,4 +1,7 @@
 import React from 'react';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { useLanguage } from 'context/LanguageContext';
+import { getTranslatedString } from '../MultiLangText/MultiLangText';
 
 type QuestionsProgressBarProps = {
   currentQuestionIndex: number;
@@ -9,6 +12,7 @@ const QuestionsProgressBar: React.FC<QuestionsProgressBarProps> = ({
   currentQuestionIndex,
   questionsLength,
 }) => {
+  const { language } = useLanguage();
   const barWidth =
     questionsLength > 0
       ? ((currentQuestionIndex + 1) / questionsLength) * 100
@@ -25,7 +29,9 @@ const QuestionsProgressBar: React.FC<QuestionsProgressBarProps> = ({
         />
       </div>
       <div className='leading-8 text-right font-semibold text-headingTextColor'>
-        Questions left: {questionsLength - currentQuestionIndex - 1}
+        {`${getTranslatedString(language, multiLangLabels.questions_left)} ${
+          questionsLength - currentQuestionIndex - 1
+        }`}
       </div>
     </div>
   );

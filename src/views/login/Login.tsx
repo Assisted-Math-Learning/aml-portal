@@ -66,7 +66,6 @@ const Login: React.FC = () => {
     const loginValues = {
       password: values.password,
       username: values.username?.toLowerCase(),
-      language,
     };
     dispatch(authLoginAction(loginValues));
   };

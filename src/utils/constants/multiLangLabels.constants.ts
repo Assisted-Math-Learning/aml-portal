@@ -108,4 +108,50 @@ export const multiLangLabels = {
   },
   kannada: { en: 'Kannada', kn: 'ಕನ್ನಡ' },
   count: { en: 'Count', kn: 'ಎಣಿಸಿ' },
+  addition: { en: 'Addition', kn: 'ಸಂಕಲನ' },
+  subtraction: { en: 'Subtraction', kn: 'ವ್ಯವಕಲನ' },
+  multiplication: { en: 'Multiplication', kn: 'ಗುಣಾಕಾರ' },
+  division: { en: 'Division', kn: 'ಭಾಗಾಕಾರ' },
+  learner: { en: 'Learner', kn: 'ಕಲಿಕಾರ್ಥಿ' },
+  questions_left: { en: 'Questions left:', kn: 'ಪ್ರಶ್ನೆಗಳು ಉಳಿದಿವೆ:' },
+  no_questions_available: {
+    en: 'No questions available',
+    kn: 'ಪ್ರಶ್ನೆಗಳು ಲಭ್ಯವಿಲ್ಲ',
+  },
+  congratulations: { en: 'Congratulations!', kn: 'ಅಭಿನಂದನೆಗಳು!' },
+  syncing: { en: 'Syncing...', kn: 'ಸಿಂಕ್‌ ಆಗುತ್ತಿದೆ...' },
+  sync_in_progress: { en: 'Sync in progress', kn: 'ಸಿಂಕ್‌ ಪ್ರಗತಿಯಲ್ಲಿದೆ' },
+  fill_in_all_the_empty_blanks_to_continue: {
+    en: 'Fill in all the empty blanks to continue',
+    kn: 'ಮುಂದುವರೆಯುವುದಕ್ಕೆ ಖಾಲಿ ಇರುವ ಜಾಗಗಳನ್ನು ತುಂಬಿರಿ.',
+  },
+  sync_in_progress_please_try_again_in_some_time: {
+    en: 'Sync in progress. Please try again in some time.',
+    kn: 'ಸಿಂಕ್‌ ಪ್ರಗತಿಯಲ್ಲಿದೆ. ಸ್ವಲ್ಪ ಹೊತ್ತಿನ ನಂತರ ಪ್ರಯತ್ನಿಸಿ.',
+  },
+  progress_could_not_saved: {
+    en: 'Progress could not be saved.',
+    kn: 'ಪ್ರಗತಿಯು ಸೇವ್‌ ಆಗಿಲ್ಲ.',
+  },
+  progress_saved_successfully: {
+    en: 'Progress saved successfully.',
+    kn: 'ಪ್ರಗತಿಯು ಯಶಸ್ವಿಯಾಗಿ ಸೇವ್‌ ಆಯಿತು.',
+  },
+  saving_progress: { en: 'Saving progress', kn: 'ಸೇವ್‌ ಆಗುತ್ತಿದೆ' },
+  your_session_has_expired_please_sign_in_again_to_continue: {
+    en: 'Your session has expired. Please sign in again to continue.',
+    kn: 'ನಿಮ್ಮ ಸೆಶನ್‌ ಮುಗಿಯಿತು. ಮುಂದುವರೆಯುವುದಕ್ಕೆ ಪುನಃ ಲಾಗಿನ್‌ ಆಗಿರಿ.',
+  },
+  solve_by_drawing_circles: {
+    en: 'Solve by drawing cicles',
+    kn: 'ವೃತ್ತಗಳನ್ನು ಎಳೆದು ಲೆಕ್ಕ ಮಾಡಿ.',
+  },
+  choose_the_correct_number_for_blank: {
+    en: 'Choose the correct number for blank.',
+    kn: 'ಖಾಲಿ ಬಿಟ್ಟ ಜಾಗಕ್ಕೆ ಸರಿಯಾದ ಸಂಖ್ಯೆಯನ್ನು ಆರಿಸಿ.',
+  },
+  count_and_compare_the_number_of_circles: {
+    en: 'Count and compare the number of circles.',
+    kn: 'ವೃತ್ತಗಳ ಸಂಖ್ಯೆಯನ್ನು ಎಣಿಸಿ, ಹೋಲಿಸಿರಿ.',
+  },
 } as const;

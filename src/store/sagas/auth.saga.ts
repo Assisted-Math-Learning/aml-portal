@@ -13,7 +13,10 @@ import {
   authLogoutCompletedAction,
 } from 'store/actions/auth.action';
 import { authService } from 'services/api-services/AuthService';
-import { localStorageService } from 'services/LocalStorageService';
+import {
+  CONTENT_LANG,
+  localStorageService,
+} from 'services/LocalStorageService';
 import { fetchLearnerJourney } from 'store/actions/learnerJourney.actions';
 import { navigateTo } from 'store/actions/navigation.action';
 import * as Sentry from '@sentry/react';
@@ -31,8 +34,7 @@ interface LoginSagaPayloadType extends SagaPayloadType {
 }
 function* loginSaga(data: LoginSagaPayloadType): any {
   try {
-    const { language, ...dataPayload } = data.payload;
-    const response = yield call(authService.login, dataPayload);
+    const response = yield call(authService.login, data.payload);
     if (response.responseCode === 'OK' && response?.result?.data) {
       if (response?.result?.data?.username) {
         // Sentry.setUser({
@@ -40,6 +42,10 @@ function* loginSaga(data: LoginSagaPayloadType): any {
         //   username: response?.result?.data?.username,
         // });
       }
+      const language =
+        (localStorageService.getLocalStorageValue(
+          CONTENT_LANG
+        ) as keyof typeof SupportedLanguages) ?? SupportedLanguages.en;
       toastService.showSuccess(
         getTranslatedString(language, multiLangLabels.logged_in_successfully)
       );
@@ -84,24 +90,20 @@ function* fetchCSRFTokenSaga(): any {
   }
 }
 
-function* logoutSaga(data: {
-  type: string;
-  payload: {
-    language: keyof typeof SupportedLanguages;
-  };
-}): any {
+function* logoutSaga(): any {
   try {
     const response = yield call(authService.logout);
     if (response) {
+      const language =
+        (localStorageService.getLocalStorageValue(
+          CONTENT_LANG
+        ) as keyof typeof SupportedLanguages) ?? SupportedLanguages.en;
       localStorageService.removeCSRFToken();
       yield put(navigateTo('/login'));
       yield put(authLogoutCompletedAction());
       // Sentry.setUser(null);
       toastService.showSuccess(
-        getTranslatedString(
-          data.payload.language,
-          multiLangLabels.logged_out_successfully
-        )
+        getTranslatedString(language, multiLangLabels.logged_out_successfully)
       );
     }
   } catch (e: any) {

@@ -4,10 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import ConfirmationDialog from 'shared-resources/components/CustomDialog/ConfirmationDialog';
 import { syncLearnerResponse } from 'store/actions/syncLearnerResponse.action';
 import { allQuestionSetsCompletedSelector } from 'store/selectors/logicEngine.selector';
-import { LanguageProvider } from 'context/LanguageContext';
 import { useLanguage } from 'context/LanguageContext';
 import { getTranslatedString } from 'shared-resources/components/MultiLangText/MultiLangText';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { authLogoutAction } from 'store/actions/auth.action';
 import { AuthContext } from '../../context/AuthContext';
 import {
   isAuthLoadingSelector,
@@ -59,7 +59,7 @@ const Layout: React.FC = () => {
           questionSet.identifier
         }_${Date.now()} SYNCING ON LOGOUT ${new Date().toDateString()}`
       );
-      dispatch(syncLearnerResponse(true, language));
+      dispatch(syncLearnerResponse(true));
     }
   };
 
@@ -72,7 +72,10 @@ const Layout: React.FC = () => {
       syncLearnerResponseData();
     } else {
       toastService.showError(
-        'Sync in progress. Please try again in some time.'
+        getTranslatedString(
+          language,
+          multiLangLabels.sync_in_progress_please_try_again_in_some_time
+        )
       );
     }
   };
