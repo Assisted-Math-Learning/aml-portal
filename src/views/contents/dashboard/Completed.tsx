@@ -19,7 +19,7 @@ const Completed: React.FC = () => {
   return (
     <>
       <Confetti width={width} height={height} />
-      <div className='flex flex-col'>
+      <div className='flex flex-col px-20'>
         <QuestionHeader
           HeaderText={`${getTranslatedString(
             language,
@@ -30,7 +30,7 @@ const Completed: React.FC = () => {
           }`}
         />
         <div className='flex md:gap-[85px] items-end flex-col md:flex-row'>
-          <div className='md:w-full h-[250px] sm:h-[350px] md:h-[450px] max-h-[480px] p-20 border-[1px] md:mx-[60px] border-black mt-[61px] flex items-center justify-center'>
+          <div className='md:w-full h-[250px] sm:h-[350px] md:h-[450px] max-h-[480px] p-20 border-[1px] border-black mt-[61px] flex items-center justify-center'>
             <MultiLangText
               component='span'
               className='text-4xl font-semibold text-headingTextColor'

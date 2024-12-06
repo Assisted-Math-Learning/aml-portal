@@ -55,9 +55,11 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
         />
       )}
       <QuestionHeader HeaderText={headerText} />
-      <div className='flex flex-col md:flex-row gap-6 items-center md:items-end justify-between px-6 py-10 pl-0 overflow-y-auto md:h-[80%] max-h-full'>
-        <div className='relative w-full h-full md:w-[65%] p-8 border border-black mt-6 flex flex-col gap-6 md:gap-14 items-center justify-center'>
-          {content}
+      <div className='flex flex-col md:flex-row gap-6 items-center md:items-end md:h-[80%] justify-start md:justify-between px-6 py-10 pl-0 max-h-full'>
+        <div className='relative w-full h-[65%] md:h-full md:w-[65%] border border-black mt-6 flex flex-col items-center justify-center'>
+          <div className='overflow-y-auto p-8 gap-6 md:gap-14 w-full flex flex-col items-center'>
+            {content}
+          </div>
           <span className='absolute left-[46%] bottom-[-34px] text-2xl font-semibold text-headingTextColor'>
             {showAttemptCount
               ? `${currentQuestionIndex + 1} / ${questionsLength}`

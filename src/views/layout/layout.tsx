@@ -99,7 +99,7 @@ const Layout: React.FC = () => {
     <AuthContext.Provider value={authContextValue}>
       <div className='flex flex-col h-full'>
         <Header learnerId={learnerId} username={userSelector?.username} />
-        <div className='flex-1'>
+        <div className='flex-1 overflow-y-hidden'>
           <Outlet />
         </div>
 
