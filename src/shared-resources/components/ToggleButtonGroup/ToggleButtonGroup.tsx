@@ -9,34 +9,45 @@ const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
   selectedValue,
   setSelectedValue,
   error,
-}) => (
-  <div>
-    <MatToggleButtonGroup
-      value={selectedValue}
-      exclusive
-      onChange={(_, val) => setSelectedValue(val)}
-      className='toggle-btn-group gap-x-[58px] gap-y-8 !grid grid-cols-2'
-      aria-errormessage={error}
-    >
-      {options
-        .filter((option) => option !== '')
-        .map((option) => (
-          <MatToggleButton
-            key={option}
-            value={option}
-            className='w-[236px] !py-2 !border-2 !m-0 !border-black !rounded-2xl !text-4xl !font-semibold !text-black !font-publicSans'
-            disableRipple
-          >
-            {option}
-          </MatToggleButton>
-        ))}
-    </MatToggleButtonGroup>
-    {error && (
-      <p className='text-error text-xs mt-[3px] mx-[14px] font-normal'>
-        {error}
-      </p>
-    )}
-  </div>
-);
+}) => {
+  const isOdd = options.length % 2 !== 0;
+
+  return (
+    <div>
+      <MatToggleButtonGroup
+        value={selectedValue}
+        exclusive
+        onChange={(_, val) => setSelectedValue(val)}
+        className='toggle-btn-group !grid grid-cols-2 gap-x-[58px] gap-y-8 justify-self-center'
+        aria-errormessage={error}
+      >
+        {options
+          .filter((option) => option !== '')
+          .map((option, index) => (
+            <MatToggleButton
+              key={option}
+              value={option}
+              className={`w-[236px] !py-2 !border-2 !m-0 !border-black !rounded-2xl !text-4xl !font-semibold !text-black !font-publicSans 
+                  ${
+                    isOdd && index === options.length - 1
+                      ? 'col-span-2 justify-self-center'
+                      : ''
+                  }
+                `}
+              disableRipple
+            >
+              {option}
+            </MatToggleButton>
+          ))}
+      </MatToggleButtonGroup>
+
+      {error && (
+        <p className='text-error text-xs mt-[3px] mx-[14px] font-normal'>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+};
 
 export default ToggleButtonGroup;
