@@ -186,6 +186,8 @@ const Questions: React.FC = () => {
         {
           topAnswer: newAnswer.topAnswer,
           answerIntermediate: newAnswer?.answerIntermediate,
+          answerQuotient: newAnswer?.answerQuotient,
+          answerRemainder: newAnswer?.answerRemainder,
           resultAnswer: newAnswer.resultAnswer,
           row1Answers: newAnswer.row1Answers,
           row2Answers: newAnswer.row2Answers,

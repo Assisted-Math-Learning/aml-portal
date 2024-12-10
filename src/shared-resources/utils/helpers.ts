@@ -8,6 +8,8 @@ type LearnerResponse = {
   remainder?: string;
   answer_top?: string;
   answerIntermediate?: string;
+  answerQuotient?: string;
+  answerRemainder?: string;
 };
 
 type QuestionData = {
@@ -57,6 +59,12 @@ export const transformQuestions = (apiQuestions: any): any =>
           }),
           ...(question_body.answers?.answerIntermediate !== undefined && {
             answerIntermediate: question_body.answers?.answerIntermediate,
+          }),
+          ...(question_body.answers?.answerQuotient !== undefined && {
+            answerQuotient: question_body.answers?.answerQuotient,
+          }),
+          ...(question_body.answers?.answerRemainder !== undefined && {
+            answerRemainder: question_body.answers?.answerRemainder,
           }),
           ...(question_body.answers?.isIntermediatePrefill !== undefined && {
             isIntermediatePrefill: question_body.answers?.isIntermediatePrefill,
@@ -130,6 +138,8 @@ export function convertSingleResponseToLearnerResponse(
   let remainder = '';
   let answer_top = '';
   let answerIntermediate = '';
+  const answerQuotient = '';
+  const answerRemainder = '';
 
   if (answers?.resultAnswer) {
     result = answers.resultAnswer.join('');
@@ -175,7 +185,12 @@ export function convertSingleResponseToLearnerResponse(
   if (answerIntermediate) {
     learner_response.answerIntermediate = answerIntermediate;
   }
-
+  if (answerQuotient) {
+    learner_response.answerQuotient = answerQuotient;
+  }
+  if (answerRemainder) {
+    learner_response.answerRemainder = answerRemainder;
+  }
   // Return the transformed question data
   return {
     question_id: questionId,
