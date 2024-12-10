@@ -28,6 +28,8 @@ interface QuestionProps {
   question: {
     answers: {
       result: string;
+      quotient: string;
+      remainder: string;
       isPrefil: boolean;
       answerTop: string;
       answerResult: string;
@@ -63,6 +65,8 @@ interface FormValues {
   row2Answers: string[];
   questionType: QuestionType;
   fibAnswer: string;
+  quotient: string;
+  remainder: string;
   mcqAnswer: string;
   questionId: string;
   answerIntermediate: string[];
@@ -206,7 +210,48 @@ const Question = forwardRef(
             if (value === '.') {
               return false; // Invalid if only a period
             }
-            if (questionType === QuestionType.FIB) {
+            if (
+              questionType === QuestionType.FIB &&
+              question.operation !== ArithmaticOperations.DIVISION
+            ) {
+              return !!value; // Return true if value is provided (not null or empty)
+            }
+            return true; // Skip validation if not 'fib'
+          }
+        ),
+      remainder: Yup.string()
+        .nullable()
+        .test(
+          'remainder-required',
+          'Remainder is required for fill in the blank',
+          function (value) {
+            const { questionType } = this.parent; // Access parent context
+            if (value === '.') {
+              return false; // Invalid if only a period
+            }
+            if (
+              questionType === QuestionType.FIB &&
+              question.operation === ArithmaticOperations.DIVISION
+            ) {
+              return !!value; // Return true if value is provided (not null or empty)
+            }
+            return true; // Skip validation if not 'fib'
+          }
+        ),
+      quotient: Yup.string()
+        .nullable()
+        .test(
+          'quotient-required',
+          'Quotient is required for fill in the blank',
+          function (value) {
+            const { questionType } = this.parent; // Access parent context
+            if (value === '.') {
+              return false; // Invalid if only a period
+            }
+            if (
+              questionType === QuestionType.FIB &&
+              question.operation === ArithmaticOperations.DIVISION
+            ) {
               return !!value; // Return true if value is provided (not null or empty)
             }
             return true; // Skip validation if not 'fib'
@@ -262,6 +307,8 @@ const Question = forwardRef(
         row2Answers: Array(maxLength).fill(''),
         questionType: question.questionType,
         fibAnswer: '',
+        quotient: '',
+        remainder: '',
         mcqAnswer: '',
         questionId: question.questionId,
       },
@@ -286,12 +333,15 @@ const Question = forwardRef(
         } else if (question.questionType === QuestionType.FIB) {
           onSubmit({
             questionId: question.questionId,
-            fibAnswer: values.fibAnswer, // Pass the FIB answer
+            fibAnswer: values.fibAnswer,
+            quotient: values.quotient,
+            remainder: values.remainder,
+            operation: question.operation,
           });
         } else if (question.questionType === QuestionType.MCQ) {
           onSubmit({
             questionId: question.questionId,
-            mcqAnswer: values.mcqAnswer, // Pass the FIB answer
+            mcqAnswer: values.mcqAnswer,
           });
         }
         // Reset the form
@@ -769,46 +819,119 @@ const Question = forwardRef(
           </>
         )}
 
-        {question.questionType === QuestionType.FIB && (
-          <div className='flex flex-row items-center justify-center relative'>
-            <p className='text-4xl flex flex-row font-semibold text-headingTextColor ml-[60px] pt-[23px] pb-[22px] px-[7px]'>
-              {Object.values(question?.numbers || {}).join(
-                operationMap[question.operation]
-              )}
-              =
-            </p>
-            <div className='flex flex-col space-y-2 w-[236px]'>
-              <input
-                type='text'
-                name='fibAnswer'
-                onFocus={() => setActiveField(`fibAnswer`)}
-                autoFocus
-                autoComplete='off'
-                value={formik.values.fibAnswer}
-                onChange={formik.handleChange}
-                maxLength={9}
-                onKeyPress={(e) => {
-                  // Prevent non-numeric key presses
-                  if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-                onPaste={(e) => {
-                  const pasteData = e.clipboardData.getData('text');
-                  if (!/^[0-9]*$/.test(pasteData)) {
-                    e.preventDefault(); // Prevent paste if it contains non-numeric characters
-                  }
-                }}
-                className='border-2 border-gray-900 rounded-[10px] p-2 w-full h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
-              />
-              {formik.touched.fibAnswer && formik.errors.fibAnswer && (
-                <div className='text-red-500 text-xs absolute -bottom-2'>
-                  {formik.errors.fibAnswer}
+        {question.questionType === QuestionType.FIB &&
+          (question.operation === ArithmaticOperations.DIVISION ? (
+            <div className='flex flex-col  items-center justify-center  relative'>
+              <p className='text-4xl font-semibold text-headingTextColor  pt-[23px] pb-[22px] px-[7px]'>
+                {Object.values(question?.numbers || {}).join(
+                  operationMap[question.operation]
+                )}
+                =
+              </p>
+              <div className='flex flex-col space-y-5 mt-8'>
+                <div className='flex justify-between items-center'>
+                  <h1 className='text-gray-900'>Quotient</h1>
+                  <input
+                    type='text'
+                    name='quotient'
+                    onFocus={() => setActiveField('quotient')}
+                    autoFocus
+                    autoComplete='off'
+                    value={formik.values.quotient}
+                    onChange={formik.handleChange}
+                    maxLength={9}
+                    onKeyPress={(e) => {
+                      // Prevent non-numeric key presses
+                      if (!/[0-9]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pasteData = e.clipboardData.getData('text');
+                      if (!/^[0-9]*$/.test(pasteData)) {
+                        e.preventDefault(); // Prevent paste if it contains non-numeric characters
+                      }
+                    }}
+                    className='border-2 border-gray-900 rounded-[10px] p-2 w-[236px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                  />
                 </div>
-              )}
+
+                <div className='flex justify-between items-center space-x-6'>
+                  <h1 className='text-gray-900'>Remainder</h1>
+                  <input
+                    type='text'
+                    name='remainder'
+                    onFocus={() => setActiveField('remainder')}
+                    autoFocus
+                    autoComplete='off'
+                    value={formik.values.remainder}
+                    onChange={formik.handleChange}
+                    maxLength={9}
+                    onKeyPress={(e) => {
+                      // Prevent non-numeric key presses
+                      if (!/[0-9]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pasteData = e.clipboardData.getData('text');
+                      if (!/^[0-9]*$/.test(pasteData)) {
+                        e.preventDefault(); // Prevent paste if it contains non-numeric characters
+                      }
+                    }}
+                    className='border-2 border-gray-900 rounded-[10px] p-2 w-[236px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className='flex flex-row items-center justify-center relative'>
+              <p className='text-4xl flex flex-row font-semibold text-headingTextColor ml-[60px] pt-[23px] pb-[22px] px-[7px]'>
+                {Object.values(question?.numbers || {}).join(
+                  operationMap[question.operation]
+                )}
+                =
+              </p>
+              <div className='flex flex-col space-y-2 w-[236px]'>
+                <input
+                  type='text'
+                  name='fibAnswer'
+                  onFocus={() => setActiveField(`fibAnswer`)}
+                  autoFocus
+                  autoComplete='off'
+                  value={formik.values.fibAnswer}
+                  onChange={formik.handleChange}
+                  maxLength={9}
+                  onKeyPress={(e) => {
+                    // Prevent non-numeric key presses
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[0-9]*$/.test(pasteData)) {
+                      e.preventDefault(); // Prevent paste if it contains non-numeric characters
+                    }
+                  }}
+                  className='border-2 border-gray-900 rounded-[10px] p-2 w-full h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                />
+
+                {formik.touched.fibAnswer &&
+                  formik.touched.remainder &&
+                  formik.touched.quotient &&
+                  formik.errors.quotient &&
+                  formik.errors.remainder &&
+                  formik.errors.fibAnswer && (
+                    <div className='text-red-500 text-xs absolute -bottom-2'>
+                      {formik.errors.fibAnswer &&
+                        formik.errors.quotient &&
+                        formik.errors.remainder}
+                    </div>
+                  )}
+              </div>
+            </div>
+          ))}
 
         {question.questionType === QuestionType.MCQ && !!question.options && (
           <div className='flex flex-col space-y-2 justify-center items-center'>

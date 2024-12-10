@@ -190,6 +190,8 @@ const Questions: React.FC = () => {
           row1Answers: newAnswer.row1Answers,
           row2Answers: newAnswer.row2Answers,
           fibAnswer: newAnswer.fibAnswer,
+          quotient: newAnswer.quotient,
+          remainder: newAnswer.remainder,
           mcqAnswer: newAnswer.mcqAnswer,
         },
         _.isUndefined

@@ -3,7 +3,9 @@ import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { QuestionType } from 'models/enums/QuestionType.enum';
 
 type LearnerResponse = {
-  result: string;
+  result?: string;
+  quotient?: string;
+  remainder?: string;
   answer_top?: string;
   answerIntermediate?: string;
 };
@@ -124,6 +126,8 @@ export function convertSingleResponseToLearnerResponse(
 ): QuestionData {
   const { questionId, start_time, end_time, answers, operation } = item;
   let result = '';
+  let quotient = '';
+  let remainder = '';
   let answer_top = '';
   let answerIntermediate = '';
 
@@ -135,6 +139,13 @@ export function convertSingleResponseToLearnerResponse(
     result = answers.mcqAnswer;
   } else if (answers?.row2Answers) {
     result = answers.row2Answers.join('');
+  }
+
+  if (answers?.quotient) {
+    quotient = answers.quotient;
+  }
+  if (answers?.remainder) {
+    remainder = answers.remainder;
   }
 
   if (answers?.answerIntermediate && originalAnswerIntermediate) {
@@ -153,7 +164,10 @@ export function convertSingleResponseToLearnerResponse(
     answer_top = answers.row1Answers.join('');
   }
   // Build the learner response
-  const learner_response: LearnerResponse = { result };
+  const learner_response: LearnerResponse =
+    operation === ArithmaticOperations.DIVISION // TODO: this check will be modified when grid-1 division will be added
+      ? { quotient, remainder }
+      : { result };
   if (answer_top) {
     learner_response.answer_top = answer_top;
   }
