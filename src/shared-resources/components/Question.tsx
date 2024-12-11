@@ -40,6 +40,7 @@ interface QuestionProps {
       answerQuotient: string;
       answerRemainder: string;
       isIntermediatePrefill?: boolean;
+      fib_type?: '1' | '2';
     };
     numbers: {
       [key: string]: string;
@@ -65,8 +66,8 @@ interface QuestionProps {
 
 interface FormValues {
   topAnswer: string[];
-  answerQuotient: string[];
-  answerRemainder: string[];
+  answerQuotient: string | string[];
+  answerRemainder: string | string[];
   resultAnswer: string[];
   row1Answers: string[];
   row2Answers: string[];
@@ -75,8 +76,6 @@ interface FormValues {
   mcqAnswer: string;
   questionId: string;
   answerIntermediate: any;
-  quotient: string;
-  remainder: string;
 }
 
 // Using forwardRef to forward refs to the parent component
@@ -136,28 +135,6 @@ const Question = forwardRef(
           }
           return value && value.length > 0; // Ensure the array has at least one valid entry
         }),
-      // answerIntermediate: Yup.array()
-      //   .of(
-      //     Yup.string()
-      //       .required('Required')
-      //       .matches(/^\d$/, 'Must be a single digit')
-      //   )
-      //   .test(
-      //     'is-intermediate-required',
-      //     'Intermediate answer is required',
-      //     function (value) {
-      //       const { questionType, operation } = this.parent;
-      //       if (
-      //         questionType === QuestionType.GRID_1 &&
-      //         operation === ArithmaticOperations.MULTIPLICATION &&
-      //         value
-      //       ) {
-      //         // Ensure all inputs are filled for Multiplication
-      //         return value.every((input) => input !== '');
-      //       }
-      //       return true; // Skip validation for other cases
-      //     }
-      //   ),
 
       answerIntermediate: Yup.array()
         .of(
@@ -180,7 +157,6 @@ const Question = forwardRef(
                     return /^\d$/.test(value);
                   }
                   if (originalChar === '#') {
-                    console.log('val', value, originalChar);
                     // "#" can remain empty
                     return value === '' || value === undefined;
                   }
@@ -308,42 +284,85 @@ const Question = forwardRef(
             return true; // Skip validation if not 'fib'
           }
         ),
-      remainder: Yup.string()
+      answerQuotient: Yup.mixed()
         .nullable()
         .test(
-          'remainder-required',
-          'Remainder is required for fill in the blank',
+          'validate-answerQuotient',
+          'Invalid value in answerQuotient',
           function (value) {
-            const { questionType } = this.parent; // Access parent context
-            if (value === '.') {
-              return false; // Invalid if only a period
-            }
+            const { questionType } = this.parent;
+
+            // Validation for GRID_1
             if (
-              questionType === QuestionType.FIB &&
+              questionType === QuestionType.GRID_1 &&
               question.operation === ArithmaticOperations.DIVISION
             ) {
-              return !!value; // Return true if value is provided (not null or empty)
+              if (Array.isArray(value)) {
+                // Ensuring all elements in the array are valid
+                return value.every(
+                  (val) => val !== null && val !== '' && /^\d$/.test(val) // Must be a single digit
+                );
+              }
+              return false; // Invalid if not an array
             }
-            return true; // Skip validation if not 'fib'
+
+            // Validation for other types (e.g., FIB)
+            if (
+              questionType === QuestionType.FIB &&
+              question.operation === ArithmaticOperations.DIVISION &&
+              answers.fib_type === '2'
+            ) {
+              if (typeof value === 'string') {
+                return value !== null && value !== '' && value !== '.'; // Must not be empty or invalid
+              }
+              return false; // Invalid if not a string
+            }
+
+            return true; // Skip validation for other question types
           }
         ),
-      quotient: Yup.string()
+
+      answerRemainder: Yup.mixed()
         .nullable()
         .test(
-          'quotient-required',
-          'Quotient is required for fill in the blank',
+          'validate-answerRemainder',
+          'Invalid value in answerRemainder',
           function (value) {
-            const { questionType } = this.parent; // Access parent context
-            if (value === '.') {
-              return false; // Invalid if only a period
-            }
+            const { questionType } = this.parent;
+
+            // Validation for GRID_1
             if (
-              questionType === QuestionType.FIB &&
+              questionType === QuestionType.GRID_1 &&
               question.operation === ArithmaticOperations.DIVISION
             ) {
-              return !!value; // Return true if value is provided (not null or empty)
+              if (Array.isArray(value)) {
+                return value.every((val, idx) => {
+                  const initialValue = answers?.answerRemainder?.[idx]; // Corresponding initial character
+                  if (initialValue === '#') {
+                    return true; // '#' is always valid
+                  }
+                  if (initialValue === 'B') {
+                    return val !== '' && /^\d$/.test(val); // Must be a single digit, cannot be empty
+                  }
+                  return /^\d$/.test(val); // For numbers, must be a single digit
+                });
+              }
+              return false;
             }
-            return true; // Skip validation if not 'fib'
+
+            // Validation for other types (e.g., FIB)
+            if (
+              questionType === QuestionType.FIB &&
+              question.operation === ArithmaticOperations.DIVISION &&
+              answers.fib_type === '2'
+            ) {
+              if (typeof value === 'string') {
+                return value !== null && value !== '' && value !== '.'; // Must not be empty or invalid
+              }
+              return false; // Invalid if not a string
+            }
+
+            return true; // Skip validation for other question types
           }
         ),
       mcqAnswer: Yup.string()
@@ -404,18 +423,24 @@ const Question = forwardRef(
                     .map((val) => (val === 'B' || val === '#' ? '' : val))
                 ),
 
-        answerQuotient: answers?.answerQuotient
-          ?.split('')
-          ?.map((val) => (val === 'B' ? '' : val)),
-        answerRemainder: answers?.answerRemainder
-          ?.split('')
-          ?.map((val) => (val === 'B' ? '' : val)),
+        answerQuotient:
+          question.questionType === QuestionType.GRID_1 &&
+          question.operation === ArithmaticOperations.DIVISION
+            ? answers?.answerQuotient
+                ?.split('')
+                ?.map((val) => (val === 'B' ? '' : val))
+            : '',
+        answerRemainder:
+          question.questionType === QuestionType.GRID_1 &&
+          question.operation === ArithmaticOperations.DIVISION
+            ? answers?.answerRemainder
+                ?.split('')
+                ?.map((val) => (val === 'B' ? '' : val))
+            : '',
         row1Answers: Array(maxLength).fill(''),
         row2Answers: Array(maxLength).fill(''),
         questionType: question.questionType,
         fibAnswer: '',
-        quotient: '',
-        remainder: '',
         mcqAnswer: '',
         questionId: question.questionId,
       },
@@ -443,8 +468,8 @@ const Question = forwardRef(
           onSubmit({
             questionId: question.questionId,
             fibAnswer: values.fibAnswer,
-            quotient: values.quotient,
-            remainder: values.remainder,
+            answerQuotient: values.answerQuotient,
+            answerRemainder: values.answerRemainder,
             operation: question.operation,
           });
         } else if (question.questionType === QuestionType.MCQ) {
@@ -463,12 +488,20 @@ const Question = forwardRef(
       _activeField: keyof FormValues,
       value?: string
     ) => {
-      const activeFieldPath = _activeField.split('.'); // example: if _activeField is 'topAnswers.0, then fullActiveFieldPath is 'topAnswers[0]'
-      const fullActiveFieldPath =
-        `${activeFieldPath?.[0]}` + '[' + `${[activeFieldPath?.[1]]}` + ']'; // eslint-disable-line no-useless-concat
-      if (activeFieldPath.length === 1)
+      const activeFieldPath = _activeField.split('.'); // Spliting the field path by '.'
+
+      // Dynamically constructing the full field path based on the depth
+      const fullActiveFieldPath = activeFieldPath
+        .map((segment, index) => (index === 0 ? segment : `[${segment}]`))
+        .join(''); // Joining the segments to form the full path
+
+      if (activeFieldPath.length === 1) {
+        // For single-level fields, using the field name directly
         formik.setFieldValue(_activeField, value);
-      else formik.setFieldValue(fullActiveFieldPath, value);
+      } else {
+        // For nested fields, using the constructed path
+        formik.setFieldValue(fullActiveFieldPath, value);
+      }
     };
 
     const separateKeys = (input: string) => {
@@ -520,6 +553,11 @@ const Question = forwardRef(
               <input
                 type='text'
                 name={`answerIntermediate.${idx}.${stepIdx}`}
+                onFocus={() =>
+                  setActiveField(
+                    `answerIntermediate.${idx}.${stepIdx}` as keyof FormValues
+                  )
+                }
                 value={
                   isEditable
                     ? formik.values.answerIntermediate?.[idx]?.[stepIdx] || ''
@@ -554,7 +592,6 @@ const Question = forwardRef(
 
     useEffect(() => {
       if (!keyPressed || !backSpacePressed || !activeField) return;
-
       const isKeyPressed = keyPressed.key !== '';
       const { isBackSpaced } = backSpacePressed;
       const { mainKey, subKey } = separateKeys(activeField);
@@ -639,7 +676,6 @@ const Question = forwardRef(
         setImgError(true);
       }
     }, [imageError]);
-    console.log('HERE', formik.values, formik.errors);
     return isLoading ? (
       <Loader />
     ) : (
@@ -907,33 +943,40 @@ const Question = forwardRef(
               <div>
                 {/* quotient */}
                 <div className='flex mb-4 space-x-4 ml-3'>
-                  {formik.values.answerQuotient.map((value, index) => (
-                    <div key={`answerQuotient-${index}`}>
-                      <input
-                        type='text'
-                        name={`answerQuotient.${index}`}
-                        value={formik.values?.answerQuotient?.[index] || ''}
-                        autoFocus
-                        onChange={formik.handleChange}
-                        maxLength={1}
-                        className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
-                        onKeyPress={(e) => {
-                          if (!/[0-9]/.test(e.key)) e.preventDefault();
-                        }}
-                        onPaste={(e) => {
-                          const pasteData = e.clipboardData.getData('text');
-                          if (!/^[0-9]*$/.test(pasteData)) {
-                            e.preventDefault();
+                  {(formik.values.answerQuotient as string[])?.map(
+                    (value, index) => (
+                      <div key={`answerQuotient-${index}`}>
+                        <input
+                          type='text'
+                          name={`answerQuotient.${index}`}
+                          onFocus={() =>
+                            setActiveField(
+                              `answerQuotient.${index}` as keyof FormValues
+                            )
                           }
-                        }}
-                        disabled={
-                          (answers.answerQuotient[index] || '') !== '' &&
-                          (answers.answerQuotient[index] || '') !== 'B' &&
-                          value === (answers.answerQuotient[index] || '')
-                        }
-                      />
-                    </div>
-                  ))}
+                          value={formik.values?.answerQuotient?.[index] || ''}
+                          autoFocus
+                          onChange={formik.handleChange}
+                          maxLength={1}
+                          className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                          onKeyPress={(e) => {
+                            if (!/[0-9]/.test(e.key)) e.preventDefault();
+                          }}
+                          onPaste={(e) => {
+                            const pasteData = e.clipboardData.getData('text');
+                            if (!/^[0-9]*$/.test(pasteData)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          disabled={
+                            (answers.answerQuotient[index] || '') !== '' &&
+                            (answers.answerQuotient[index] || '') !== 'B' &&
+                            value === (answers.answerQuotient[index] || '')
+                          }
+                        />
+                      </div>
+                    )
+                  )}
                 </div>
 
                 {/* Dividend */}
@@ -956,36 +999,43 @@ const Question = forwardRef(
                 </div>
 
                 <div className='flex mt-4 justify-start space-x-3'>
-                  {formik.values.answerRemainder?.map((value, index) => {
-                    const shouldRenderEmptySpace = value === '#';
+                  {(formik.values.answerRemainder as string[])?.map(
+                    (value, index) => {
+                      const shouldRenderEmptySpace = value === '#';
 
-                    return shouldRenderEmptySpace ? (
-                      <div
-                        key={`values-${index}`}
-                        className='w-[48px] h-[61px]'
-                      />
-                    ) : (
-                      <input
-                        key={`answerRemainder-${index}`}
-                        type='text'
-                        name={`answerRemainder.${index}`}
-                        value={formik.values?.answerRemainder?.[index] || ''}
-                        autoFocus
-                        autoComplete='off'
-                        onChange={formik.handleChange}
-                        maxLength={1}
-                        className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
-                        onKeyDown={(e) => {
-                          if (!/[0-9]/.test(e.key) && e.key !== 'Backspace')
-                            e.preventDefault();
-                        }}
-                        onPaste={(e) => {
-                          const pasteData = e.clipboardData.getData('text');
-                          if (!/^[0-9]*$/.test(pasteData)) e.preventDefault();
-                        }}
-                      />
-                    );
-                  })}
+                      return shouldRenderEmptySpace ? (
+                        <div
+                          key={`values-${index}`}
+                          className='w-[48px] h-[61px]'
+                        />
+                      ) : (
+                        <input
+                          key={`answerRemainder-${index}`}
+                          type='text'
+                          name={`answerRemainder.${index}`}
+                          onFocus={() =>
+                            setActiveField(
+                              `answerRemainder.${index}` as keyof FormValues
+                            )
+                          }
+                          value={formik.values?.answerRemainder?.[index] || ''}
+                          autoFocus
+                          autoComplete='off'
+                          onChange={formik.handleChange}
+                          maxLength={1}
+                          className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+                          onKeyDown={(e) => {
+                            if (!/[0-9]/.test(e.key) && e.key !== 'Backspace')
+                              e.preventDefault();
+                          }}
+                          onPaste={(e) => {
+                            const pasteData = e.clipboardData.getData('text');
+                            if (!/^[0-9]*$/.test(pasteData)) e.preventDefault();
+                          }}
+                        />
+                      );
+                    }
+                  )}
                 </div>
               </div>
             </div>
@@ -1104,7 +1154,8 @@ const Question = forwardRef(
         )}
 
         {question.questionType === QuestionType.FIB &&
-          (question.operation === ArithmaticOperations.DIVISION ? (
+          (question.operation === ArithmaticOperations.DIVISION &&
+          answers.fib_type === '2' ? (
             <div className='flex flex-col  items-center justify-center  relative'>
               <p className='text-4xl font-semibold text-headingTextColor  pt-[23px] pb-[22px] px-[7px]'>
                 {Object.values(question?.numbers || {}).join(
@@ -1117,11 +1168,11 @@ const Question = forwardRef(
                   <h1 className='text-gray-900'>Quotient</h1>
                   <input
                     type='text'
-                    name='quotient'
-                    onFocus={() => setActiveField('quotient')}
+                    name='answerQuotient'
+                    onFocus={() => setActiveField('answerQuotient')}
                     autoFocus
                     autoComplete='off'
-                    value={formik.values.quotient}
+                    value={formik.values.answerQuotient}
                     onChange={formik.handleChange}
                     maxLength={9}
                     onKeyPress={(e) => {
@@ -1144,11 +1195,11 @@ const Question = forwardRef(
                   <h1 className='text-gray-900'>Remainder</h1>
                   <input
                     type='text'
-                    name='remainder'
-                    onFocus={() => setActiveField('remainder')}
+                    name='answerRemainder'
+                    onFocus={() => setActiveField('answerRemainder')}
                     autoFocus
                     autoComplete='off'
-                    value={formik.values.remainder}
+                    value={formik.values.answerRemainder}
                     onChange={formik.handleChange}
                     maxLength={9}
                     onKeyPress={(e) => {
@@ -1202,15 +1253,15 @@ const Question = forwardRef(
                 />
 
                 {formik.touched.fibAnswer &&
-                  formik.touched.remainder &&
-                  formik.touched.quotient &&
-                  formik.errors.quotient &&
-                  formik.errors.remainder &&
+                  formik.touched.answerRemainder &&
+                  formik.touched.answerQuotient &&
+                  formik.errors.answerQuotient &&
+                  formik.errors.answerRemainder &&
                   formik.errors.fibAnswer && (
                     <div className='text-red-500 text-xs absolute -bottom-2'>
                       {formik.errors.fibAnswer &&
-                        formik.errors.quotient &&
-                        formik.errors.remainder}
+                        formik.errors.answerQuotient &&
+                        formik.errors.answerRemainder}
                     </div>
                   )}
               </div>

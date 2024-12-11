@@ -80,7 +80,6 @@ const Questions: React.FC = () => {
           const allAnswered = transformedQuestions.every((question: any) =>
             combinedAnsweredIds.includes(question.questionId)
           );
-          console.log('HERE 1', transformedQuestions);
           if (allAnswered) {
             setIsCompleted(true);
           } else {
@@ -192,15 +191,12 @@ const Questions: React.FC = () => {
           row1Answers: newAnswer.row1Answers,
           row2Answers: newAnswer.row2Answers,
           fibAnswer: newAnswer.fibAnswer,
-          quotient: newAnswer.quotient,
-          remainder: newAnswer.remainder,
           mcqAnswer: newAnswer.mcqAnswer,
         },
         _.isUndefined
       ),
       operation: newAnswer?.operation,
     };
-
     const transformedAnswer = convertSingleResponseToLearnerResponse(
       filteredAnswer,
       questionSet!.identifier,

@@ -60,6 +60,9 @@ export const transformQuestions = (apiQuestions: any): any =>
           ...(question_body.answers?.answerIntermediate !== undefined && {
             answerIntermediate: question_body.answers?.answerIntermediate,
           }),
+          ...(question_body.answers?.fib_type !== undefined && {
+            fib_type: question_body.answers?.fib_type,
+          }),
           ...(question_body.answers?.answerQuotient !== undefined && {
             answerQuotient: question_body.answers?.answerQuotient,
           }),
@@ -134,13 +137,10 @@ export function convertSingleResponseToLearnerResponse(
 ): QuestionData {
   const { questionId, start_time, end_time, answers, operation } = item;
   let result = '';
-  let quotient = '';
-  let remainder = '';
   let answer_top = '';
   let answerIntermediate = '';
-  const answerQuotient = '';
-  const answerRemainder = '';
-
+  let answerQuotient = '';
+  let answerRemainder = '';
   if (answers?.resultAnswer) {
     result = answers.resultAnswer.join('');
   } else if (answers?.fibAnswer) {
@@ -151,18 +151,38 @@ export function convertSingleResponseToLearnerResponse(
     result = answers.row2Answers.join('');
   }
 
-  if (answers?.quotient) {
-    quotient = answers.quotient;
+  if (answers?.answerQuotient) {
+    answerQuotient = Array.isArray(answers.answerQuotient)
+      ? answers.answerQuotient.join('')
+      : answers.answerQuotient;
   }
-  if (answers?.remainder) {
-    remainder = answers.remainder;
+  if (answers?.answerRemainder) {
+    answerRemainder = Array.isArray(answers.answerRemainder)
+      ? answers.answerRemainder.join('')
+      : answers.answerRemainder;
   }
 
-  if (answers?.answerIntermediate && originalAnswerIntermediate) {
+  if (
+    answers?.answerIntermediate &&
+    originalAnswerIntermediate &&
+    operation === ArithmaticOperations.MULTIPLICATION
+  ) {
     answerIntermediate = formatAnswerIntermediate(
       answers.answerIntermediate,
       originalAnswerIntermediate
     );
+  }
+
+  if (
+    answers?.answerIntermediate &&
+    operation === ArithmaticOperations.DIVISION
+  ) {
+    answerIntermediate = answers.answerIntermediate
+      .map(
+        (row: any) =>
+          row.map((cell: any) => (cell === '' ? '#' : cell)).join('') // Replace empty string with '#' and join elements
+      )
+      .join('|');
   }
 
   if (answers?.topAnswer) {
@@ -174,10 +194,12 @@ export function convertSingleResponseToLearnerResponse(
     answer_top = answers.row1Answers.join('');
   }
   // Build the learner response
-  const learner_response: LearnerResponse =
-    operation === ArithmaticOperations.DIVISION // TODO: this check will be modified when grid-1 division will be added
-      ? { quotient, remainder }
-      : { result };
+  const learner_response: LearnerResponse = {};
+
+  if (result) {
+    learner_response.result = result;
+  }
+
   if (answer_top) {
     learner_response.answer_top = answer_top;
   }
