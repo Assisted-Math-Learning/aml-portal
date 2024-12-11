@@ -206,7 +206,8 @@ const Question = forwardRef(
 
             if (
               questionType === QuestionType.GRID_1 &&
-              question.operation === ArithmaticOperations.MULTIPLICATION
+              question.operation === ArithmaticOperations.MULTIPLICATION &&
+              answers.isIntermediatePrefill
             ) {
               return value?.every((row) => row?.every((input) => input !== ''));
             }
@@ -483,7 +484,7 @@ const Question = forwardRef(
         formik.resetForm();
       },
     });
-
+    console.log(formik.errors);
     const handleSetFieldValue = (
       _activeField: keyof FormValues,
       value?: string
