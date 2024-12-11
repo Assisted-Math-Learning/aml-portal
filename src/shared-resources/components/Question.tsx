@@ -27,10 +27,12 @@ import MultiLangText from './MultiLangText/MultiLangText';
 interface QuestionProps {
   question: {
     answers: {
-      result: {
-        quotient: string;
-        remainder: string;
-      } | string;
+      result:
+        | {
+            quotient: string;
+            remainder: string;
+          }
+        | string;
       isPrefil: boolean;
       answerTop: string;
       answerResult: string;
@@ -72,7 +74,7 @@ interface FormValues {
   fibAnswer: string;
   mcqAnswer: string;
   questionId: string;
-  answerIntermediate: string[];
+  answerIntermediate: any;
   quotient: string;
   remainder: string;
 }
@@ -134,28 +136,109 @@ const Question = forwardRef(
           }
           return value && value.length > 0; // Ensure the array has at least one valid entry
         }),
+      // answerIntermediate: Yup.array()
+      //   .of(
+      //     Yup.string()
+      //       .required('Required')
+      //       .matches(/^\d$/, 'Must be a single digit')
+      //   )
+      //   .test(
+      //     'is-intermediate-required',
+      //     'Intermediate answer is required',
+      //     function (value) {
+      //       const { questionType, operation } = this.parent;
+      //       if (
+      //         questionType === QuestionType.GRID_1 &&
+      //         operation === ArithmaticOperations.MULTIPLICATION &&
+      //         value
+      //       ) {
+      //         // Ensure all inputs are filled for Multiplication
+      //         return value.every((input) => input !== '');
+      //       }
+      //       return true; // Skip validation for other cases
+      //     }
+      //   ),
+
       answerIntermediate: Yup.array()
         .of(
-          Yup.string()
-            .required('Required')
-            .matches(/^\d$/, 'Must be a single digit')
+          Yup.array().of(
+            Yup.string().test(
+              'validate-b-and-hash',
+              'Input must be a single digit',
+              (value: any, context) => {
+                const { answerIntermediate } = answers; // Access original string
+                const parts = answerIntermediate?.split('|'); // Original input string split into rows
+                const rowIndex = context.path.match(/\d+/g)?.[0]; // Get row index
+                const colIndex = context.path.match(/\d+/g)?.[1]; // Get column index
+                if (rowIndex === undefined || colIndex === undefined) {
+                  return true; // Skip validation if indices are missing
+                }
+                const originalChar = parts[+rowIndex]?.[+colIndex]; // Get the original character
+                if (question.operation === ArithmaticOperations.DIVISION) {
+                  if (originalChar === 'B') {
+                    // "B" must be filled with a number
+                    return /^\d$/.test(value);
+                  }
+                  if (originalChar === '#') {
+                    console.log('val', value, originalChar);
+                    // "#" can remain empty
+                    return value === '' || value === undefined;
+                  }
+                }
+
+                return true; // Skip validation for non-DIVISION cases
+              }
+            )
+          )
         )
         .test(
-          'is-intermediate-required',
-          'Intermediate answer is required',
-          function (value) {
-            const { questionType, operation } = this.parent;
-            if (
-              questionType === 'Grid-1' &&
-              operation === 'Multiplication' &&
-              value
-            ) {
-              // Ensure all inputs are filled for Multiplication
-              return value.every((input) => input !== '');
+          'validate-row-has-inputs',
+          'Each row must have at least one filled input for DIVISION',
+          (value, context) => {
+            const { answerIntermediate } = answers || {};
+            const parts = answerIntermediate?.split('|'); // Original string split into rows
+            const rowIndex = context.path.match(/\d+/g)?.[0]; // Get row index
+            const colIndex = context.path.match(/\d+/g)?.[1]; // Get column index
+            if (rowIndex === undefined || colIndex === undefined) {
+              return true; // Skip validation if indices are missing
             }
-            return true; // Skip validation for other cases
+            const originalChar = parts[+rowIndex]?.[+colIndex]; // Get the original character
+            if (question.operation === ArithmaticOperations.DIVISION) {
+              return value?.every((row, idx) => {
+                const hasValidInput = row?.some((input, colIdx) => {
+                  const normalizedInput = input ?? ''; // Treating null/undefined as empty
+                  // Only validating cells marked as 'B' in the original string
+                  return (
+                    originalChar === 'B' &&
+                    !!normalizedInput &&
+                    /^\d$/.test(normalizedInput)
+                  );
+                });
+
+                return hasValidInput; // At least one valid input in the row
+              });
+            }
+
+            return true; // Skip for non-DIVISION cases
+          }
+        )
+        .test(
+          'validate-all-filled-for-multiplication',
+          'All inputs must be filled for MULTIPLICATION',
+          function (value) {
+            const { questionType } = this.parent;
+
+            if (
+              questionType === QuestionType.GRID_1 &&
+              question.operation === ArithmaticOperations.MULTIPLICATION
+            ) {
+              return value?.every((row) => row?.every((input) => input !== ''));
+            }
+
+            return true; // Skip for non-MULTIPLICATION cases
           }
         ),
+
       resultAnswer: Yup.array()
         .of(
           Yup.string()
@@ -169,6 +252,7 @@ const Question = forwardRef(
             const { questionType } = this.parent;
             return (
               questionType !== QuestionType.GRID_1 ||
+              question.operation === ArithmaticOperations.DIVISION ||
               (value && value.length > 0)
             );
           }
@@ -306,21 +390,20 @@ const Question = forwardRef(
         answerIntermediate:
           question.operation === ArithmaticOperations.DIVISION
             ? answers?.answerIntermediate
-                ?.split('|') // Split by pipe (|) for Division
-                .flatMap((row) =>
+                ?.split('|')
+                .map((row) =>
                   row
                     .split('')
                     .map((val) => (val === 'B' || val === '#' ? '' : val))
-                ) // Map B and # to empty strings
-                .filter((val) => val !== ' ') // Remove unintended spaces
+                )
             : answers?.answerIntermediate
                 ?.split('#') // Split into rows for non-DIVISION operations
                 .flatMap((row) =>
                   row
                     .split('')
                     .map((val) => (val === 'B' || val === '#' ? '' : val))
-                ) // Map B and # to empty strings
-                .filter((val) => val !== ' '), // Remove unintended spaces
+                ),
+
         answerQuotient: answers?.answerQuotient
           ?.split('')
           ?.map((val) => (val === 'B' ? '' : val)),
@@ -395,16 +478,19 @@ const Question = forwardRef(
 
     const renderDivisionIntermediateSteps = () => {
       const parts = answers.answerIntermediate.split('|');
-
       return parts.map((stepGroup, idx) => {
         const steps = stepGroup.split('');
-
         const inputBoxes = steps.map((step, stepIdx) => {
           const isEditable = step === 'B';
           const isBlank = step === '#';
 
-          // If it's a blank space, render a `-`
-          if (isBlank) {
+          // Check if this `#` should be a `-` (i.e., it's immediately before a `B` or a number)
+          const shouldRenderDash =
+            isBlank &&
+            (steps[stepIdx + 1] === 'B' || /[0-9]/.test(steps[stepIdx + 1])) &&
+            idx % 2 === 0;
+
+          if (shouldRenderDash) {
             return (
               <div
                 key={`${idx}-${stepIdx}`}
@@ -415,11 +501,18 @@ const Question = forwardRef(
             );
           }
 
-          // Otherwise, render the input box (and the `-` if it's the first input)
+          // Render empty space for other `#` characters
+          if (isBlank) {
+            return (
+              <div key={`${idx}-${stepIdx}`} className='w-[44px] h-[61px]' />
+            );
+          }
+
+          // Render the input box or static value
           return (
             <div key={`${idx}-${stepIdx}`} className='relative'>
               {idx === 0 && stepIdx === 0 && (
-                <div className='absolute left-[-24px] top-1/2 transform -translate-y-1/2 font-bold text-[36px]'>
+                <div className='absolute left-[-30px] top-1/2 transform -translate-y-1/2 font-bold text-[36px]'>
                   -
                 </div>
               )}
@@ -450,7 +543,7 @@ const Question = forwardRef(
 
         return (
           <div key={idx} className='mt-2'>
-            <div className='flex space-x-3 ml-5'>{inputBoxes}</div>
+            <div className='flex space-x-3 ml-2.5'>{inputBoxes}</div>
             {(idx === 0 || idx % 2 === 0) && (
               <div className='border-2 border-gray-300 mt-2' />
             )}
@@ -546,7 +639,7 @@ const Question = forwardRef(
         setImgError(true);
       }
     }, [imageError]);
-
+    console.log('HERE', formik.values, formik.errors);
     return isLoading ? (
       <Loader />
     ) : (
@@ -833,6 +926,11 @@ const Question = forwardRef(
                             e.preventDefault();
                           }
                         }}
+                        disabled={
+                          (answers.answerQuotient[index] || '') !== '' &&
+                          (answers.answerQuotient[index] || '') !== 'B' &&
+                          value === (answers.answerQuotient[index] || '')
+                        }
                       />
                     </div>
                   ))}
@@ -857,20 +955,16 @@ const Question = forwardRef(
                   {renderDivisionIntermediateSteps()}
                 </div>
 
-                <div className='flex mt-4 justify-end space-x-3'>
+                <div className='flex mt-4 justify-start space-x-3'>
                   {formik.values.answerRemainder?.map((value, index) => {
-                    const step = value;
+                    const shouldRenderEmptySpace = value === '#';
 
-                    if (step === '#') {
-                      return (
-                        <div
-                          key={`answerRemainder-${index}`}
-                          className='border-2 border-gray-900 rounded-[10px] w-[46px] h-[61px] text-center font-bold text-[36px]'
-                        />
-                      );
-                    }
-
-                    return (
+                    return shouldRenderEmptySpace ? (
+                      <div
+                        key={`values-${index}`}
+                        className='w-[48px] h-[61px]'
+                      />
+                    ) : (
                       <input
                         key={`answerRemainder-${index}`}
                         type='text'

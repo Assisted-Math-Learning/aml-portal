@@ -80,7 +80,7 @@ const Questions: React.FC = () => {
           const allAnswered = transformedQuestions.every((question: any) =>
             combinedAnsweredIds.includes(question.questionId)
           );
-
+          console.log('HERE 1', transformedQuestions);
           if (allAnswered) {
             setIsCompleted(true);
           } else {
