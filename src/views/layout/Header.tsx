@@ -1,9 +1,11 @@
 import React from 'react';
 import ToggleSwitch from 'shared-resources/components/ToggleSwitch/ToggleSwitch';
-import { SupportedLanguages } from 'types/enum';
-import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { SupportedLanguages, SupportedLanguagesLabels } from 'types/enum';
 import { useLanguage } from 'context/LanguageContext';
-import MultiLangText from 'shared-resources/components/MultiLangText/MultiLangText';
+import {
+  CONTENT_LANG,
+  localStorageService,
+} from 'services/LocalStorageService';
 import { AuthContext } from '../../context/AuthContext';
 import ProfileWithMenu from '../../shared-resources/components/ProfileWithMenu/ProfileWithMenu';
 import ENV_CONFIG from '../../constant/env.config';
@@ -13,11 +15,17 @@ type Props = {
   username?: string;
 };
 
+const storedLanguage = (localStorageService.getLocalStorageValue(
+  CONTENT_LANG
+) ?? SupportedLanguages.en) as keyof typeof SupportedLanguages;
+
 const Header: React.FC<Props> = ({ learnerId, username }) => {
   const { language, setLanguage } = useLanguage();
 
   const handleLanguageChange = (_: any, checked: boolean) => {
-    setLanguage(checked ? SupportedLanguages.kn : SupportedLanguages.en);
+    setLanguage(
+      checked ? SupportedLanguages[storedLanguage] : SupportedLanguages.en
+    );
   };
 
   return (
@@ -32,17 +40,14 @@ const Header: React.FC<Props> = ({ learnerId, username }) => {
           AML v{ENV_CONFIG.APP_VERSION ?? '1.0.0'}
         </p>
       </div>
-      {!learnerId && (
+      {!learnerId && storedLanguage !== SupportedLanguages.en && (
         <div className='gap-2 flex'>
           <span className='font-semibold'>English</span>
           <ToggleSwitch
-            checked={language === SupportedLanguages.kn}
+            checked={language === storedLanguage}
             onChange={handleLanguageChange}
           />
-          <MultiLangText
-            labelMap={multiLangLabels.kannada}
-            enforceLang={SupportedLanguages.kn}
-          />
+          <span>{SupportedLanguagesLabels[storedLanguage]}</span>
         </div>
       )}
       {learnerId && (
@@ -50,8 +55,8 @@ const Header: React.FC<Props> = ({ learnerId, username }) => {
           {({ onLogout }) => (
             <ProfileWithMenu
               onLogout={onLogout}
+              setLanguage={setLanguage}
               username={username}
-              handleLanguageChange={handleLanguageChange}
               language={language}
             />
           )}

@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   CONTENT_LANG,
   localStorageService,
 } from 'services/LocalStorageService';
+import { learnerIdSelector } from 'store/selectors/auth.selector';
+import { supportedLanguages } from 'store/selectors/board.selector';
 import { SupportedLanguages } from 'types/enum';
 
 type LanguageContextProps = {
@@ -25,13 +28,38 @@ export const LanguageProvider = ({
     SupportedLanguages.en
   );
 
+  const supportedLangs = useSelector(supportedLanguages);
+  const learnerId = useSelector(learnerIdSelector);
+
+  const handleTopSupportedLanguage = useCallback(
+    (storedLanguage: string | null) => {
+      const languages = Object.keys(supportedLangs ?? {});
+
+      if (!learnerId && storedLanguage) {
+        setLanguage(storedLanguage as keyof typeof SupportedLanguages);
+        return;
+      }
+
+      if (storedLanguage && languages.includes(storedLanguage)) {
+        setLanguage(storedLanguage as keyof typeof SupportedLanguages);
+        return;
+      }
+
+      if (languages.length > 1) {
+        setLanguage(languages[0] as keyof typeof SupportedLanguages);
+        return;
+      }
+
+      setLanguage(SupportedLanguages.en);
+    },
+    [learnerId, supportedLangs]
+  );
+
   useEffect(() => {
     const storedLanguage =
       localStorageService.getLocalStorageValue(CONTENT_LANG);
-    if (storedLanguage) {
-      setLanguage(storedLanguage as keyof typeof SupportedLanguages);
-    }
-  }, []);
+    handleTopSupportedLanguage(storedLanguage);
+  }, [handleTopSupportedLanguage]);
 
   useEffect(() => {
     localStorageService.setLocalStorageValue(CONTENT_LANG, language);

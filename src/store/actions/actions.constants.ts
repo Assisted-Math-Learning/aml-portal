@@ -67,3 +67,9 @@ export enum FetchQuestionImageActionType {
   FETCH_QUESTION_IMAGE_COMPLETED = 'fetch/question/image/completed',
   FETCH_QUESTION_IMAGE_ERROR = 'fetch/question/image/error',
 }
+
+export enum FetchBoardActionType {
+  FETCH_BOARD = 'fetch/board',
+  FETCH_BOARD_COMPLETED = 'fetch/board/completed',
+  FETCH_BOARD_ERROR = 'fetch/board/error',
+}

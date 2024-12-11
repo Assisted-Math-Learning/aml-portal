@@ -17,4 +17,11 @@ export enum IDBDataStatus {
 export enum SupportedLanguages {
   en = 'en',
   kn = 'kn',
+  hi = 'hi',
+}
+
+export enum SupportedLanguagesLabels {
+  en = 'English',
+  kn = 'ಕನ್ನಡ',
+  hi = 'हिंदी',
 }

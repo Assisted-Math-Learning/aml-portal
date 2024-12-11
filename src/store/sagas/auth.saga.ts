@@ -28,6 +28,7 @@ import { toastService } from 'services/ToastService';
 import { getTranslatedString } from 'shared-resources/components/MultiLangText/MultiLangText';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { SupportedLanguages } from 'types/enum';
+import { fetchBoard } from 'store/actions/board.action';
 
 interface LoginSagaPayloadType extends SagaPayloadType {
   payload: AuthLoginActionPayloadType;
@@ -50,6 +51,12 @@ function* loginSaga(data: LoginSagaPayloadType): any {
         getTranslatedString(language, multiLangLabels.logged_in_successfully)
       );
       yield put(authLoginCompletedAction(response?.result?.data));
+
+      const boardId = response?.result?.data?.taxonomy?.board?.identifier;
+      if (boardId) {
+        yield put(fetchBoard(boardId));
+      }
+
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
     }
   } catch (e: any) {
@@ -71,6 +78,12 @@ function* fetchLoggedInUserSaga(): any {
         // });
       }
       yield put(authFetchMeCompletedAction(response?.result?.data));
+
+      const boardId = response?.result?.data?.taxonomy?.board?.identifier;
+      if (boardId) {
+        yield put(fetchBoard(boardId));
+      }
+
       yield put(fetchLearnerJourney(response?.result?.data?.identifier));
     }
   } catch (e: any) {

@@ -10,6 +10,7 @@ import { contentReducer } from './content.reducer';
 import { mediaReducer } from './media.reducer';
 import { syncResponseReducer } from './syncResponse.reducer';
 import { logicEngineReducer } from './logicEngine.reducer';
+import { boardReducer } from './board.reducer';
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -22,6 +23,7 @@ const appReducer = combineReducers({
   mediaReducer,
   syncResponseReducer,
   logicEngineReducer,
+  boardReducer,
 });
 
 export const rootReducer = (state: any, action: any) => {
