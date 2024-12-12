@@ -240,8 +240,9 @@ const Question = forwardRef(
               return false; // Invalid if only a period
             }
             if (
-              questionType === QuestionType.FIB &&
-              question.operation !== ArithmaticOperations.DIVISION
+              questionType === QuestionType.FIB ||
+              (question.operation === ArithmaticOperations.DIVISION &&
+                answers.fib_type === '1')
             ) {
               return !!value; // Return true if value is provided (not null or empty)
             }
