@@ -179,8 +179,7 @@ export function convertSingleResponseToLearnerResponse(
   ) {
     answerIntermediate = answers.answerIntermediate
       .map(
-        (row: any) =>
-          row.map((cell: any) => (cell === '' ? '#' : cell)).join('') // Replace empty string with '#' and join elements
+        (row: any) => row.map((cell: any) => (cell === '' ? '' : cell)).join('') // Replace empty string with '#' and join elements
       )
       .join('|');
   }
