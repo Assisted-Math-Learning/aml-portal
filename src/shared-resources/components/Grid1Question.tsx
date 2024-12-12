@@ -107,7 +107,6 @@ const Grid1Question = forwardRef(
         );
       });
     };
-    console.log(formik.values.answerQuotient, 'hey');
     return (
       <>
         {question.operation === ArithmaticOperations.DIVISION ? (
@@ -122,7 +121,7 @@ const Grid1Question = forwardRef(
             </div>
             <div>
               {/* quotient */}
-              <div className='flex mb-4 space-x-4 ml-3'>
+              <div className='flex mb-4 space-x-4 ml-2'>
                 {Array.isArray(formik.values.answerQuotient) &&
                   (formik.values?.answerQuotient as string[])?.map(
                     (value, index) => (
@@ -179,7 +178,7 @@ const Grid1Question = forwardRef(
                 {renderDivisionIntermediateSteps()}
               </div>
 
-              <div className='flex mt-4 justify-start space-x-3'>
+              <div className='flex mt-4 justify-start space-x-4'>
                 {Array.isArray(formik.values.answerRemainder) &&
                   (formik.values.answerRemainder as string[])?.map(
                     (value, index) => {
