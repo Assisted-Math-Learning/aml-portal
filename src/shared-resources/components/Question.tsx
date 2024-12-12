@@ -99,15 +99,54 @@ const Question = forwardRef(
           return value && value.length > 0; // Ensure the array has at least one valid entry
         }),
 
-      answerIntermediate: Yup.array()
-        .of(
-          Yup.array().of(
-            Yup.string().test(
-              'validate-b-and-hash',
-              'Input must be a single digit',
-              (value: any, context) => {
-                const { answerIntermediate } = answers; // Access original string
-                const parts = answerIntermediate?.split('|'); // Original input string split into rows
+      answerIntermediate: Yup.lazy(() => {
+        if (
+          question.operation === ArithmaticOperations.DIVISION &&
+          question.questionType === QuestionType.GRID_1
+        ) {
+          return Yup.array()
+            .of(
+              Yup.array().of(
+                Yup.string().test(
+                  'validate-b-and-hash',
+                  'Input must be a single digit',
+                  (value: any, context) => {
+                    if (!answers?.answerIntermediate?.length) {
+                      return true; // Validation passes without errors
+                    }
+                    const { answerIntermediate } = answers; // Access original string
+                    const parts = answerIntermediate?.split('|'); // Original input string split into rows
+                    const rowIndex = context.path.match(/\d+/g)?.[0]; // Get row index
+                    const colIndex = context.path.match(/\d+/g)?.[1]; // Get column index
+                    if (rowIndex === undefined || colIndex === undefined) {
+                      return true; // Skip validation if indices are missing
+                    }
+                    const originalChar = parts[+rowIndex]?.[+colIndex]; // Get the original character
+                    if (question.operation === ArithmaticOperations.DIVISION) {
+                      if (originalChar === 'B') {
+                        // "B" must be filled with a number
+                        return /^\d$/.test(value);
+                      }
+                      if (originalChar === '#') {
+                        // "#" can remain empty
+                        return value === '' || value === undefined;
+                      }
+                    }
+
+                    return true; // Skip validation for non-DIVISION cases
+                  }
+                )
+              )
+            )
+            .test(
+              'validate-row-has-inputs',
+              'Each row must have at least one filled input for DIVISION',
+              (value, context) => {
+                if (!answers?.answerIntermediate?.length) {
+                  return true; // Validation passes without errors
+                }
+                const { answerIntermediate } = answers || {};
+                const parts = answerIntermediate?.split('|'); // Original string split into rows
                 const rowIndex = context.path.match(/\d+/g)?.[0]; // Get row index
                 const colIndex = context.path.match(/\d+/g)?.[1]; // Get column index
                 if (rowIndex === undefined || colIndex === undefined) {
@@ -115,70 +154,44 @@ const Question = forwardRef(
                 }
                 const originalChar = parts[+rowIndex]?.[+colIndex]; // Get the original character
                 if (question.operation === ArithmaticOperations.DIVISION) {
-                  if (originalChar === 'B') {
-                    // "B" must be filled with a number
-                    return /^\d$/.test(value);
-                  }
-                  if (originalChar === '#') {
-                    // "#" can remain empty
-                    return value === '' || value === undefined;
-                  }
+                  return value?.every((row, idx) => {
+                    const hasValidInput = row?.some((input, colIdx) => {
+                      const normalizedInput = input ?? ''; // Treating null/undefined as empty
+                      // Only validating cells marked as 'B' in the original string
+                      return (
+                        originalChar === 'B' &&
+                        !!normalizedInput &&
+                        /^\d$/.test(normalizedInput)
+                      );
+                    });
+
+                    return hasValidInput; // At least one valid input in the row
+                  });
                 }
 
-                return true; // Skip validation for non-DIVISION cases
+                return true; // Skip for non-DIVISION cases
               }
+            );
+        }
+        if (
+          question.operation === ArithmaticOperations.MULTIPLICATION &&
+          question.questionType === QuestionType.GRID_1
+        ) {
+          return Yup.array().of(
+            Yup.string().test(
+              'validate-all-filled-for-multiplication',
+              'All inputs must be filled for MULTIPLICATION',
+              (value) => {
+                if (!answers?.isIntermediatePrefill) {
+                  return true; // Validation passes without errors
+                }
+                return !!value;
+              } // Check that each input is not empty
             )
-          )
-        )
-        .test(
-          'validate-row-has-inputs',
-          'Each row must have at least one filled input for DIVISION',
-          (value, context) => {
-            const { answerIntermediate } = answers || {};
-            const parts = answerIntermediate?.split('|'); // Original string split into rows
-            const rowIndex = context.path.match(/\d+/g)?.[0]; // Get row index
-            const colIndex = context.path.match(/\d+/g)?.[1]; // Get column index
-            if (rowIndex === undefined || colIndex === undefined) {
-              return true; // Skip validation if indices are missing
-            }
-            const originalChar = parts[+rowIndex]?.[+colIndex]; // Get the original character
-            if (question.operation === ArithmaticOperations.DIVISION) {
-              return value?.every((row, idx) => {
-                const hasValidInput = row?.some((input, colIdx) => {
-                  const normalizedInput = input ?? ''; // Treating null/undefined as empty
-                  // Only validating cells marked as 'B' in the original string
-                  return (
-                    originalChar === 'B' &&
-                    !!normalizedInput &&
-                    /^\d$/.test(normalizedInput)
-                  );
-                });
-
-                return hasValidInput; // At least one valid input in the row
-              });
-            }
-
-            return true; // Skip for non-DIVISION cases
-          }
-        )
-        .test(
-          'validate-all-filled-for-multiplication',
-          'All inputs must be filled for MULTIPLICATION',
-          function (value) {
-            const { questionType } = this.parent;
-
-            if (
-              questionType === QuestionType.GRID_1 &&
-              question.operation === ArithmaticOperations.MULTIPLICATION &&
-              answers.isIntermediatePrefill
-            ) {
-              return value?.every((row) => row?.every((input) => input !== ''));
-            }
-
-            return true; // Skip for non-MULTIPLICATION cases
-          }
-        ),
-
+          );
+        }
+        return Yup.mixed(); // Default validation (skipped) for other operations
+      }),
       resultAnswer: Yup.array()
         .of(
           Yup.string()
@@ -240,8 +253,10 @@ const Question = forwardRef(
               return false; // Invalid if only a period
             }
             if (
-              questionType === QuestionType.FIB ||
-              (question.operation === ArithmaticOperations.DIVISION &&
+              (questionType === QuestionType.FIB &&
+                question.operation !== ArithmaticOperations.DIVISION) ||
+              (questionType === QuestionType.FIB &&
+                question.operation === ArithmaticOperations.DIVISION &&
                 answers.fib_type === '1')
             ) {
               return !!value; // Return true if value is provided (not null or empty)
@@ -471,87 +486,6 @@ const Question = forwardRef(
     const separateKeys = (input: string) => {
       const [mainKey, subKey] = input.split('.');
       return { mainKey, subKey };
-    };
-
-    const renderDivisionIntermediateSteps = () => {
-      const parts = answers.answerIntermediate.split('|');
-      return parts.map((stepGroup, idx) => {
-        const steps = stepGroup.split('');
-        const inputBoxes = steps.map((step, stepIdx) => {
-          const isEditable = step === 'B';
-          const isBlank = step === '#';
-
-          // Check if this `#` should be a `-` (i.e., it's immediately before a `B` or a number)
-          const shouldRenderDash =
-            isBlank &&
-            (steps[stepIdx + 1] === 'B' || /[0-9]/.test(steps[stepIdx + 1])) &&
-            idx % 2 === 0;
-
-          if (shouldRenderDash) {
-            return (
-              <div
-                key={`${idx}-${stepIdx}`}
-                className='w-[44px] h-[61px] text-center font-bold text-[36px]'
-              >
-                -
-              </div>
-            );
-          }
-
-          // Render empty space for other `#` characters
-          if (isBlank) {
-            return (
-              <div key={`${idx}-${stepIdx}`} className='w-[44px] h-[61px]' />
-            );
-          }
-
-          // Render the input box or static value
-          return (
-            <div key={`${idx}-${stepIdx}`} className='relative'>
-              {idx === 0 && stepIdx === 0 && (
-                <div className='absolute left-[-30px] top-1/2 transform -translate-y-1/2 font-bold text-[36px]'>
-                  -
-                </div>
-              )}
-
-              <input
-                type='text'
-                name={`answerIntermediate.${idx}.${stepIdx}`}
-                onFocus={() =>
-                  setActiveField(
-                    `answerIntermediate.${idx}.${stepIdx}` as keyof FormValues
-                  )
-                }
-                value={
-                  isEditable
-                    ? formik.values.answerIntermediate?.[idx]?.[stepIdx] || ''
-                    : step
-                }
-                onChange={formik.handleChange}
-                maxLength={1}
-                className='border-2 border-gray-900 rounded-[10px] w-[44px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
-                disabled={!isEditable}
-                onKeyPress={(e) => {
-                  if (!/[0-9]/.test(e.key)) e.preventDefault(); // Only allow numeric input
-                }}
-                onPaste={(e) => {
-                  const pasteData = e.clipboardData.getData('text');
-                  if (!/^[0-9]*$/.test(pasteData)) e.preventDefault(); // Prevent pasting non-numeric characters
-                }}
-              />
-            </div>
-          );
-        });
-
-        return (
-          <div key={idx} className='mt-2'>
-            <div className='flex space-x-3 ml-2.5'>{inputBoxes}</div>
-            {(idx === 0 || idx % 2 === 0) && (
-              <div className='border-2 border-gray-300 mt-2' />
-            )}
-          </div>
-        );
-      });
     };
 
     useEffect(() => {

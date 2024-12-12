@@ -20,7 +20,7 @@ interface FIBQuestionProps {
 
 // Using forwardRef to forward refs to the parent component
 const FIBQuestion = forwardRef(
-  ({ question, formik, setActiveField }: FIBQuestionProps, ref) => {
+  ({ question, formik, setActiveField }: FIBQuestionProps) => {
     const { answers } = question;
 
     return (
