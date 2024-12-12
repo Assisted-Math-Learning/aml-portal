@@ -139,8 +139,8 @@ export function convertSingleResponseToLearnerResponse(
   let result = '';
   let answer_top = '';
   let answerIntermediate = '';
-  let answerQuotient = '';
-  let answerRemainder = '';
+  let quotient = '';
+  let remainder = '';
   if (answers?.resultAnswer) {
     result = answers.resultAnswer.join('');
   } else if (answers?.fibAnswer) {
@@ -152,13 +152,13 @@ export function convertSingleResponseToLearnerResponse(
   }
 
   if (answers?.answerQuotient) {
-    answerQuotient = Array.isArray(answers.answerQuotient)
+    quotient = Array.isArray(answers.answerQuotient)
       ? answers.answerQuotient.join('')
       : answers.answerQuotient;
   }
   if (answers?.answerRemainder) {
-    answerRemainder = Array.isArray(answers.answerRemainder)
-      ? answers.answerRemainder.join('')
+    remainder = Array.isArray(answers.answerRemainder)
+      ? answers.answerRemainder.filter((char: string) => char !== '#').join('')
       : answers.answerRemainder;
   }
 
@@ -206,11 +206,11 @@ export function convertSingleResponseToLearnerResponse(
   if (answerIntermediate) {
     learner_response.answerIntermediate = answerIntermediate;
   }
-  if (answerQuotient) {
-    learner_response.answerQuotient = answerQuotient;
+  if (quotient) {
+    learner_response.quotient = quotient;
   }
-  if (answerRemainder) {
-    learner_response.answerRemainder = answerRemainder;
+  if (remainder) {
+    learner_response.remainder = remainder;
   }
   // Return the transformed question data
   return {
