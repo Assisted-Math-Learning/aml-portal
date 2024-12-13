@@ -70,7 +70,6 @@ const FIBQuestion = ({
                 type='text'
                 name='answerRemainder'
                 onFocus={() => setActiveField('answerRemainder')}
-                autoFocus
                 autoComplete='off'
                 value={formik.values.answerRemainder}
                 onChange={formik.handleChange}

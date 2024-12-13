@@ -42,7 +42,7 @@ const Grid1DivisionQuestion = ({
           return (
             <div
               key={`${idx}-${stepIdx}`}
-              className='w-[44px] h-[61px] text-center font-bold text-[36px]'
+              className='w-[46px] h-[61px] text-center font-bold text-[36px]'
             >
               {operationMap[ArithmaticOperations.SUBTRACTION]}
             </div>
@@ -52,7 +52,7 @@ const Grid1DivisionQuestion = ({
         // Render empty space for other `#` characters
         if (isBlank) {
           return (
-            <div key={`${idx}-${stepIdx}`} className='w-[44px] h-[61px]' />
+            <div key={`${idx}-${stepIdx}`} className='w-[46px] h-[61px]' />
           );
         }
 
@@ -80,7 +80,7 @@ const Grid1DivisionQuestion = ({
               }
               onChange={formik.handleChange}
               maxLength={1}
-              className='border-2 border-gray-900 rounded-[10px] w-[44px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
+              className='border-2 border-gray-900 rounded-[10px] w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
               disabled={!isEditable}
               onKeyPress={(e) => {
                 if (!/[0-9]/.test(e.key)) e.preventDefault(); // Only allow numeric input
@@ -118,7 +118,7 @@ const Grid1DivisionQuestion = ({
           </div>
           <div>
             {/* quotient */}
-            <div className='flex mb-4 space-x-4 ml-2'>
+            <div className='flex mb-4 space-x-3 ml-2'>
               {Array.isArray(formik.values.answerQuotient) &&
                 (formik.values?.answerQuotient as string[])?.map(
                   (value, index) => (
@@ -173,7 +173,7 @@ const Grid1DivisionQuestion = ({
             {/* Intermediate Steps and Remainder */}
             <div className='space-y-4'>{renderDivisionIntermediateSteps()}</div>
 
-            <div className='flex mt-4 justify-start space-x-4'>
+            <div className='flex mt-4 justify-start space-x-3 ml-2.5'>
               {Array.isArray(formik.values.answerRemainder) &&
                 (formik.values.answerRemainder as string[])?.map(
                   (value, index) => {
@@ -182,7 +182,7 @@ const Grid1DivisionQuestion = ({
                     return shouldRenderEmptySpace ? (
                       <div
                         key={`values-${index}`}
-                        className='w-[48px] h-[61px]'
+                        className='w-[46px] h-[61px]'
                       />
                     ) : (
                       <input
