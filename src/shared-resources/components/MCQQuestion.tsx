@@ -14,7 +14,6 @@ interface MCQQuestionProps {
   imgLoading: boolean;
   imgURL: string | null;
   imgError: boolean;
-  isLoading: boolean;
   handleImageLoad: () => void;
   setImgError: React.Dispatch<React.SetStateAction<boolean>>;
   formik: FormikProps<FormValues>;
@@ -26,7 +25,6 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
     imgLoading,
     imgURL,
     imgError,
-    isLoading,
     handleImageLoad,
     setImgError,
     formik,

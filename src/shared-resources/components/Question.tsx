@@ -154,8 +154,8 @@ const Question = forwardRef(
                 }
                 const originalChar = parts[+rowIndex]?.[+colIndex]; // Get the original character
                 if (question.operation === ArithmaticOperations.DIVISION) {
-                  return value?.every((row, idx) => {
-                    const hasValidInput = row?.some((input, colIdx) => {
+                  return value?.every((row) => {
+                    const hasValidInput = row?.some((input) => {
                       const normalizedInput = input ?? ''; // Treating null/undefined as empty
                       // Only validating cells marked as 'B' in the original string
                       return (
@@ -614,7 +614,6 @@ const Question = forwardRef(
             imgError={imgError}
             imgLoading={imgLoading}
             imgURL={imgURL}
-            isLoading={isLoading}
             question={question}
             setImgError={setImgError}
           />
