@@ -85,8 +85,8 @@ export const transformQuestions = (apiQuestions: any): any =>
     // Construct options only for MCQ type questions
     const options =
       question_type === QuestionType.MCQ ? question_body?.options : undefined;
-    const questionImage = question_body?.question_image
-      ? { ...question_body.question_image }
+    const questionImageUrl = question_body?.question_image_url
+      ? question_body.question_image_url
       : undefined;
     return {
       questionId: identifier, // Assigning identifier as questionId
@@ -94,10 +94,10 @@ export const transformQuestions = (apiQuestions: any): any =>
       description, // Adding description from the API
       name,
       operation,
+      questionImageUrl,
       ...(answers && { answers }), // Include only if answers exist
       ...(numbers && { numbers }), // Include only if numbers exist
       ...(options && { options }), // Include only if it's an MCQ question
-      ...(questionImage && { questionImage }),
     };
   });
 

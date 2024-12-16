@@ -40,5 +40,5 @@ export interface QuestionPropsType {
   options?: string[];
   name?: { en: string };
   operation: ArithmaticOperations;
-  questionImage?: string;
+  questionImageUrl?: string;
 }

@@ -4,8 +4,6 @@ import questionSetSaga from './QuestionSet.saga';
 import learnerJourneySaga from './learnerJourney.saga';
 import logicEngineEvaluationSaga from './logicEngineEvaluation.saga';
 import syncLearnerResponseSaga from './SyncLearnerResponse.saga';
-import contentSaga from './content.saga';
-import mediaSaga from './media.saga';
 import boardSaga from './board.saga';
 
 export default function* rootSaga() {
@@ -15,8 +13,6 @@ export default function* rootSaga() {
     fork(learnerJourneySaga),
     fork(logicEngineEvaluationSaga),
     fork(syncLearnerResponseSaga),
-    fork(contentSaga),
-    fork(mediaSaga),
     fork(boardSaga),
   ]);
 }

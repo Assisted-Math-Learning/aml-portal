@@ -50,24 +50,6 @@ export enum SyncLearnerResponseActionType {
   SYNC_FINAL_LEARNER_RESPONSE = 'sync/final/learner/response',
 }
 
-export enum FetchContentActionType {
-  FETCH_CONTENT = 'fetch/content',
-  FETCH_CONTENT_COMPLETED = 'fetch/content/completed',
-  FETCH_CONTENT_ERROR = 'fetch/content/error',
-}
-
-export enum FetchContentMediaActionType {
-  FETCH_MEDIA = 'fetch/media',
-  FETCH_MEDIA_COMPLETED = 'fetch/media/completed',
-  FETCH_MEDIA_ERROR = 'fetch/media/error',
-}
-
-export enum FetchQuestionImageActionType {
-  FETCH_QUESTION_IMAGE = 'fetch/question/image',
-  FETCH_QUESTION_IMAGE_COMPLETED = 'fetch/question/image/completed',
-  FETCH_QUESTION_IMAGE_ERROR = 'fetch/question/image/error',
-}
-
 export enum FetchBoardActionType {
   FETCH_BOARD = 'fetch/board',
   FETCH_BOARD_COMPLETED = 'fetch/board/completed',

@@ -8,13 +8,6 @@ import React, {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { QuestionType } from 'models/enums/QuestionType.enum';
-import { fetchQuestionImage } from 'store/actions/media.action';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  currentImageURLSelector,
-  imageErrorSelector,
-  isCurrentImageLoadingSelector,
-} from 'store/selectors/media.selector';
 
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import {
@@ -53,18 +46,11 @@ const Question = forwardRef(
     }: QuestionProps,
     ref
   ) => {
-    const { answers, numbers, questionImage } = question;
-    const dispatch = useDispatch();
-    const currentImageURL = useSelector(currentImageURLSelector);
-    const currentImageLoading = useSelector(isCurrentImageLoadingSelector);
-    const imageError = useSelector(imageErrorSelector);
-    const [imgURL, setImageURL] = useState<string | null>('');
+    const { answers, numbers } = question;
     const [isLoading, setIsLoading] = useState(true);
-    const [imgLoading, setImageLoading] = useState<boolean>(true);
     const [activeField, setActiveField] = useState<keyof FormValues | null>(
       null
     );
-    const [imgError, setImgError] = useState(false);
 
     const validationSchema = Yup.object({
       topAnswer: Yup.array()
@@ -535,28 +521,6 @@ const Question = forwardRef(
     }, [formik.isValid]);
 
     useEffect(() => {
-      if (questionImage) {
-        dispatch(fetchQuestionImage(questionImage));
-      }
-    }, [questionImage]);
-
-    useEffect(() => {
-      if (currentImageURL) {
-        setImageURL(currentImageURL);
-      }
-    }, [currentImageURL]);
-
-    const handleImageLoad = () => {
-      setImageLoading(false);
-    };
-
-    useEffect(() => {
-      setImageURL(null);
-      setImgError(false);
-      setImageLoading(true);
-    }, [question]);
-
-    useEffect(() => {
       setIsLoading(true);
       const timer = setTimeout(() => {
         setIsLoading(false);
@@ -565,15 +529,6 @@ const Question = forwardRef(
       return () => clearTimeout(timer);
     }, [question]);
 
-    useEffect(() => {
-      setImageLoading(true);
-    }, [currentImageLoading]);
-
-    useEffect(() => {
-      if (imageError) {
-        setImgError(true);
-      }
-    }, [imageError]);
     return isLoading ? (
       <Loader />
     ) : (
@@ -608,15 +563,7 @@ const Question = forwardRef(
         )}
 
         {question.questionType === QuestionType.MCQ && (
-          <MCQQuestion
-            formik={formik}
-            handleImageLoad={handleImageLoad}
-            imgError={imgError}
-            imgLoading={imgLoading}
-            imgURL={imgURL}
-            question={question}
-            setImgError={setImgError}
-          />
+          <MCQQuestion formik={formik} question={question} />
         )}
       </form>
     );

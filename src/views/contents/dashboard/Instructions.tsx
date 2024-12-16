@@ -7,10 +7,6 @@ import ContainerLayout from 'shared-resources/components/ContainerLayout/Contain
 import { ArrowBack, ArrowForward } from '@mui/icons-material'; // Material UI icons for back and next arrows
 import QuestionHeader from 'shared-resources/components/QuestionHeader/QuestionHeader';
 import Button from 'shared-resources/components/Button/Button';
-import {
-  isMediaLoadingSelector,
-  mediaSelector,
-} from 'store/selectors/media.selector';
 import { questionsSetSelector } from 'store/selectors/questionSet.selector';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import MultiLangText, {
@@ -21,23 +17,17 @@ import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 
 const Instructions: React.FC = () => {
   const navigate = useNavigate();
-  // const videoUrls = useSelector(videoUrlsSelector); // Get video URLs from Redux
-
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const questionSet = useSelector(questionsSetSelector);
-  const mediaLoading = useSelector(isMediaLoadingSelector);
-  const contentMediaSelector = useSelector(mediaSelector);
   const [mediaURLs, setMediaURLs] = useState<string[]>([]);
   const [hasWatchedEnough, setHasWatchedEnough] = useState(false);
 
   const { language } = useLanguage();
 
   useEffect(() => {
-    const urls = Object.values(contentMediaSelector).flatMap((item) =>
-      item.media.signedUrls.map((urlObj: any) => urlObj.url)
-    );
+    const urls = questionSet?.contents || [];
     setMediaURLs(urls);
-  }, [contentMediaSelector]);
+  }, [questionSet]);
 
   const handleNextClick = () => {
     if (currentVideoIndex < mediaURLs.length - 1) {

@@ -16,6 +16,7 @@ export interface QuestionSet {
   gradient: string;
   group_name: number;
   content_ids: string[];
+  contents: string[];
   instruction_text: string;
   status: string;
   is_active: boolean;
