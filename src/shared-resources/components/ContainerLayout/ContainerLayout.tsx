@@ -13,8 +13,8 @@ import QuestionsProgressBar from '../QuestionsProgressBar/QuestionsProgressBar';
 interface ContainerLayoutProps {
   headerText: string;
   content: React.ReactNode;
-  buttonText: string;
-  onButtonClick: () => void;
+  buttonText?: string;
+  onButtonClick?: () => void;
   buttonDisabled?: boolean;
   toolTipMessage?: string;
   onKeyClick?: (key: string) => void;
@@ -25,6 +25,8 @@ interface ContainerLayoutProps {
   currentQuestionIndex?: number;
   questionsLength?: number;
   showAttemptCount?: boolean;
+  hasMultipleButtons?: boolean;
+  renderButtons?: React.ReactNode;
 }
 
 const ContainerLayout: React.FC<ContainerLayoutProps> = ({
@@ -42,6 +44,8 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
   currentQuestionIndex = 0,
   questionsLength = 0,
   showAttemptCount,
+  hasMultipleButtons,
+  renderButtons,
 }) => {
   const location = useLocation();
 
@@ -77,17 +81,21 @@ const ContainerLayout: React.FC<ContainerLayoutProps> = ({
             </div>
           )}
         <div
-          tabIndex={0}
-          className='w-full md:w-auto mt-8 mb-10 md:mt-0 flex justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
+          tabIndex={hasMultipleButtons ? -1 : 0}
+          className='w-full md:w-auto mt-8 md:mt-0 flex justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
         >
-          <Button
-            type='button'
-            onClick={onButtonClick}
-            disabled={buttonDisabled}
-            tooltipMessage={toolTipMessage}
-          >
-            {buttonText}
-          </Button>
+          {!hasMultipleButtons ? (
+            <Button
+              type='button'
+              onClick={onButtonClick}
+              disabled={buttonDisabled}
+              tooltipMessage={toolTipMessage}
+            >
+              {buttonText}
+            </Button>
+          ) : (
+            renderButtons
+          )}
         </div>
       </div>
     </div>

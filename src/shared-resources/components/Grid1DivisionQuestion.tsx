@@ -11,15 +11,20 @@ import {
   isFieldAnswerValid,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
+import cx from 'classnames';
 import AmlInput from './AmlInput';
 
 interface Grid1QuestionProps {
+  errors: {
+    [key: string]: boolean[] | boolean[][];
+  };
   question: QuestionPropsType;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
 }
 
 const Grid1DivisionQuestion = ({
+  errors = {},
   question,
   formik,
   setActiveField,
@@ -53,7 +58,12 @@ const Grid1DivisionQuestion = ({
                 value={formik.values?.answerQuotient?.[index] || ''}
                 autoFocus
                 onChange={formik.handleChange}
-                disabled={isDisabled}
+                className={
+                  errors.answerQuotient && errors.answerQuotient[index]
+                    ? 'border-red-500 focus:border-red-500 text-red-500'
+                    : ''
+                }
+                disabled={Object.keys(errors).length > 0 || isDisabled}
               />
             </div>
           );
@@ -97,6 +107,12 @@ const Grid1DivisionQuestion = ({
               }
               value={formik.values?.answerRemainder?.[index] || ''}
               onChange={formik.handleChange}
+              className={
+                errors.answerRemainder && errors.answerRemainder[index]
+                  ? 'border-red-500 focus:border-red-500 text-red-500'
+                  : ''
+              }
+              disabled={Object.keys(errors).length > 0}
             />
           );
         })}
@@ -142,6 +158,10 @@ const Grid1DivisionQuestion = ({
           );
         }
 
+        const isInputIncorrect = (errors.answerIntermediate as boolean[][])?.[
+          idx
+        ]?.[stepIdx];
+
         // Render the input box or static value
         return (
           <div key={`${idx}-${stepIdx}`} className='relative'>
@@ -164,7 +184,12 @@ const Grid1DivisionQuestion = ({
                   : step
               }
               onChange={formik.handleChange}
-              disabled={!isEditable}
+              className={
+                isInputIncorrect
+                  ? 'border-red-500 focus:border-red-500 text-red-500'
+                  : ''
+              }
+              disabled={!isEditable || Object.keys(errors).length > 0}
             />
           </div>
         );

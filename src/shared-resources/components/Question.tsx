@@ -14,13 +14,13 @@ import {
   FormValues,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
-import Loader from './Loader/Loader';
 import MCQQuestion from './MCQQuestion';
 import FIBQuestion from './FIBQuestion';
 import Grid2Question from './Grid2Question';
 import Grid1Question from './Grid1Question';
+import QuestionFeedback from './QuestionFeedback/QuestionFeedback';
 
-interface QuestionProps {
+export interface QuestionProps {
   question: QuestionPropsType;
   onSubmit: (gridData: any) => void;
   onValidityChange: (validity: boolean) => void;
@@ -31,6 +31,11 @@ interface QuestionProps {
   backSpacePressed?: {
     isBackSpaced: boolean;
     counter: number;
+  };
+  questionFeedback: 'correct' | 'incorrect' | null;
+  showFeedback: boolean;
+  errors: {
+    [key: string]: boolean[] | boolean[][];
   };
 }
 
@@ -43,11 +48,19 @@ const Question = forwardRef(
       onValidityChange,
       keyPressed,
       backSpacePressed,
+      questionFeedback,
+      showFeedback,
+      errors,
     }: QuestionProps,
     ref
   ) => {
-    const { answers, numbers } = question;
-    const [isLoading, setIsLoading] = useState(true);
+    const { answers, numbers, questionImage } = question;
+    const dispatch = useDispatch();
+    const currentImageURL = useSelector(currentImageURLSelector);
+    const currentImageLoading = useSelector(isCurrentImageLoadingSelector);
+    const imageError = useSelector(imageErrorSelector);
+    const [imgURL, setImageURL] = useState<string | null>('');
+    const [imgLoading, setImageLoading] = useState<boolean>(true);
     const [activeField, setActiveField] = useState<keyof FormValues | null>(
       null
     );
@@ -447,8 +460,8 @@ const Question = forwardRef(
           });
         }
         // Reset the form
-        setActiveField(null);
-        formik.resetForm();
+        // setActiveField(null);
+        // formik.resetForm();
       },
     });
     const handleSetFieldValue = (
@@ -516,6 +529,10 @@ const Question = forwardRef(
     // Expose the submitForm method to the parent component
     useImperativeHandle(ref, () => ({
       submitForm: formik.handleSubmit,
+      resetForm: () => {
+        setActiveField(null);
+        formik.resetForm();
+      },
     }));
 
     useEffect(() => {
@@ -523,23 +540,49 @@ const Question = forwardRef(
     }, [formik.isValid]);
 
     useEffect(() => {
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 300);
+      if (questionImage) {
+        dispatch(fetchQuestionImage(questionImage));
+      }
+    }, [questionImage]);
 
-      return () => clearTimeout(timer);
+    useEffect(() => {
+      if (currentImageURL) {
+        setImageURL(currentImageURL);
+      }
+    }, [currentImageURL]);
+
+    const handleImageLoad = () => {
+      setImageLoading(false);
+    };
+
+    useEffect(() => {
+      setImageURL(null);
+      setImgError(false);
+      setImageLoading(true);
     }, [question]);
 
-    return isLoading ? (
-      <Loader />
-    ) : (
+    useEffect(() => {
+      setImageLoading(true);
+    }, [currentImageLoading]);
+
+    useEffect(() => {
+      if (imageError) {
+        setImgError(true);
+      }
+    }, [imageError]);
+
+    if (showFeedback) {
+      return <QuestionFeedback answerType={questionFeedback} />;
+    }
+
+    return (
       <form
         onSubmit={formik.handleSubmit}
         className='flex flex-col space-y-4 items-start'
       >
         {question.questionType === QuestionType.GRID_1 && (
           <Grid1Question
+            errors={errors}
             formik={formik}
             maxLength={maxLength}
             question={question}
@@ -553,6 +596,7 @@ const Question = forwardRef(
             maxLength={maxLength}
             question={question}
             setActiveField={setActiveField}
+            disabled={questionFeedback === 'incorrect'}
           />
         )}
 
@@ -561,6 +605,7 @@ const Question = forwardRef(
             formik={formik}
             question={question}
             setActiveField={setActiveField}
+            disabled={questionFeedback === 'incorrect'}
           />
         )}
 

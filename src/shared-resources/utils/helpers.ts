@@ -2,7 +2,7 @@
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { QuestionType } from 'models/enums/QuestionType.enum';
 
-type LearnerResponse = {
+export type LearnerResponse = {
   result?: string;
   quotient?: string;
   remainder?: string;
@@ -88,6 +88,12 @@ export const transformQuestions = (apiQuestions: any): any =>
     const questionImageUrl = question_body?.question_image_url
       ? question_body.question_image_url
       : undefined;
+
+    const correctOption = question_body?.correct_option?.replace(/Option /, '');
+    const correctOptionIndex = Number.isFinite(parseInt(correctOption, 10))
+      ? parseInt(correctOption, 10) - 1
+      : 0;
+
     return {
       questionId: identifier, // Assigning identifier as questionId
       questionType: question_type, // Adding questionType from the API
@@ -97,7 +103,7 @@ export const transformQuestions = (apiQuestions: any): any =>
       questionImageUrl,
       ...(answers && { answers }), // Include only if answers exist
       ...(numbers && { numbers }), // Include only if numbers exist
-      ...(options && { options }), // Include only if it's an MCQ question
+      ...(options && { options, correct_option: options[correctOptionIndex] }), // Include only if it's an MCQ question
     };
   });
 
@@ -244,3 +250,6 @@ export function convertToCamelCase(input: {
 export const removeCookie = (cookieName: string) => {
   document.cookie = `${cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 };
+
+export const replaceAt = (str: string, index: number, replacement: string) =>
+  str.slice(0, index) + replacement + str.slice(index + replacement.length);

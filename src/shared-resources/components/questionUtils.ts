@@ -41,6 +41,7 @@ export interface QuestionPropsType {
   name?: { en: string };
   operation: ArithmaticOperations;
   questionImageUrl?: string;
+  correct_option?: string;
 }
 
 export const isFieldAnswerValid = (

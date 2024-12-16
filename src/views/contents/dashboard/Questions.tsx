@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ContainerLayout from 'shared-resources/components/ContainerLayout/ContainerLayout';
 import Question from 'shared-resources/components/Question';
@@ -29,8 +29,53 @@ import MultiLangText, {
   getTranslatedString,
 } from 'shared-resources/components/MultiLangText/MultiLangText';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import {
+  getIsAnswerCorrect,
+  getQuestionErrors,
+} from 'shared-resources/utils/logicHelper';
+import Button from 'shared-resources/components/Button/Button';
 import { indexedDBService } from '../../../services/IndexedDBService';
-import { IDBDataStatus } from '../../../types/enum';
+import { IDBDataStatus, SupportedLanguages } from '../../../types/enum';
+
+const getButtonText = (
+  language: keyof typeof SupportedLanguages,
+  isSyncing: boolean,
+  isCompleted: boolean,
+  currentQuestionFeedback: string | null,
+  currentQuestionType: QuestionType
+) => {
+  if (isSyncing) return getTranslatedString(language, multiLangLabels.syncing);
+
+  if (isCompleted)
+    return getTranslatedString(language, multiLangLabels.next_set);
+
+  if (currentQuestionFeedback === 'incorrect') return 'Try Again';
+
+  if (currentQuestionType === QuestionType.MCQ)
+    return getTranslatedString(language, multiLangLabels.next);
+
+  return 'Check';
+};
+
+const getButtonTooltipMessage = (
+  language: keyof typeof SupportedLanguages,
+  isSyncing: boolean,
+  currentQuestionType: QuestionType
+) => {
+  if (isSyncing)
+    return getTranslatedString(language, multiLangLabels.sync_in_progress);
+
+  if (currentQuestionType === QuestionType.MCQ)
+    return getTranslatedString(
+      language,
+      multiLangLabels.select_one_option_to_continue
+    );
+
+  return getTranslatedString(
+    language,
+    multiLangLabels.fill_in_all_the_empty_blanks_to_continue
+  );
+};
 
 const Questions: React.FC = () => {
   const { language } = useLanguage();
@@ -47,7 +92,10 @@ const Questions: React.FC = () => {
     isIntermediateSyncInProgressSelector
   );
   const dispatch = useDispatch();
-  const questionRef = useRef<{ submitForm: () => void } | null>(null);
+  const questionRef = useRef<{
+    submitForm: () => void;
+    resetForm: () => void;
+  } | null>(null);
   const { width, height } = useWindowSize();
   const isLogicEngineLoading = useSelector(islogicEngineLoadingSelector);
   const [keyPressed, setKeyPressed] = useState<{
@@ -58,6 +106,19 @@ const Questions: React.FC = () => {
     isBackSpaced: boolean;
     counter: number;
   }>({ isBackSpaced: false, counter: 0 });
+
+  const [currentQuestionFeedback, setCurrentQuestionFeedback] = useState<
+    'correct' | 'incorrect' | null
+  >(null);
+  const clickedButtonRef = useRef<
+    'skip' | 'check' | 'next' | 'try-again' | null
+  >(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [currentQuestionErrors, setCurrentQuestionErrors] = useState<{
+    [key: string]: boolean[] | boolean[][];
+  }>({});
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {
     const makeInitialDecisions = async () => {
@@ -113,7 +174,7 @@ const Questions: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIndex, learnerId, questions, questionSet]);
 
-  const evaluateLearner = () => {
+  const evaluateLearner = useCallback(() => {
     if (learnerId) {
       dispatch(
         fetchLogicEngineEvaluation({
@@ -122,7 +183,7 @@ const Questions: React.FC = () => {
         })
       );
     }
-  };
+  }, [dispatch, learnerId]);
 
   useEffect(() => {
     /**
@@ -135,7 +196,15 @@ const Questions: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [waitingBeforeEvaluation, isSyncing, isCompleted, learnerId]);
 
-  const handleNextClick = async () => {
+  const handleNextClick = useCallback(async () => {
+    setCurrentQuestionErrors({});
+    setCurrentQuestionFeedback(null);
+
+    if (clickedButtonRef.current === 'try-again') {
+      questionRef.current?.resetForm();
+      return;
+    }
+
     if (isCompleted && learnerId) {
       const criteria = {
         status: IDBDataStatus.NOOP,
@@ -166,10 +235,93 @@ const Questions: React.FC = () => {
     } else if (questionRef.current) {
       questionRef.current.submitForm();
     }
-  };
-  const currentQuestion = questions[currentQuestionIndex];
+  }, [
+    currentQuestionIndex,
+    dispatch,
+    evaluateLearner,
+    isCompleted,
+    isIntermediatelySyncing,
+    isSyncing,
+    learnerId,
+    questionSet,
+    questions.length,
+  ]);
 
-  const handleQuestionSubmit = async (gridData: any) => {
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showFeedback) {
+      timer = setTimeout(async () => {
+        if (
+          currentQuestionFeedback === 'correct' ||
+          currentQuestion?.questionType === QuestionType.MCQ
+        ) {
+          clickedButtonRef.current = 'next';
+          await handleNextClick();
+        }
+        setShowFeedback(false);
+      }, 700);
+    }
+    return () => clearTimeout(timer);
+  }, [
+    currentQuestion?.questionType,
+    currentQuestionFeedback,
+    handleNextClick,
+    showFeedback,
+  ]);
+
+  const handleQuestionSubmit = async (
+    criteria: any,
+    transformedAnswer: any
+  ) => {
+    const entryExists = (await indexedDBService.queryObjectsByKeys(
+      criteria
+    )) as any[];
+
+    if (entryExists && entryExists.length) {
+      await indexedDBService.updateObjectById(entryExists[0].id, {
+        ...transformedAnswer,
+        learner_id: learnerId,
+        status: IDBDataStatus.NOOP,
+      });
+    } else {
+      await indexedDBService.addObject({
+        ...transformedAnswer,
+        learner_id: learnerId,
+        status: IDBDataStatus.NOOP,
+      });
+    }
+
+    setCurrentQuestionIndex((prev) => prev + 1);
+    setCurrentQuestionErrors({});
+    setCurrentQuestionFeedback(null);
+  };
+
+  const handleCheckQuestion = async (transformedAnswer?: any) => {
+    const { result: isAnswerCorrect, correctAnswer } = getIsAnswerCorrect(
+      currentQuestion,
+      transformedAnswer.learner_response
+    );
+
+    if (isAnswerCorrect) {
+      setCurrentQuestionFeedback('correct');
+      setCurrentQuestionErrors({});
+      setShowFeedback(true);
+    } else {
+      setCurrentQuestionFeedback('incorrect');
+      setShowFeedback(true);
+      if (currentQuestion?.questionType === QuestionType.GRID_1) {
+        setCurrentQuestionErrors(
+          getQuestionErrors(
+            currentQuestion?.operation,
+            transformedAnswer.learner_response,
+            correctAnswer
+          )
+        );
+      }
+    }
+  };
+
+  const handleQuestionFormSubmit = async (gridData: any) => {
     const currentTime = new Date().toISOString();
     const newAnswer = {
       ...gridData,
@@ -208,55 +360,58 @@ const Questions: React.FC = () => {
       question_set_id: questionSet!.identifier,
       learner_id: learnerId,
     };
-    const entryExists = (await indexedDBService.queryObjectsByKeys(
-      criteria
-    )) as any[];
 
-    if (entryExists && entryExists.length) {
-      await indexedDBService.updateObjectById(entryExists[0].id, {
-        ...transformedAnswer,
-        learner_id: learnerId,
-        status: IDBDataStatus.NOOP,
-      });
-    } else {
-      await indexedDBService.addObject({
-        ...transformedAnswer,
-        learner_id: learnerId,
-        status: IDBDataStatus.NOOP,
-      });
+    if (clickedButtonRef.current === 'check') {
+      handleCheckQuestion(transformedAnswer);
     }
 
-    setCurrentQuestionIndex((prev) => prev + 1);
+    if (
+      clickedButtonRef.current === 'skip' ||
+      clickedButtonRef.current === 'next'
+    ) {
+      handleQuestionSubmit(criteria, transformedAnswer);
+    }
+
+    clickedButtonRef.current = null;
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (isCompleted) {
+      clickedButtonRef.current = 'next';
       handleNextClick();
     }
     if (questionRef.current && isFormValid) {
+      setCurrentQuestionFeedback(null);
+      clickedButtonRef.current = 'check';
       questionRef.current.submitForm();
     }
     event.preventDefault();
   };
 
   useEnterKeyHandler(handleKeyDown, [isFormValid, isCompleted]);
+
+  const handleKeyClick = useCallback(
+    (key: string) => {
+      if (currentQuestionFeedback === 'incorrect') return;
+      setKeyPressed((prev) => ({ key, counter: prev.counter + 1 }));
+    },
+    [currentQuestionFeedback]
+  );
+
+  const handleBackSpaceClick = (clicked: any) => {
+    if (currentQuestionFeedback === 'incorrect') return;
+    setBackSpacePressed((prev) => ({
+      isBackSpaced: clicked,
+      counter: prev.counter + 1,
+    }));
+  };
+
   if (isSyncing || isLogicEngineLoading)
     return (
       <div className='flex justify-center items-center h-[80vh] '>
         <Loader />
       </div>
     );
-
-  const handleKeyClick = (key: string) => {
-    setKeyPressed((prev) => ({ key, counter: prev.counter + 1 }));
-  };
-
-  const handleBackSpaceClick = (clicked: any) => {
-    setBackSpacePressed((prev) => ({
-      isBackSpaced: clicked,
-      counter: prev.counter + 1,
-    }));
-  };
 
   return (
     <>
@@ -303,44 +458,78 @@ const Questions: React.FC = () => {
             ) : questions.length && currentQuestion ? (
               <Question
                 ref={questionRef}
+                errors={currentQuestionErrors}
                 question={questions[currentQuestionIndex]}
-                onSubmit={(gridData) => handleQuestionSubmit(gridData)}
+                onSubmit={handleQuestionFormSubmit}
                 onValidityChange={(value: boolean) => setIsFormValid(value)}
                 keyPressed={keyPressed}
                 backSpacePressed={backSpacePressed}
+                questionFeedback={currentQuestionFeedback}
+                showFeedback={showFeedback}
               />
             ) : (
               ''
             )}
           </div>
         }
-        buttonText={
-          isSyncing
-            ? getTranslatedString(language, multiLangLabels.syncing)
-            : isCompleted
-            ? getTranslatedString(language, multiLangLabels.next_set)
-            : getTranslatedString(language, multiLangLabels.next)
-        }
-        onButtonClick={handleNextClick}
-        buttonDisabled={isSyncing || (!isCompleted && !isFormValid)}
-        toolTipMessage={
-          isSyncing
-            ? getTranslatedString(language, multiLangLabels.sync_in_progress)
-            : questions[currentQuestionIndex]?.questionType === QuestionType.MCQ
-            ? getTranslatedString(
-                language,
-                multiLangLabels.select_one_option_to_continue
-              )
-            : getTranslatedString(
-                language,
-                multiLangLabels.fill_in_all_the_empty_blanks_to_continue
-              )
-        }
         onKeyClick={handleKeyClick}
         onBackSpaceClick={handleBackSpaceClick}
         currentQuestion={currentQuestion}
         noKeyboard={isCompleted}
         taxonomy={questionSet?.taxonomy}
+        hasMultipleButtons
+        renderButtons={
+          <div className='flex h-full flex-col gap-4 items-center'>
+            {!isCompleted &&
+              currentQuestion?.questionType !== QuestionType.MCQ &&
+              currentQuestionFeedback === 'incorrect' && (
+                <Button
+                  type='button'
+                  tabIndex={0}
+                  disabled={isSyncing}
+                  className='focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
+                  onClick={() => {
+                    clickedButtonRef.current = 'skip';
+                    questionRef.current?.submitForm();
+                  }}
+                >
+                  Skip
+                </Button>
+              )}
+            <Button
+              tabIndex={0}
+              type='button'
+              className='focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
+              onClick={() => {
+                if (isCompleted) {
+                  handleNextClick();
+                  return;
+                }
+                if (!currentQuestionFeedback) {
+                  clickedButtonRef.current = 'check';
+                  questionRef.current?.submitForm();
+                } else if (currentQuestionFeedback === 'incorrect') {
+                  clickedButtonRef.current = 'try-again';
+                  handleNextClick();
+                }
+              }}
+              disabled={isSyncing || (!isFormValid && !isCompleted)}
+              tooltipMessage={getButtonTooltipMessage(
+                language,
+                isSyncing,
+                currentQuestion?.questionType
+              )}
+            >
+              {getButtonText(
+                language,
+                isSyncing,
+                isCompleted,
+                currentQuestionFeedback,
+                currentQuestion?.questionType
+              )}
+            </Button>
+          </div>
+        }
       />
     </>
   );

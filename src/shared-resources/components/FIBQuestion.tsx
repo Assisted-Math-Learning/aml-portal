@@ -18,12 +18,14 @@ interface FIBQuestionProps {
   question: QuestionPropsType;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
+  disabled?: boolean;
 }
 
 const FIBQuestion = ({
   question,
   formik,
   setActiveField,
+  disabled,
 }: FIBQuestionProps) => {
   const { answers } = question;
   const {
@@ -88,6 +90,7 @@ const FIBQuestion = ({
                 onFocus={handleSetField('answerQuotient')}
                 value={formik.values.answerQuotient}
                 className='!w-[236px]'
+                disabled={disabled}
               />
             </div>
 
@@ -100,6 +103,7 @@ const FIBQuestion = ({
                 onChange={formik.handleChange}
                 maxLength={9}
                 className='!w-[236px]'
+                disabled={disabled}
               />
             </div>
           </div>
@@ -122,6 +126,7 @@ const FIBQuestion = ({
               onChange={formik.handleChange}
               maxLength={9}
               className='!w-full'
+              disabled={disabled}
             />
           </div>
         </div>
