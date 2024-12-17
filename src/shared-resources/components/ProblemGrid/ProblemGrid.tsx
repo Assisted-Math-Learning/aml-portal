@@ -58,7 +58,7 @@ const ProblemGrid: React.FC<Props> = ({
       <div className='w-fit'>
         <div className={`grid grid-cols-${longestArrayLength} gap-5 w-fit`}>
           {digitPlaces.map((place) => (
-            <p className='text-[#A5A5A5] text-center' key={place}>
+            <p className='text-digitTextColor text-center' key={place}>
               {place}
             </p>
           ))}

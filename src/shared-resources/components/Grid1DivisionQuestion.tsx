@@ -1,4 +1,4 @@
-/* eslint-disable func-names, react/no-this-in-sfc,  no-unsafe-optional-chaining, no-lonely-if, jsx-a11y/no-autofocus, react/jsx-no-useless-fragment */
+/* eslint-disable func-names, react/no-this-in-sfc,  no-unsafe-optional-chaining, no-lonely-if, jsx-a11y/no-autofocus */
 import React from 'react';
 import { FormikProps } from 'formik';
 import {
@@ -10,6 +10,7 @@ import {
   FormValues,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
+import AmlInput from './AmlInput';
 
 interface Grid1QuestionProps {
   question: QuestionPropsType;
@@ -23,6 +24,84 @@ const Grid1DivisionQuestion = ({
   setActiveField,
 }: Grid1QuestionProps) => {
   const { answers, numbers } = question;
+
+  const renderDivisor = () => (
+    <div className='flex mt-20 pt-1 pr-4'>
+      <div className='flex justify-end'>
+        <div className='w-[46px] h-[61px] text-center font-bold text-[36px] px-2'>
+          {numbers.n2} {/* Display the value of n2 */}
+        </div>
+      </div>
+    </div>
+  );
+  const renderQuotient = () => (
+    <div className='flex mb-4 space-x-3 ml-2'>
+      {Array.isArray(formik.values.answerQuotient) &&
+        (formik.values?.answerQuotient as string[])?.map((value, index) => {
+          const isDisabled =
+            (answers.answerQuotient[index] || '') !== '' &&
+            (answers.answerQuotient[index] || '') !== 'B' &&
+            value === (answers.answerQuotient[index] || '');
+
+          return (
+            <div key={`answerQuotient-${index}`}>
+              <AmlInput
+                name={`answerQuotient.${index}`}
+                onFocus={() =>
+                  setActiveField(`answerQuotient.${index}` as keyof FormValues)
+                }
+                value={formik.values?.answerQuotient?.[index] || ''}
+                autoFocus
+                onChange={formik.handleChange}
+                disabled={isDisabled}
+              />
+            </div>
+          );
+        })}
+    </div>
+  );
+
+  const renderDividend = () => (
+    <div className='flex border-t-2 border-l-2 border-gray-900 p-2 space-x-3'>
+      {String(numbers.n1)
+        .split('')
+        .map((digit, index) => (
+          <div
+            key={index}
+            className='w-[46px] h-[40px] text-center font-bold text-[36px] px-2'
+          >
+            {digit}
+          </div>
+        ))}
+    </div>
+  );
+
+  const renderRemainder = () => (
+    <div className='flex mt-4 justify-start space-x-3 ml-2.5'>
+      {Array.isArray(formik.values.answerRemainder) &&
+        (formik.values.answerRemainder as string[])?.map((value, index) => {
+          const shouldRenderEmptySpace = value === '#';
+
+          if (shouldRenderEmptySpace) {
+            return (
+              <div key={`values-${index}`} className='w-[46px] h-[61px]' />
+            );
+          }
+
+          return (
+            <AmlInput
+              key={`answerRemainder-${index}`}
+              name={`answerRemainder.${index}`}
+              onFocus={() =>
+                setActiveField(`answerRemainder.${index}` as keyof FormValues)
+              }
+              value={formik.values?.answerRemainder?.[index] || ''}
+              onChange={formik.handleChange}
+            />
+          );
+        })}
+    </div>
+  );
 
   const renderDivisionIntermediateSteps = () => {
     const parts = answers.answerIntermediate.split('|');
@@ -65,8 +144,7 @@ const Grid1DivisionQuestion = ({
               </div>
             )}
 
-            <input
-              type='text'
+            <AmlInput
               name={`answerIntermediate.${idx}.${stepIdx}`}
               onFocus={() =>
                 setActiveField(
@@ -79,16 +157,7 @@ const Grid1DivisionQuestion = ({
                   : step
               }
               onChange={formik.handleChange}
-              maxLength={1}
-              className='border-2 border-gray-900 rounded-[10px] w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
               disabled={!isEditable}
-              onKeyPress={(e) => {
-                if (!/[0-9]/.test(e.key)) e.preventDefault(); // Only allow numeric input
-              }}
-              onPaste={(e) => {
-                const pasteData = e.clipboardData.getData('text');
-                if (!/^[0-9]*$/.test(pasteData)) e.preventDefault(); // Prevent pasting non-numeric characters
-              }}
             />
           </div>
         );
@@ -104,119 +173,27 @@ const Grid1DivisionQuestion = ({
       );
     });
   };
+
   return (
-    <>
-      {question.operation === ArithmaticOperations.DIVISION && (
-        <div className='flex  '>
-          {/* Divisor */}
-          <div className='flex mt-20 pt-1 pr-4'>
-            <div className='flex justify-end'>
-              <div className='w-[46px] h-[61px] text-center font-bold text-[36px] px-2'>
-                {numbers.n2} {/* Display the value of n2 */}
-              </div>
-            </div>
-          </div>
-          <div>
-            {/* quotient */}
-            <div className='flex mb-4 space-x-3 ml-2'>
-              {Array.isArray(formik.values.answerQuotient) &&
-                (formik.values?.answerQuotient as string[])?.map(
-                  (value, index) => (
-                    <div key={`answerQuotient-${index}`}>
-                      <input
-                        type='text'
-                        name={`answerQuotient.${index}`}
-                        onFocus={() =>
-                          setActiveField(
-                            `answerQuotient.${index}` as keyof FormValues
-                          )
-                        }
-                        value={formik.values?.answerQuotient?.[index] || ''}
-                        autoFocus
-                        onChange={formik.handleChange}
-                        maxLength={1}
-                        className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
-                        onKeyPress={(e) => {
-                          if (!/[0-9]/.test(e.key)) e.preventDefault();
-                        }}
-                        onPaste={(e) => {
-                          const pasteData = e.clipboardData.getData('text');
-                          if (!/^[0-9]*$/.test(pasteData)) {
-                            e.preventDefault();
-                          }
-                        }}
-                        disabled={
-                          (answers.answerQuotient[index] || '') !== '' &&
-                          (answers.answerQuotient[index] || '') !== 'B' &&
-                          value === (answers.answerQuotient[index] || '')
-                        }
-                      />
-                    </div>
-                  )
-                )}
-            </div>
+    <div className='flex'>
+      {/* Render the Divisor */}
+      {renderDivisor()}
 
-            {/* Dividend */}
-            <div className='flex border-t-2 border-l-2 border-gray-900 p-2 space-x-3'>
-              {String(numbers.n1)
-                .split('')
-                .map((digit, index) => (
-                  <div
-                    key={index}
-                    className='w-[46px] h-[40px] text-center font-bold text-[36px] px-2'
-                  >
-                    {digit}
-                  </div>
-                ))}
-            </div>
+      <div>
+        {/* Render the Quotient */}
+        {renderQuotient()}
 
-            {/* Intermediate Steps and Remainder */}
-            <div className='space-y-4'>{renderDivisionIntermediateSteps()}</div>
+        {/* Render the Dividend */}
+        {renderDividend()}
 
-            <div className='flex mt-4 justify-start space-x-3 ml-2.5'>
-              {Array.isArray(formik.values.answerRemainder) &&
-                (formik.values.answerRemainder as string[])?.map(
-                  (value, index) => {
-                    const shouldRenderEmptySpace = value === '#';
+        {/* Render Intermediate Steps and Remainder */}
+        <div className='space-y-4'>{renderDivisionIntermediateSteps()}</div>
 
-                    return shouldRenderEmptySpace ? (
-                      <div
-                        key={`values-${index}`}
-                        className='w-[46px] h-[61px]'
-                      />
-                    ) : (
-                      <input
-                        key={`answerRemainder-${index}`}
-                        type='text'
-                        name={`answerRemainder.${index}`}
-                        onFocus={() =>
-                          setActiveField(
-                            `answerRemainder.${index}` as keyof FormValues
-                          )
-                        }
-                        value={formik.values?.answerRemainder?.[index] || ''}
-                        autoFocus
-                        autoComplete='off'
-                        onChange={formik.handleChange}
-                        maxLength={1}
-                        className='border-2 border-gray-900 rounded-[10px] p-2 w-[46px] h-[61px] text-center font-bold text-[36px] focus:outline-none focus:border-primary'
-                        onKeyDown={(e) => {
-                          if (!/[0-9]/.test(e.key) && e.key !== 'Backspace')
-                            e.preventDefault();
-                        }}
-                        onPaste={(e) => {
-                          const pasteData = e.clipboardData.getData('text');
-                          if (!/^[0-9]*$/.test(pasteData)) e.preventDefault();
-                        }}
-                      />
-                    );
-                  }
-                )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+        {/* Render the Remainder */}
+        {renderRemainder()}
+      </div>
+    </div>
   );
 };
+
 export default Grid1DivisionQuestion;

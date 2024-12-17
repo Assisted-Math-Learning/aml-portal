@@ -32,6 +32,10 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
     });
   };
 
+  const isImageLoading = question?.questionImageUrl && imgLoading && !imgError;
+  const isImageReady =
+    question?.questionImageUrl && !!question.questionImageUrl && !imgError;
+
   return (
     <div>
       {!!question.options && (
@@ -42,10 +46,8 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
             className='mb-6'
           />
 
-          {question?.questionImageUrl && imgLoading && !imgError && <Loader />}
-          {question?.questionImageUrl &&
-          !!question.questionImageUrl &&
-          !imgError ? (
+          {isImageLoading && <Loader />}
+          {isImageReady ? (
             <img
               key={question.questionId}
               className='w-auto min-w-[30%] max-w-full h-auto max-h-[80vh] !mb-6 object-contain'
@@ -66,11 +68,6 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
             setSelectedValue={(val) => formik.setFieldValue('mcqAnswer', val)}
             options={question.options}
           />
-          {formik.touched.mcqAnswer && formik.errors.mcqAnswer && (
-            <div className='text-red-500 text-xs'>
-              {formik.errors.mcqAnswer}
-            </div>
-          )}
         </div>
       )}
     </div>
