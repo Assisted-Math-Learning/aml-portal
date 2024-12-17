@@ -42,3 +42,10 @@ export interface QuestionPropsType {
   operation: ArithmaticOperations;
   questionImageUrl?: string;
 }
+
+export const isFieldAnswerValid = (
+  field: 'answerTop' | 'answerResult' | 'answerQuotient',
+  index: number,
+  answers: any
+): boolean =>
+  (answers[field][index] || '') !== '' && (answers[field][index] || '') !== 'B';

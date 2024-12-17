@@ -8,6 +8,7 @@ import {
 
 import {
   FormValues,
+  isFieldAnswerValid,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
 import AmlInput from './AmlInput';
@@ -39,8 +40,7 @@ const Grid1DivisionQuestion = ({
       {Array.isArray(formik.values.answerQuotient) &&
         (formik.values?.answerQuotient as string[])?.map((value, index) => {
           const isDisabled =
-            (answers.answerQuotient[index] || '') !== '' &&
-            (answers.answerQuotient[index] || '') !== 'B' &&
+            isFieldAnswerValid('answerQuotient', index, answers) &&
             value === (answers.answerQuotient[index] || '');
 
           return (

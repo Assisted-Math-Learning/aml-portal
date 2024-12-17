@@ -9,6 +9,7 @@ import {
 
 import {
   FormValues,
+  isFieldAnswerValid,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
 import { DIGIT_PLACES } from 'constant/constants';
@@ -33,23 +34,14 @@ const Grid1Question = ({
   const shouldRenderDivisionGrid1 =
     question.operation === ArithmaticOperations.DIVISION;
 
-  const isFieldAnswerValid = (
-    field: 'answerTop' | 'answerResult',
-    index: number
-  ): boolean =>
-    (answers[field][index] || '') !== '' &&
-    (answers[field][index] || '') !== 'B';
-
   const isAnswerValid = (index: number): boolean =>
-    isFieldAnswerValid('answerTop', index);
+    isFieldAnswerValid('answerTop', index, answers);
 
   const isResultAnswerValid = (index: number): boolean =>
-    isFieldAnswerValid('answerResult', index);
-
+    isFieldAnswerValid('answerResult', index, answers);
   const isAnswerAtIndexValidFromSplit = (index: number): boolean =>
     answers.answerTop.split('|')[index] !== '' &&
     answers.answerTop.split('|')[index] !== 'B';
-
   const isTopAnswerDisabled = (char: string, index: number) => {
     const isValid = isAnswerValid(index);
     const isSplitValid = isAnswerAtIndexValidFromSplit(index);
