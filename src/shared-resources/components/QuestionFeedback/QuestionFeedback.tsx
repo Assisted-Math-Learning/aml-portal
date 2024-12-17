@@ -1,24 +1,25 @@
 import React from 'react';
 import { Check } from '@mui/icons-material';
+import {
+  CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS,
+  INCORRECT_ANSWER_FEEDBACK_PLACEHOLDERS,
+} from 'constant/constants';
 import Loader from '../Loader/Loader';
+import { FeedbackType } from '../questionUtils';
 
 type QuestionFeedbackProps = {
-  answerType: 'correct' | 'incorrect' | null;
+  answerType: FeedbackType | null;
 };
-
-const incorrectAnsFeedbacks: string[][] = [['OOPS!', "Let's try one more"]];
-
-const correctAnsFeedbacks: string[][] = [['Correct!', 'Great Job.']];
 
 const QuestionFeedback = ({ answerType }: QuestionFeedbackProps) => {
   if (!answerType) {
     return <Loader />;
   }
 
-  if (answerType === 'correct') {
+  if (answerType === FeedbackType.CORRECT) {
     const randomCorrectFeedback =
-      correctAnsFeedbacks[
-        Math.floor(Math.random() * correctAnsFeedbacks.length)
+      CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS[
+        Math.floor(Math.random() * CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS.length)
       ];
     return (
       <div className='text-center'>
@@ -34,8 +35,8 @@ const QuestionFeedback = ({ answerType }: QuestionFeedbackProps) => {
   }
 
   const randomIncorrectFeedback =
-    incorrectAnsFeedbacks[
-      Math.floor(Math.random() * incorrectAnsFeedbacks.length)
+    INCORRECT_ANSWER_FEEDBACK_PLACEHOLDERS[
+      Math.floor(Math.random() * INCORRECT_ANSWER_FEEDBACK_PLACEHOLDERS.length)
     ];
 
   return (

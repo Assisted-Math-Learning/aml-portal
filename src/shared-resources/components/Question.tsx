@@ -11,6 +11,7 @@ import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import {
+  FeedbackType,
   FormValues,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
@@ -32,7 +33,7 @@ export interface QuestionProps {
     isBackSpaced: boolean;
     counter: number;
   };
-  questionFeedback: 'correct' | 'incorrect' | null;
+  questionFeedback: FeedbackType | null;
   showFeedback: boolean;
   errors: {
     [key: string]: boolean[] | boolean[][];
@@ -54,13 +55,7 @@ const Question = forwardRef(
     }: QuestionProps,
     ref
   ) => {
-    const { answers, numbers, questionImage } = question;
-    const dispatch = useDispatch();
-    const currentImageURL = useSelector(currentImageURLSelector);
-    const currentImageLoading = useSelector(isCurrentImageLoadingSelector);
-    const imageError = useSelector(imageErrorSelector);
-    const [imgURL, setImageURL] = useState<string | null>('');
-    const [imgLoading, setImageLoading] = useState<boolean>(true);
+    const { answers, numbers } = question;
     const [activeField, setActiveField] = useState<keyof FormValues | null>(
       null
     );
@@ -539,38 +534,6 @@ const Question = forwardRef(
       onValidityChange(formik.isValid); // Pass the form's validity to the parent
     }, [formik.isValid]);
 
-    useEffect(() => {
-      if (questionImage) {
-        dispatch(fetchQuestionImage(questionImage));
-      }
-    }, [questionImage]);
-
-    useEffect(() => {
-      if (currentImageURL) {
-        setImageURL(currentImageURL);
-      }
-    }, [currentImageURL]);
-
-    const handleImageLoad = () => {
-      setImageLoading(false);
-    };
-
-    useEffect(() => {
-      setImageURL(null);
-      setImgError(false);
-      setImageLoading(true);
-    }, [question]);
-
-    useEffect(() => {
-      setImageLoading(true);
-    }, [currentImageLoading]);
-
-    useEffect(() => {
-      if (imageError) {
-        setImgError(true);
-      }
-    }, [imageError]);
-
     if (showFeedback) {
       return <QuestionFeedback answerType={questionFeedback} />;
     }
@@ -596,7 +559,7 @@ const Question = forwardRef(
             maxLength={maxLength}
             question={question}
             setActiveField={setActiveField}
-            disabled={questionFeedback === 'incorrect'}
+            disabled={questionFeedback === FeedbackType.INCORRECT}
           />
         )}
 
@@ -605,7 +568,7 @@ const Question = forwardRef(
             formik={formik}
             question={question}
             setActiveField={setActiveField}
-            disabled={questionFeedback === 'incorrect'}
+            disabled={questionFeedback === FeedbackType.INCORRECT}
           />
         )}
 

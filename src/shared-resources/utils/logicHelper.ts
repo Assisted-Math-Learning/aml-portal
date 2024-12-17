@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 import { QuestionType } from 'models/enums/QuestionType.enum';
 import { QuestionPropsType } from 'shared-resources/components/questionUtils';
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
@@ -348,6 +349,7 @@ const getDivGrid1IntermediateStepsQuotientAndRemainder = (
       prevStepRemainder = dividendString[currentDigitIndex];
       currentNumber = +prevStepRemainder;
       currentDigitIndex += 1;
+      continue;
     }
     let skipSlice = false;
     if (prevStepRemainder !== '' && +prevStepRemainder === 0) {
@@ -388,6 +390,7 @@ const getDivGrid1IntermediateStepsQuotientAndRemainder = (
         ).toString();
         currentNumber = +prevStepRemainder;
         currentDigitIndex += 1;
+        continue;
       } else {
         currentDigitIndex += 1;
       }
