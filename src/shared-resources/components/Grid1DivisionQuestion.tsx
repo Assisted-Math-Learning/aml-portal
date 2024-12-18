@@ -111,12 +111,19 @@ const Grid1DivisionQuestion = ({
         const isEditable = step === 'B';
         const isBlank = step === '#';
 
-        // Check if this `#` should be a `-` (i.e., it's immediately before a `B` or a number)
-        const shouldRenderDash =
-          isBlank &&
-          (steps[stepIdx + 1] === 'B' || /[0-9]/.test(steps[stepIdx + 1])) &&
-          idx % 2 === 0;
+        // Common logic for determining if an index is even and step is a number or 'B'
+        const isEvenAndNumberOrBlank = (step: string, idx: number) =>
+          (step === 'B' || /[0-9]/.test(step)) && idx % 2 === 0;
 
+        // Determine if a dash should be rendered at this step
+        const renderMinusSign =
+          isEvenAndNumberOrBlank(step, idx) &&
+          stepIdx === 0 &&
+          !steps.includes('#');
+
+        // Determine if `#` should be a `-`
+        const shouldRenderDash =
+          isBlank && isEvenAndNumberOrBlank(steps[stepIdx + 1], idx);
         if (shouldRenderDash) {
           return (
             <div
@@ -138,7 +145,7 @@ const Grid1DivisionQuestion = ({
         // Render the input box or static value
         return (
           <div key={`${idx}-${stepIdx}`} className='relative'>
-            {idx === 0 && stepIdx === 0 && (
+            {((idx === 0 && stepIdx === 0) || renderMinusSign) && (
               <div className='absolute left-[-30px] top-1/2 transform -translate-y-1/2 font-bold text-[36px]'>
                 {operationMap[ArithmaticOperations.SUBTRACTION]}
               </div>
