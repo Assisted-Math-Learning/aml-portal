@@ -12,6 +12,18 @@ const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
 }) => {
   const isOdd = options.length % 2 !== 0;
 
+  const renderOption = (option: string) => {
+    const parts = option.split(',').map((part) => part.trim());
+
+    return (
+      <div className='flex flex-col items-center'>
+        {parts.map((part, index) => (
+          <span key={index}>{part}</span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div>
       <MatToggleButtonGroup
@@ -36,7 +48,7 @@ const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
                 `}
               disableRipple
             >
-              {option}
+              {renderOption(option)}
             </MatToggleButton>
           ))}
       </MatToggleButtonGroup>
