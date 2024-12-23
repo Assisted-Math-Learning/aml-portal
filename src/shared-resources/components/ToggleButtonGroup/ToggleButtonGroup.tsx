@@ -16,7 +16,7 @@ const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
     const parts = option.split(',').map((part) => part.trim());
 
     return (
-      <div className='flex flex-col items-center'>
+      <div className='flex flex-col items-start'>
         {parts.map((part, index) => (
           <span key={index}>{part}</span>
         ))}
