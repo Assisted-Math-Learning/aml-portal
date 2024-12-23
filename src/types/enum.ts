@@ -12,6 +12,7 @@ export enum IDBDataStatus {
   NOOP = 'noop',
   SYNCING = 'syncing',
   SYNCED = 'synced',
+  REVISITED = 'revisited',
 }
 
 export enum SupportedLanguages {

@@ -20,6 +20,27 @@ function* LearnerJourneyFetchSaga({
     const response = yield call(learnerJourneyService.fetchLearnerjourney, {
       learner_id: payload,
     });
+
+    let latestResponses = {
+      result: {
+        data: [],
+      },
+    };
+    try {
+      latestResponses = yield call(
+        learnerJourneyService.fetchLearnerJourneyLatestResponses,
+        {
+          learnerId: payload,
+        }
+      );
+    } catch {
+      latestResponses = {
+        result: {
+          data: [],
+        },
+      };
+    }
+
     yield put(fetchLearnerJourneyCompleted(response.result?.data));
     const questionSetId = response?.result?.data?.question_set_id;
     const isInProgress =
@@ -76,6 +97,41 @@ function* LearnerJourneyFetchSaga({
         IDBDataStatus.NOOP
       );
     }
+
+    // update/add learner responses for SYNCED questions
+    latestResponses?.result?.data?.forEach(
+      async (
+        resp: Awaited<
+          ReturnType<
+            typeof learnerJourneyService.fetchLearnerJourneyLatestResponses
+          >
+        >[number]
+      ) => {
+        const entryData = {
+          question_id: resp.question_id,
+          question_set_id: resp.question_set_id,
+          learner_id: payload,
+        };
+        const entryExists = (await indexedDBService.queryObjectsByKeys(
+          entryData
+        )) as any[];
+        if (entryExists && entryExists.length) {
+          if (entryExists[0].status !== IDBDataStatus.SYNCED) return;
+
+          await indexedDBService.updateObjectById(entryExists[0].id, {
+            ...entryData,
+            learner_response: resp.learner_response,
+            status: IDBDataStatus.SYNCED,
+          });
+        } else {
+          await indexedDBService.addObject({
+            ...entryData,
+            learner_response: resp.learner_response,
+            status: IDBDataStatus.SYNCED,
+          });
+        }
+      }
+    );
 
     if (response.responseCode === 'OK' && questionSetId && isInProgress) {
       yield put(navigateTo('/continue-journey'));

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { QuestionType } from 'models/enums/QuestionType.enum';
+import { QuestionPropsType } from 'shared-resources/components/questionUtils';
 
 export type LearnerResponse = {
   result?: string;
@@ -253,3 +254,91 @@ export const removeCookie = (cookieName: string) => {
 
 export const replaceAt = (str: string, index: number, replacement: string) =>
   str.slice(0, index) + replacement + str.slice(index + replacement.length);
+
+export const convertLearnerResponseToSingleResponse = (
+  questionData: QuestionData,
+  question: QuestionPropsType
+) => {
+  const answers = {} as Record<string, any>;
+
+  if (question.questionType === QuestionType.MCQ) {
+    answers.mcqAnswer = questionData.learner_response.result;
+    return answers;
+  }
+
+  if (question.questionType === QuestionType.FIB) {
+    if (question.operation === ArithmaticOperations.DIVISION) {
+      if (question.answers.fib_type === '2') {
+        answers.answerQuotient = questionData.learner_response.quotient;
+        answers.answerRemainder = questionData.learner_response.remainder;
+      } else {
+        answers.fibAnswer = questionData.learner_response.result;
+      }
+      return answers;
+    }
+    answers.fibAnswer = questionData.learner_response.result;
+    return answers;
+  }
+
+  if (question.questionType === QuestionType.GRID_2) {
+    answers.row2Answers = questionData.learner_response.result?.split('');
+    answers.row1Answers = questionData.learner_response.answer_top?.split('');
+    return answers;
+  }
+
+  if (question.operation === ArithmaticOperations.ADDITION) {
+    if (question.answers.isPrefil) {
+      answers.topAnswer = questionData.learner_response.answer_top?.split('');
+    }
+    answers.resultAnswer = questionData.learner_response.result?.split('');
+    return answers;
+  }
+
+  if (question.operation === ArithmaticOperations.SUBTRACTION) {
+    if (question.answers.isPrefil) {
+      answers.topAnswer = questionData.learner_response.answer_top?.split('|');
+    }
+    answers.resultAnswer = questionData.learner_response.result?.split('');
+    return answers;
+  }
+
+  if (question.operation === ArithmaticOperations.MULTIPLICATION) {
+    if (question.answers.isIntermediatePrefill) {
+      const formattedParts =
+        questionData.learner_response.answerIntermediate?.split('#');
+      const resArray: string[][] = [];
+
+      formattedParts?.forEach((formattedPart) => {
+        resArray.push(formattedPart.split(''));
+      });
+      answers.answerIntermediate = resArray.flat();
+    }
+
+    const result = questionData.learner_response.result?.split('');
+    answers.resultAnswer = result;
+    return answers;
+  }
+
+  if (question.operation === ArithmaticOperations.DIVISION) {
+    answers.answerQuotient = questionData.learner_response.quotient?.split('');
+    answers.answerRemainder = questionData.learner_response.remainder
+      ?.padStart(question.answers.answerRemainder.length, '#')
+      .split('');
+
+    const intermediateArray: string[][] = [];
+    const parts = questionData.learner_response.answerIntermediate?.split('|');
+
+    const placeholders = question.answers.answerIntermediate.split('|');
+    placeholders.forEach((placeholder, index) => {
+      const partData = parts?.[index]?.padStart(placeholder.length, '#');
+      if (!partData) return;
+      intermediateArray.push(
+        partData.split('').map((char) => (char === '#' ? '' : char))
+      );
+    });
+    answers.answerIntermediate = intermediateArray;
+    return answers;
+  }
+
+  return answers;
+};

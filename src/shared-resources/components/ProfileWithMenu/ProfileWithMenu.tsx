@@ -70,33 +70,37 @@ const ProfileWithMenu: React.FC<Props> = ({
 
   return (
     <>
-      <div className='flex gap-3.5 justify-center items-center'>
-        <div className='flex flex-col items-end gap-2 text-base font-medium font-roboto'>
-          <p className='max-w-[182px] truncate'>{username}</p>
-          {/* <p className='max-w-[182px] truncate text-[#A5A5A5]'>Learner</p> */}
-        </div>
-        <IconButton
-          onClick={handleClick}
-          aria-controls={open ? 'account-menu' : undefined}
-          aria-haspopup='true'
-          aria-expanded={open ? 'true' : undefined}
-          disableRipple
-          className='!p-0'
-        >
-          <Avatar className='!h-[68px] !w-[68px] !bg-primary border-4 border-disabled'>
-            {getUserInitials(username || 'U')}
-          </Avatar>
-        </IconButton>
-      </div>
+      <IconButton
+        onClick={handleClick}
+        aria-controls={open ? 'account-menu' : undefined}
+        aria-haspopup='true'
+        aria-expanded={open ? 'true' : undefined}
+        disableRipple
+        className='!p-0'
+      >
+        <Avatar className='!h-[60px] !w-[60px] !bg-primary border-4 border-disabled'>
+          {getUserInitials(username || 'U')}
+        </Avatar>
+      </IconButton>
+
       <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         onClick={handleClose}
         className='profile-with-menu'
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
       >
+        <p className='text-xl font-bold text-center border-b border-slate-700 pb-4'>
+          {username}
+        </p>
         <MenuItem
           onClick={() => {
             onLogout?.();

@@ -13,10 +13,11 @@ import { ImageRenderer } from './ImageRenderer';
 interface MCQQuestionProps {
   question: QuestionPropsType;
   formik: FormikProps<FormValues>;
+  setQuestionFeedback: () => void;
 }
 
 const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
-  const { question, formik } = props;
+  const { question, formik, setQuestionFeedback } = props;
 
   const {
     isImageLoading,
@@ -46,7 +47,10 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
           />
           <ToggleButtonGroup
             selectedValue={formik.values.mcqAnswer}
-            setSelectedValue={(val) => formik.setFieldValue('mcqAnswer', val)}
+            setSelectedValue={(val) => {
+              setQuestionFeedback();
+              formik.setFieldValue('mcqAnswer', val);
+            }}
             options={question.options}
           />
         </div>

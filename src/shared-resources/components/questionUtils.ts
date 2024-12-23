@@ -2,6 +2,7 @@ import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 import { SupportedLanguages } from 'types/enum';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import * as _ from 'lodash';
 import { getTranslatedString } from './MultiLangText/MultiLangText';
 
 export interface FormValues {
@@ -61,38 +62,34 @@ export enum FeedbackType {
 
 export enum ClickedButtonType {
   NEXT = 'next',
+  CHECK_AND_SUBMIT = 'check_and_submit',
   CHECK = 'check',
   SKIP = 'skip',
-  TRY_AGAIN = 'try-again',
 }
 
 export const getButtonText = (
   language: keyof typeof SupportedLanguages,
   isSyncing: boolean,
-  isCompleted: boolean,
-  currentQuestionFeedback: string | null,
-  currentQuestionType: QuestionType
+  isCompleted: boolean
 ) => {
   if (isSyncing) return getTranslatedString(language, multiLangLabels.syncing);
 
   if (isCompleted)
     return getTranslatedString(language, multiLangLabels.next_set);
 
-  if (currentQuestionFeedback === FeedbackType.INCORRECT) return 'Try Again';
-
-  if (currentQuestionType === QuestionType.MCQ)
-    return getTranslatedString(language, multiLangLabels.next);
-
-  return 'Check';
+  return 'Submit';
 };
 
 export const getButtonTooltipMessage = (
   language: keyof typeof SupportedLanguages,
   isSyncing: boolean,
-  currentQuestionType: QuestionType
+  currentQuestionType: QuestionType,
+  currentQuestionFeedback: FeedbackType | null
 ) => {
   if (isSyncing)
     return getTranslatedString(language, multiLangLabels.sync_in_progress);
+
+  if (currentQuestionFeedback !== null) return '';
 
   if (currentQuestionType === QuestionType.MCQ)
     return getTranslatedString(
@@ -104,4 +101,39 @@ export const getButtonTooltipMessage = (
     language,
     multiLangLabels.fill_in_all_the_empty_blanks_to_continue
   );
+};
+
+export const getFilteredAnswer = (
+  gridData: any,
+  lastAttemptedQuestionIndex: number,
+  questionsLength: number
+) => {
+  const currentTime = new Date().toISOString();
+  const newAnswer = {
+    ...gridData,
+    start_time: lastAttemptedQuestionIndex === 0 ? currentTime : '',
+    end_time:
+      lastAttemptedQuestionIndex === questionsLength - 1 ? currentTime : '',
+  };
+  const filteredAnswer = {
+    questionId: newAnswer.questionId,
+    start_time: newAnswer.start_time,
+    end_time: newAnswer.end_time,
+    answers: _.omitBy(
+      {
+        topAnswer: newAnswer.topAnswer,
+        answerIntermediate: newAnswer?.answerIntermediate,
+        answerQuotient: newAnswer?.answerQuotient,
+        answerRemainder: newAnswer?.answerRemainder,
+        resultAnswer: newAnswer.resultAnswer,
+        row1Answers: newAnswer.row1Answers,
+        row2Answers: newAnswer.row2Answers,
+        fibAnswer: newAnswer.fibAnswer,
+        mcqAnswer: newAnswer.mcqAnswer,
+      },
+      _.isUndefined
+    ),
+    operation: newAnswer?.operation,
+  };
+  return filteredAnswer;
 };

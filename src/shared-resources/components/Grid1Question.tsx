@@ -47,8 +47,6 @@ const Grid1Question = ({
     answers.answerTop.split('|')[index] !== '' &&
     answers.answerTop.split('|')[index] !== 'B';
   const isTopAnswerDisabled = (char: string, index: number) => {
-    if (Object.keys(errors).length > 0) return true;
-
     const isValid = isAnswerValid(index);
     const isSplitValid = isAnswerAtIndexValidFromSplit(index);
 
@@ -61,12 +59,10 @@ const Grid1Question = ({
   };
 
   const isResultAnswerDisabled = (value: string, index: number) =>
-    Object.keys(errors).length > 0 ||
-    (isResultAnswerValid(index) &&
-      value === (answers.answerResult[index] || ''));
+    isResultAnswerValid(index) && value === (answers.answerResult[index] || '');
 
   const isIntermediateInputDisabled = (char: string) =>
-    Object.keys(errors).length > 0 || (char !== 'B' && char !== '');
+    char !== 'B' && char !== '';
 
   const renderExtraSpaces = () => {
     const extraSpacesCount =

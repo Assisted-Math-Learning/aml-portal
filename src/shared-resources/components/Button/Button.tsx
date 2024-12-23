@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { FocusEventHandler } from 'react';
 import MatButton from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -12,6 +13,7 @@ interface Props {
   tooltipMessage?: string; // Tooltip message as a prop
   onBlur?: FocusEventHandler<HTMLButtonElement>;
   tabIndex?: number;
+  theme?: 'primary' | 'outlined';
 }
 
 const Button: React.FC<Props> = ({
@@ -23,6 +25,7 @@ const Button: React.FC<Props> = ({
   tooltipMessage, // Tooltip message from props
   onBlur,
   tabIndex,
+  theme = 'primary',
 }) => {
   const button = (
     <MatButton
@@ -30,7 +33,11 @@ const Button: React.FC<Props> = ({
       onClick={onClick}
       className={cx(
         '!h-[72px] !w-56 !border-4 !border-solid !shadow-none !rounded-[10px] !text-2xl !font-bold active:opacity-[46%] !font-quicksand',
-        disabled ? '!bg-disabled' : '!bg-primary',
+        disabled
+          ? '!bg-disabled'
+          : theme === 'primary'
+          ? '!bg-primary'
+          : 'border-primary border-4 !text-primary !bg-white',
         className
       )}
       variant='contained'

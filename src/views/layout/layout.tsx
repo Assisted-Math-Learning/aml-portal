@@ -97,9 +97,9 @@ const Layout: React.FC = () => {
 
   return isUserLoading ? null : (
     <AuthContext.Provider value={authContextValue}>
-      <div className='flex flex-col h-full'>
+      <div className='flex h-full'>
         <Header learnerId={learnerId} username={userSelector?.username} />
-        <div className='flex-1 overflow-y-hidden'>
+        <div className='flex flex-1 overflow-y-hidden'>
           <Outlet />
         </div>
 

@@ -1,129 +1,51 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import ContainerLayout from 'shared-resources/components/ContainerLayout/ContainerLayout';
-import Question from 'shared-resources/components/Question';
-import {
-  convertSingleResponseToLearnerResponse,
-  transformQuestions,
-} from 'shared-resources/utils/helpers';
-import { fetchLogicEngineEvaluation } from 'store/actions/logicEngineEvaluation.action';
-import { syncFinalLearnerResponse } from 'store/actions/syncLearnerResponse.action';
-import { learnerIdSelector } from 'store/selectors/auth.selector';
-import { learnerJourneySelector } from 'store/selectors/learnerJourney.selector';
-import { questionsSetSelector } from 'store/selectors/questionSet.selector';
-import Confetti from 'react-confetti';
-import useWindowSize from 'hooks/useWindowSize';
-import { QuestionType } from 'models/enums/QuestionType.enum';
-import {
-  isIntermediateSyncInProgressSelector,
-  isSyncInProgressSelector,
-} from 'store/selectors/syncResponseSelector';
-import { islogicEngineLoadingSelector } from 'store/selectors/logicEngine.selector';
-import Loader from 'shared-resources/components/Loader/Loader';
-import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
-import _ from 'lodash';
-import { operationMap } from 'models/enums/ArithmaticOperations.enum';
 import { useLanguage } from 'context/LanguageContext';
+import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
+import useWindowSize from 'hooks/useWindowSize';
+import _ from 'lodash';
+import {
+  ArithmaticOperations,
+  operationMap,
+} from 'models/enums/ArithmaticOperations.enum';
+import { QuestionType } from 'models/enums/QuestionType.enum';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Confetti from 'react-confetti';
+import { useDispatch, useSelector } from 'react-redux';
+import QuestionContainer from 'shared-resources/components/ContainerLayout/QuestionContainer';
+import Loader from 'shared-resources/components/Loader/Loader';
 import MultiLangText, {
   getTranslatedString,
 } from 'shared-resources/components/MultiLangText/MultiLangText';
-import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
-import {
-  getIsAnswerCorrect,
-  getQuestionErrors,
-} from 'shared-resources/utils/logicHelper';
-import Button from 'shared-resources/components/Button/Button';
+import Question from 'shared-resources/components/Question';
+import QuestionButtonsComponent from 'shared-resources/components/QuestionButtonsComponent/QuestionButtonsComponent';
 import {
   ClickedButtonType,
   FeedbackType,
   getButtonText,
   getButtonTooltipMessage,
+  getFilteredAnswer,
 } from 'shared-resources/components/questionUtils';
+import {
+  convertSingleResponseToLearnerResponse,
+  transformQuestions,
+} from 'shared-resources/utils/helpers';
+import {
+  getIsAnswerCorrect,
+  getQuestionErrors,
+} from 'shared-resources/utils/logicHelper';
+import { fetchLogicEngineEvaluation } from 'store/actions/logicEngineEvaluation.action';
+import { syncFinalLearnerResponse } from 'store/actions/syncLearnerResponse.action';
+import { learnerIdSelector } from 'store/selectors/auth.selector';
+import { learnerJourneySelector } from 'store/selectors/learnerJourney.selector';
+import { islogicEngineLoadingSelector } from 'store/selectors/logicEngine.selector';
+import { questionsSetSelector } from 'store/selectors/questionSet.selector';
+import {
+  isIntermediateSyncInProgressSelector,
+  isSyncInProgressSelector,
+} from 'store/selectors/syncResponseSelector';
+import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { indexedDBService } from '../../../services/IndexedDBService';
-import { IDBDataStatus, SupportedLanguages } from '../../../types/enum';
-
-const QuestionButtonsComponent = ({
-  isCompleted,
-  currentQuestion,
-  currentQuestionFeedback,
-  isSyncing,
-  clickedButtonRef,
-  questionRef,
-  handleNextClick,
-  language,
-  isFormValid,
-}: {
-  isCompleted: boolean;
-  currentQuestion: any;
-  currentQuestionFeedback: FeedbackType | null;
-  isSyncing: boolean;
-  clickedButtonRef: React.MutableRefObject<ClickedButtonType | null>;
-  questionRef: React.MutableRefObject<{
-    submitForm: () => void;
-    resetForm: () => void;
-  } | null>;
-  handleNextClick: () => void;
-  language: keyof typeof SupportedLanguages;
-  isFormValid: boolean;
-}) => (
-  <div className='flex h-full flex-col gap-4 items-center'>
-    {!isCompleted &&
-      currentQuestion?.questionType !== QuestionType.MCQ &&
-      currentQuestionFeedback === FeedbackType.INCORRECT && (
-        <Button
-          type='button'
-          tabIndex={0}
-          disabled={isSyncing}
-          className='focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
-          onClick={() => {
-            clickedButtonRef.current = ClickedButtonType.SKIP;
-            questionRef.current?.submitForm();
-          }}
-        >
-          Skip
-        </Button>
-      )}
-    <Button
-      tabIndex={0}
-      type='button'
-      className='focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md'
-      onClick={() => {
-        if (isCompleted) {
-          handleNextClick();
-          return;
-        }
-        if (!currentQuestionFeedback) {
-          clickedButtonRef.current = ClickedButtonType.CHECK;
-          questionRef.current?.submitForm();
-        } else if (currentQuestionFeedback === FeedbackType.INCORRECT) {
-          clickedButtonRef.current = ClickedButtonType.TRY_AGAIN;
-          handleNextClick();
-        }
-      }}
-      disabled={isSyncing || (!isFormValid && !isCompleted)}
-      tooltipMessage={getButtonTooltipMessage(
-        language,
-        isSyncing,
-        currentQuestion?.questionType
-      )}
-    >
-      {getButtonText(
-        language,
-        isSyncing,
-        isCompleted,
-        currentQuestionFeedback,
-        currentQuestion?.questionType
-      )}
-    </Button>
-    {currentQuestionFeedback === FeedbackType.INCORRECT &&
-      currentQuestion?.questionType !== QuestionType.MCQ && (
-        <span className='text-red-500 font-semibold'>
-          Click Try Again to reattempt.
-        </span>
-      )}
-  </div>
-);
+import { IDBDataStatus } from '../../../types/enum';
 
 const Questions: React.FC = () => {
   const { language } = useLanguage();
@@ -162,8 +84,15 @@ const Questions: React.FC = () => {
   const [currentQuestionErrors, setCurrentQuestionErrors] = useState<{
     [key: string]: boolean[] | boolean[][];
   }>({});
+  const lastAttemptedQuestionIndex = useRef<number>(0);
 
   const currentQuestion = questions[currentQuestionIndex];
+
+  const resetFeedbackStates = useCallback(() => {
+    setCurrentQuestionFeedback(null);
+    setCurrentQuestionErrors({});
+    setShowFeedback(false);
+  }, []);
 
   useEffect(() => {
     const makeInitialDecisions = async () => {
@@ -194,9 +123,10 @@ const Questions: React.FC = () => {
                 !combinedAnsweredIds.includes(question.questionId)
             );
             setQuestions(transformedQuestions);
-            setCurrentQuestionIndex(
-              firstUnansweredIndex !== -1 ? firstUnansweredIndex : 0
-            );
+            const index =
+              firstUnansweredIndex !== -1 ? firstUnansweredIndex : 0;
+            setCurrentQuestionIndex(index);
+            lastAttemptedQuestionIndex.current = index;
           }
         }
       }
@@ -243,13 +173,7 @@ const Questions: React.FC = () => {
   }, [waitingBeforeEvaluation, isSyncing, isCompleted, learnerId]);
 
   const handleNextClick = useCallback(async () => {
-    setCurrentQuestionErrors({});
-    setCurrentQuestionFeedback(null);
-
-    if (clickedButtonRef.current === ClickedButtonType.TRY_AGAIN) {
-      questionRef.current?.resetForm();
-      return;
-    }
+    resetFeedbackStates();
 
     if (isCompleted && learnerId) {
       const criteria = {
@@ -297,58 +221,65 @@ const Questions: React.FC = () => {
     let timer: any;
     if (showFeedback) {
       timer = setTimeout(async () => {
-        if (
-          currentQuestionFeedback === FeedbackType.CORRECT ||
-          currentQuestion?.questionType === QuestionType.MCQ
-        ) {
+        const isLatestQuestion =
+          currentQuestionIndex === lastAttemptedQuestionIndex.current;
+
+        const isLatestQuestionCorrect =
+          currentQuestionFeedback === FeedbackType.CORRECT && isLatestQuestion;
+
+        const isLatestQuestionMCQ =
+          currentQuestion?.questionType === QuestionType.MCQ &&
+          isLatestQuestion;
+
+        if (isLatestQuestionCorrect || isLatestQuestionMCQ) {
           clickedButtonRef.current = ClickedButtonType.NEXT;
           await handleNextClick();
+          setShowFeedback(false);
         }
-        setShowFeedback(false);
-      }, 700);
+      }, 2000);
     }
     return () => clearTimeout(timer);
   }, [
     currentQuestion?.questionType,
     currentQuestionFeedback,
+    currentQuestionIndex,
     handleNextClick,
     showFeedback,
   ]);
 
-  const handleQuestionSubmit = async (
-    criteria: any,
-    transformedAnswer: any
-  ) => {
-    const entryExists = (await indexedDBService.queryObjectsByKeys(
-      criteria
-    )) as any[];
-
-    if (entryExists && entryExists.length) {
-      await indexedDBService.updateObjectById(entryExists[0].id, {
-        ...transformedAnswer,
-        learner_id: learnerId,
-        status: IDBDataStatus.NOOP,
-      });
-    } else {
-      await indexedDBService.addObject({
-        ...transformedAnswer,
-        learner_id: learnerId,
-        status: IDBDataStatus.NOOP,
-      });
+  useEffect(() => {
+    if (currentQuestionIndex < lastAttemptedQuestionIndex.current) {
+      clickedButtonRef.current = ClickedButtonType.CHECK;
+      setTimeout(() => {
+        questionRef.current?.submitForm();
+      }, 100);
     }
+  }, [currentQuestionIndex]);
 
+  const handleQuestionSubmit = () => {
     questionRef.current?.resetForm();
 
-    setCurrentQuestionIndex((prev) => prev + 1);
+    if (currentQuestionIndex === lastAttemptedQuestionIndex.current) {
+      lastAttemptedQuestionIndex.current = currentQuestionIndex + 1;
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }
     setCurrentQuestionErrors({});
-    setCurrentQuestionFeedback(null);
+    resetFeedbackStates();
   };
 
-  const handleCheckQuestion = async (transformedAnswer?: any) => {
+  const handleCheckQuestion = async (
+    criteria: any,
+    transformedAnswer?: any,
+    updateIDB = false
+  ) => {
     const { result: isAnswerCorrect, correctAnswer } = getIsAnswerCorrect(
       currentQuestion,
       transformedAnswer.learner_response
     );
+
+    const syncedEntryExists = (await indexedDBService.queryObjectsByKeys(
+      criteria
+    )) as any[];
 
     if (isAnswerCorrect) {
       setCurrentQuestionFeedback(FeedbackType.CORRECT);
@@ -357,7 +288,12 @@ const Questions: React.FC = () => {
     } else {
       setCurrentQuestionFeedback(FeedbackType.INCORRECT);
       setShowFeedback(true);
-      if (currentQuestion?.questionType === QuestionType.GRID_1) {
+      if (
+        currentQuestion?.questionType === QuestionType.GRID_1 ||
+        (currentQuestion?.questionType === QuestionType.FIB &&
+          currentQuestion?.operation === ArithmaticOperations.DIVISION &&
+          currentQuestion?.answers?.fib_type === '2')
+      ) {
         setCurrentQuestionErrors(
           getQuestionErrors(
             currentQuestion?.operation,
@@ -367,36 +303,44 @@ const Questions: React.FC = () => {
         );
       }
     }
+
+    if (!updateIDB) return;
+
+    // if question is synced in IDB or questionId in completed questions array,
+    // then update the question in IDB with status as REVISITED else do no update the status
+
+    if (syncedEntryExists && syncedEntryExists.length) {
+      await indexedDBService.updateObjectById(syncedEntryExists[0].id, {
+        ...transformedAnswer,
+        learner_id: learnerId,
+        status:
+          syncedEntryExists[0].status === IDBDataStatus.SYNCED
+            ? IDBDataStatus.REVISITED
+            : syncedEntryExists[0].status,
+      });
+      return;
+    }
+
+    const questionIdInCompletedQuestions =
+      learnerJourney?.completed_question_ids?.some(
+        (id) => id === criteria.question_id
+      );
+
+    await indexedDBService.addObject({
+      ...transformedAnswer,
+      learner_id: learnerId,
+      status: questionIdInCompletedQuestions
+        ? IDBDataStatus.REVISITED
+        : IDBDataStatus.NOOP,
+    });
   };
 
   const handleQuestionFormSubmit = async (gridData: any) => {
-    const currentTime = new Date().toISOString();
-    const newAnswer = {
-      ...gridData,
-      start_time: currentQuestionIndex === 0 ? currentTime : '',
-      end_time:
-        currentQuestionIndex === questions.length - 1 ? currentTime : '',
-    };
-    const filteredAnswer = {
-      questionId: newAnswer.questionId,
-      start_time: newAnswer.start_time,
-      end_time: newAnswer.end_time,
-      answers: _.omitBy(
-        {
-          topAnswer: newAnswer.topAnswer,
-          answerIntermediate: newAnswer?.answerIntermediate,
-          answerQuotient: newAnswer?.answerQuotient,
-          answerRemainder: newAnswer?.answerRemainder,
-          resultAnswer: newAnswer.resultAnswer,
-          row1Answers: newAnswer.row1Answers,
-          row2Answers: newAnswer.row2Answers,
-          fibAnswer: newAnswer.fibAnswer,
-          mcqAnswer: newAnswer.mcqAnswer,
-        },
-        _.isUndefined
-      ),
-      operation: newAnswer?.operation,
-    };
+    const filteredAnswer = getFilteredAnswer(
+      gridData,
+      lastAttemptedQuestionIndex.current,
+      questions.length
+    );
     const transformedAnswer = convertSingleResponseToLearnerResponse(
       filteredAnswer,
       questionSet!.identifier,
@@ -409,15 +353,22 @@ const Questions: React.FC = () => {
       learner_id: learnerId,
     };
 
-    if (clickedButtonRef.current === ClickedButtonType.CHECK) {
-      handleCheckQuestion(transformedAnswer);
+    if (clickedButtonRef.current === ClickedButtonType.CHECK_AND_SUBMIT) {
+      handleCheckQuestion(criteria, transformedAnswer, true);
+    }
+
+    if (
+      clickedButtonRef.current === ClickedButtonType.CHECK &&
+      currentQuestionIndex < lastAttemptedQuestionIndex.current
+    ) {
+      handleCheckQuestion(criteria, transformedAnswer);
     }
 
     if (
       clickedButtonRef.current === ClickedButtonType.SKIP ||
       clickedButtonRef.current === ClickedButtonType.NEXT
     ) {
-      handleQuestionSubmit(criteria, transformedAnswer);
+      handleQuestionSubmit();
     }
 
     clickedButtonRef.current = null;
@@ -429,8 +380,9 @@ const Questions: React.FC = () => {
       handleNextClick();
     }
     if (questionRef.current && isFormValid) {
-      setCurrentQuestionFeedback(null);
-      clickedButtonRef.current = ClickedButtonType.CHECK;
+      resetFeedbackStates();
+
+      clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
       questionRef.current.submitForm();
     }
     event.preventDefault();
@@ -438,21 +390,55 @@ const Questions: React.FC = () => {
 
   useEnterKeyHandler(handleKeyDown, [isFormValid, isCompleted]);
 
-  const handleKeyClick = useCallback(
-    (key: string) => {
-      if (currentQuestionFeedback === FeedbackType.INCORRECT) return;
-      setKeyPressed((prev) => ({ key, counter: prev.counter + 1 }));
-    },
-    [currentQuestionFeedback]
-  );
+  const handleKeyClick = (key: string) => {
+    if (showFeedback) resetFeedbackStates();
+    setKeyPressed((prev) => ({ key, counter: prev.counter + 1 }));
+  };
 
   const handleBackSpaceClick = (clicked: any) => {
-    if (currentQuestionFeedback === FeedbackType.INCORRECT) return;
+    if (showFeedback) resetFeedbackStates();
     setBackSpacePressed((prev) => ({
       isBackSpaced: clicked,
       counter: prev.counter + 1,
     }));
   };
+
+  const handlePrevClick = () => {
+    if (currentQuestionIndex > 0) {
+      resetFeedbackStates();
+      setCurrentQuestionIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleSkipClicked = () => {
+    if (currentQuestionIndex < lastAttemptedQuestionIndex.current) {
+      resetFeedbackStates();
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrimaryButtonClicked = useCallback(() => {
+    setShowFeedback(false);
+    if (isCompleted) {
+      handleNextClick();
+      return;
+    }
+    if (!currentQuestionFeedback) {
+      clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
+      questionRef.current?.submitForm();
+    }
+  }, [currentQuestionFeedback, handleNextClick, isCompleted]);
+
+  const handleSkipQuestionClicked = useCallback(() => {
+    setShowFeedback(false);
+    clickedButtonRef.current = ClickedButtonType.SKIP;
+    questionRef.current?.submitForm();
+  }, []);
+
+  const handleSkipToCurrentClicked = useCallback(() => {
+    resetFeedbackStates();
+    setCurrentQuestionIndex(lastAttemptedQuestionIndex.current ?? 0);
+  }, [resetFeedbackStates]);
 
   if (isSyncing || isLogicEngineLoading)
     return (
@@ -464,7 +450,7 @@ const Questions: React.FC = () => {
   return (
     <>
       {isCompleted && <Confetti width={width} height={height} />}
-      <ContainerLayout
+      <QuestionContainer
         headerText={
           isCompleted
             ? getTranslatedString(language, multiLangLabels.congratulations)
@@ -509,37 +495,58 @@ const Questions: React.FC = () => {
                 errors={currentQuestionErrors}
                 question={questions[currentQuestionIndex]}
                 onSubmit={handleQuestionFormSubmit}
-                onValidityChange={(value: boolean) => setIsFormValid(value)}
+                onValidityChange={(value: boolean) => {
+                  setIsFormValid(value);
+                }}
                 keyPressed={keyPressed}
                 backSpacePressed={backSpacePressed}
-                questionFeedback={currentQuestionFeedback}
-                showFeedback={showFeedback}
+                setQuestionFeedback={() => {
+                  setShowFeedback(false);
+                  setCurrentQuestionFeedback(null);
+                }}
               />
             ) : (
               ''
             )}
           </div>
         }
-        contentDisabled={currentQuestionFeedback === FeedbackType.INCORRECT}
         onKeyClick={handleKeyClick}
         onBackSpaceClick={handleBackSpaceClick}
         currentQuestion={currentQuestion}
-        noKeyboard={isCompleted}
         taxonomy={questionSet?.taxonomy}
-        hasMultipleButtons
         renderButtons={
           <QuestionButtonsComponent
-            isCompleted={isCompleted}
-            currentQuestion={currentQuestion}
-            currentQuestionFeedback={currentQuestionFeedback}
-            isSyncing={isSyncing}
-            clickedButtonRef={clickedButtonRef}
-            questionRef={questionRef}
-            handleNextClick={handleNextClick}
-            language={language}
-            isFormValid={isFormValid}
+            primaryButtonText={getButtonText(language, isSyncing, isCompleted)}
+            primaryButtonTooltipMessage={getButtonTooltipMessage(
+              language,
+              isSyncing,
+              currentQuestion?.questionType,
+              currentQuestionFeedback
+            )}
+            disablePrimaryButton={
+              isSyncing ||
+              Boolean(currentQuestionFeedback) ||
+              (!isFormValid && !isCompleted)
+            }
+            disabledSecondaryButtons={isSyncing}
+            onPrimaryButtonClicked={handlePrimaryButtonClicked}
+            onSkipQuestionClicked={handleSkipQuestionClicked}
+            onSkipToCurrentClick={handleSkipToCurrentClicked}
+            showSkipToCurrentButton={
+              lastAttemptedQuestionIndex.current !== currentQuestionIndex
+            }
+            showSkipQuestionButton={
+              !isCompleted &&
+              currentQuestion?.questionType !== QuestionType.MCQ &&
+              currentQuestionFeedback === FeedbackType.INCORRECT
+            }
           />
         }
+        lastAttemptedQuestionIndex={lastAttemptedQuestionIndex.current}
+        onPrevClick={handlePrevClick}
+        onSkipClicked={handleSkipClicked}
+        currentQuestionFeedback={currentQuestionFeedback}
+        showFeedback={showFeedback}
       />
     </>
   );

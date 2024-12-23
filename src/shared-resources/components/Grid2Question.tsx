@@ -14,13 +14,12 @@ interface Grid2QuestionProps {
   maxLength: number;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
-  disabled?: boolean;
 }
 
 const Grid2Question: React.FC<Grid2QuestionProps> = (
   props: Grid2QuestionProps
 ) => {
-  const { question, setActiveField, maxLength, formik, disabled } = props;
+  const { question, setActiveField, maxLength, formik } = props;
 
   return (
     <>
@@ -49,7 +48,6 @@ const Grid2Question: React.FC<Grid2QuestionProps> = (
                 autoFocus={index === 0}
                 value={formik.values?.row1Answers?.[index]}
                 onChange={formik.handleChange}
-                disabled={disabled}
               />
             </div>
           ))}
@@ -70,7 +68,6 @@ const Grid2Question: React.FC<Grid2QuestionProps> = (
                 }
                 value={formik.values?.row2Answers?.[index]}
                 onChange={formik.handleChange}
-                disabled={disabled}
               />
             </div>
           ))}

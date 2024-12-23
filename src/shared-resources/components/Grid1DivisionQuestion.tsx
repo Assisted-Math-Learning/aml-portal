@@ -11,7 +11,6 @@ import {
   isFieldAnswerValid,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
-import cx from 'classnames';
 import AmlInput from './AmlInput';
 
 interface Grid1QuestionProps {
@@ -63,7 +62,7 @@ const Grid1DivisionQuestion = ({
                     ? 'border-red-500 focus:border-red-500 text-red-500'
                     : ''
                 }
-                disabled={Object.keys(errors).length > 0 || isDisabled}
+                disabled={isDisabled}
               />
             </div>
           );
@@ -112,7 +111,6 @@ const Grid1DivisionQuestion = ({
                   ? 'border-red-500 focus:border-red-500 text-red-500'
                   : ''
               }
-              disabled={Object.keys(errors).length > 0}
             />
           );
         })}
@@ -189,7 +187,7 @@ const Grid1DivisionQuestion = ({
                   ? 'border-red-500 focus:border-red-500 text-red-500'
                   : ''
               }
-              disabled={!isEditable || Object.keys(errors).length > 0}
+              disabled={!isEditable}
             />
           </div>
         );

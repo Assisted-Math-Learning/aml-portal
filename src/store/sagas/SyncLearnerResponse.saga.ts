@@ -65,8 +65,8 @@ function* SyncLearnerResponseSaga({
     criteria
   );
 
-  const learnerResponseData = allLearnerResponseData.filter(
-    (data: any) => data.status === IDBDataStatus.NOOP
+  const learnerResponseData = allLearnerResponseData.filter((data: any) =>
+    [IDBDataStatus.NOOP, IDBDataStatus.REVISITED].includes(data.status)
   );
 
   if (!learnerResponseData.length) {
@@ -237,8 +237,8 @@ function* SyncFinalLearnerResponseSaga(): any {
     criteria
   );
 
-  const learnerResponseData = allLearnerResponseData.filter(
-    (data: any) => data.status === IDBDataStatus.NOOP
+  const learnerResponseData = allLearnerResponseData.filter((data: any) =>
+    [IDBDataStatus.NOOP, IDBDataStatus.REVISITED].includes(data.status)
   );
 
   if (!learnerResponseData.length) {

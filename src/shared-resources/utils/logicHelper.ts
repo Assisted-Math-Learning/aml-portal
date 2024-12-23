@@ -553,12 +553,28 @@ const divisionFIBAnswer = (
   const result = Math.floor(dividend / divisor);
   const remainder = dividend % divisor;
 
-  if (fibType === '2')
+  if (fibType === '2') {
+    const isQuotientCorrect = answer.quotient === result.toString();
+    const isRemainderCorrect = answer.remainder === remainder.toString();
+
     return {
-      result:
-        answer.quotient === result.toString() &&
-        answer.remainder === remainder.toString(),
+      result: isQuotientCorrect && isRemainderCorrect,
+      correctAnswer: {
+        ...(!isQuotientCorrect && {
+          answerQuotient: {
+            result: false,
+            correctAnswer: result.toString(),
+          },
+        }),
+        ...(!isRemainderCorrect && {
+          answerRemainder: {
+            result: false,
+            correctAnswer: remainder.toString(),
+          },
+        }),
+      },
     };
+  }
 
   if (answer.result !== result.toString())
     return {

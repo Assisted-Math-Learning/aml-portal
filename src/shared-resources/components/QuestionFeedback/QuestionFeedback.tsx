@@ -1,11 +1,12 @@
 import React from 'react';
-import { Check } from '@mui/icons-material';
 import {
   CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS,
   INCORRECT_ANSWER_FEEDBACK_PLACEHOLDERS,
 } from 'constant/constants';
 import Loader from '../Loader/Loader';
 import { FeedbackType } from '../questionUtils';
+import AnimatedTick from '../AnimatedTick/AnimatedTick';
+import AnimatedTryAgain from '../AnimatedTick/AnimatedTryAgain';
 
 type QuestionFeedbackProps = {
   answerType: FeedbackType | null;
@@ -22,14 +23,16 @@ const QuestionFeedback = ({ answerType }: QuestionFeedbackProps) => {
         Math.floor(Math.random() * CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS.length)
       ];
     return (
-      <div className='text-center'>
-        <Check className='text-green-500 !text-[6rem] font-light' />
-        <p className='text-green-500 text-2xl font-bold'>
-          {randomCorrectFeedback[0]}
-        </p>
-        <p className='text-green-500 text-2xl font-bold'>
-          {randomCorrectFeedback[1]}
-        </p>
+      <div className='flex flex-col items-center text-center'>
+        <AnimatedTick />
+        <div>
+          <p className='text-green-500 text-xl font-bold'>
+            {randomCorrectFeedback[0]}
+          </p>
+          <p className='text-green-500 text-xl font-bold'>
+            {randomCorrectFeedback[1]}
+          </p>
+        </div>
       </div>
     );
   }
@@ -40,13 +43,16 @@ const QuestionFeedback = ({ answerType }: QuestionFeedbackProps) => {
     ];
 
   return (
-    <div className='text-center'>
-      <p className='text-black text-2xl font-bold'>
-        {randomIncorrectFeedback[0]}
-      </p>
-      <p className='text-black text-2xl font-bold'>
-        {randomIncorrectFeedback[1]}
-      </p>
+    <div className='flex flex-col items-center text-center'>
+      <AnimatedTryAgain />
+      <div>
+        <p className='text-black text-xl font-bold'>
+          {randomIncorrectFeedback[0]}
+        </p>
+        <p className='text-black text-xl font-bold'>
+          {randomIncorrectFeedback[1]}
+        </p>
+      </div>
     </div>
   );
 };

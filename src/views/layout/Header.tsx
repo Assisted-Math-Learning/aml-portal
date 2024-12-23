@@ -8,7 +8,6 @@ import {
 } from 'services/LocalStorageService';
 import { AuthContext } from '../../context/AuthContext';
 import ProfileWithMenu from '../../shared-resources/components/ProfileWithMenu/ProfileWithMenu';
-import ENV_CONFIG from '../../constant/env.config';
 
 type Props = {
   learnerId?: string;
@@ -29,19 +28,16 @@ const Header: React.FC<Props> = ({ learnerId, username }) => {
   };
 
   return (
-    <div className='py-1 px-4 border-b-[1px] border-black items-center flex justify-between'>
+    <div className='py-4 w-[70px] border-r-[1px] border-black items-center flex flex-col justify-between'>
       <div className='flex gap-4 items-center'>
         <img
           src='/assets/logo.svg'
           alt='logo'
-          className='h-[64px] w-[64px] rounded-full'
+          className='h-[60px] w-[60px] rounded-full'
         />
-        <p className='font-publicSans text-2xl'>
-          AML v{ENV_CONFIG.APP_VERSION ?? '1.0.0'}
-        </p>
       </div>
       {!learnerId && storedLanguage !== SupportedLanguages.en && (
-        <div className='gap-2 flex'>
+        <div className='gap-2 flex absolute right-28 pt-2'>
           <span className='font-semibold'>English</span>
           <ToggleSwitch
             checked={language === storedLanguage}
