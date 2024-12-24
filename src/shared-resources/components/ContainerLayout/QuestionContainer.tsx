@@ -67,7 +67,7 @@ const QuestionContainer = ({
               'border-4 rounded-lg'
           )}
         >
-          <div className='h-full [&_>_div:first-child]:py-6 grid place-items-center'>
+          <div className='p-10 h-full [&_>_div:first-child]:py-6 grid place-items-center'>
             {content}
           </div>
         </div>

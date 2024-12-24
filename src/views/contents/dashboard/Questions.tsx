@@ -378,8 +378,9 @@ const Questions: React.FC = () => {
     if (isCompleted) {
       clickedButtonRef.current = ClickedButtonType.NEXT;
       handleNextClick();
+      return;
     }
-    if (questionRef.current && isFormValid) {
+    if (questionRef.current && !isSyncing && !currentQuestionFeedback) {
       resetFeedbackStates();
 
       clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
@@ -391,12 +392,18 @@ const Questions: React.FC = () => {
   useEnterKeyHandler(handleKeyDown, [isFormValid, isCompleted]);
 
   const handleKeyClick = (key: string) => {
-    if (showFeedback) resetFeedbackStates();
+    if (showFeedback) {
+      setCurrentQuestionFeedback(null);
+      setShowFeedback(false);
+    }
     setKeyPressed((prev) => ({ key, counter: prev.counter + 1 }));
   };
 
   const handleBackSpaceClick = (clicked: any) => {
-    if (showFeedback) resetFeedbackStates();
+    if (showFeedback) {
+      setCurrentQuestionFeedback(null);
+      setShowFeedback(false);
+    }
     setBackSpacePressed((prev) => ({
       isBackSpaced: clicked,
       counter: prev.counter + 1,

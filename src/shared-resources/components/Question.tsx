@@ -464,9 +464,6 @@ const Question = forwardRef(
             mcqAnswer: values.mcqAnswer,
           });
         }
-        // Reset the form
-        setActiveField(null);
-        // formik.resetForm();
       },
     });
 
