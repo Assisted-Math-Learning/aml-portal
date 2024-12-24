@@ -60,11 +60,11 @@ const QuestionContainer = ({
       <div className='md:w-[65%] w-full flex flex-col'>
         <div
           className={cx(
-            'flex-1 flex-col overflow-y-auto mt-6 flex justify-center items-center border border-black',
+            'flex-1 flex-col overflow-y-auto transition-all shadow-[0_0_0_1px_black] animation-borderFadeIn mt-6 flex justify-center items-center',
             currentQuestionFeedback === FeedbackType.CORRECT &&
-              'border-green-500 border-4 rounded-lg',
+              'shadow-green-500 shadow-[0_0_0_4px] rounded-lg',
             currentQuestionFeedback === FeedbackType.INCORRECT &&
-              'border-4 rounded-lg'
+              'shadow-[0_0_0_4px_black] rounded-lg'
           )}
         >
           <div className='p-10 h-full [&_>_div:first-child]:py-6 grid place-items-center'>

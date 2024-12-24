@@ -17,6 +17,9 @@ module.exports = {
         publicSans: ['"Public Sans"', 'sans-serif'],
         roboto: ['"Roboto"', 'sans-serif'],
       },
+      animation: {
+        borderFadeIn: 'borderFadeIn 1s ease-in-out'
+      }
     },
   },
 };

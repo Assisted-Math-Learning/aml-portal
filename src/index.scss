@@ -30,3 +30,13 @@ body {
     transform: rotate(0deg);
   }
 }
+
+
+@keyframes borderFadeIn {
+  0% {
+    box-shadow: 0 0 0 1px black;
+  }
+  100% {
+    box-shadow: 0 0 0 4px green;
+  }
+}
