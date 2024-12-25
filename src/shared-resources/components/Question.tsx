@@ -11,6 +11,7 @@ import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import {
+  FeedbackType,
   FormValues,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
@@ -38,6 +39,7 @@ export interface QuestionProps {
     [key: string]: boolean[] | boolean[][];
   };
   setQuestionFeedback: () => void;
+  questionFeedback?: FeedbackType | null;
 }
 
 // Using forwardRef to forward refs to the parent component
@@ -51,6 +53,7 @@ const Question = forwardRef(
       backSpacePressed,
       errors,
       setQuestionFeedback,
+      questionFeedback,
     }: QuestionProps,
     ref
   ) => {
@@ -599,6 +602,7 @@ const Question = forwardRef(
             question={question}
             setActiveField={setActiveField}
             errors={errors}
+            isAnswerIncorrect={questionFeedback === FeedbackType.INCORRECT}
           />
         )}
 

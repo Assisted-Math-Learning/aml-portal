@@ -58,6 +58,7 @@ export const isFieldAnswerValid = (
 export enum FeedbackType {
   CORRECT = 'correct',
   INCORRECT = 'incorrect',
+  NOOP = 'noop',
 }
 
 export enum ClickedButtonType {

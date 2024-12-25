@@ -12,6 +12,7 @@ export interface QuestionSet {
   taxonomy: Taxonomy;
   sub_skills: SubSkill[];
   purpose: string;
+  enable_feedback: boolean;
   is_atomic: boolean;
   gradient: string;
   group_name: number;

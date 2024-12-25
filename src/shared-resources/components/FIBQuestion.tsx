@@ -21,6 +21,7 @@ interface FIBQuestionProps {
   errors: {
     [key: string]: boolean[] | boolean[][];
   };
+  isAnswerIncorrect: boolean;
 }
 
 const FIBQuestion = ({
@@ -28,6 +29,7 @@ const FIBQuestion = ({
   formik,
   setActiveField,
   errors,
+  isAnswerIncorrect,
 }: FIBQuestionProps) => {
   const { answers } = question;
   const {
@@ -135,7 +137,11 @@ const FIBQuestion = ({
               value={formik.values.fibAnswer}
               onChange={formik.handleChange}
               maxLength={9}
-              className='!w-full'
+              className={cx(
+                '!w-full',
+                isAnswerIncorrect &&
+                  'border-red-500 focus:border-red-500 text-red-500'
+              )}
             />
           </div>
         </div>

@@ -2,7 +2,6 @@
 import { useLanguage } from 'context/LanguageContext';
 import useEnterKeyHandler from 'hooks/useEnterKeyHandler';
 import useWindowSize from 'hooks/useWindowSize';
-import _ from 'lodash';
 import {
   ArithmaticOperations,
   operationMap,
@@ -87,6 +86,8 @@ const Questions: React.FC = () => {
   const lastAttemptedQuestionIndex = useRef<number>(0);
 
   const currentQuestion = questions[currentQuestionIndex];
+
+  const isFeedbackAllowed = questionSet?.enable_feedback;
 
   const resetFeedbackStates = useCallback(() => {
     setCurrentQuestionFeedback(null);
@@ -220,40 +221,53 @@ const Questions: React.FC = () => {
   useEffect(() => {
     let timer: any;
     if (showFeedback) {
+      if (!isFeedbackAllowed) {
+        clickedButtonRef.current = ClickedButtonType.NEXT;
+        setShowFeedback(false);
+        handleNextClick();
+        return;
+      }
+
+      clearTimeout(timer);
       timer = setTimeout(async () => {
         const isLatestQuestion =
           currentQuestionIndex === lastAttemptedQuestionIndex.current;
 
-        const isLatestQuestionCorrect =
-          currentQuestionFeedback === FeedbackType.CORRECT && isLatestQuestion;
+        const isLatestQuestionCorrectOrNoOP =
+          (currentQuestionFeedback === FeedbackType.CORRECT ||
+            currentQuestionFeedback === FeedbackType.NOOP) &&
+          isLatestQuestion;
 
         const isLatestQuestionMCQ =
           currentQuestion?.questionType === QuestionType.MCQ &&
           isLatestQuestion;
 
-        if (isLatestQuestionCorrect || isLatestQuestionMCQ) {
+        if (isLatestQuestionCorrectOrNoOP || isLatestQuestionMCQ) {
           clickedButtonRef.current = ClickedButtonType.NEXT;
           await handleNextClick();
           setShowFeedback(false);
         }
       }, 2000);
     }
-    return () => clearTimeout(timer);
   }, [
     currentQuestion?.questionType,
     currentQuestionFeedback,
     currentQuestionIndex,
     handleNextClick,
+    isFeedbackAllowed,
     showFeedback,
   ]);
 
   useEffect(() => {
+    if (!isFeedbackAllowed) return;
+
     if (currentQuestionIndex < lastAttemptedQuestionIndex.current) {
       clickedButtonRef.current = ClickedButtonType.CHECK;
       setTimeout(() => {
         questionRef.current?.submitForm();
       }, 100);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIndex]);
 
   const handleQuestionSubmit = () => {
@@ -281,11 +295,16 @@ const Questions: React.FC = () => {
       criteria
     )) as any[];
 
-    if (isAnswerCorrect) {
+    if (!isFeedbackAllowed) {
+      setShowFeedback(true);
+      setCurrentQuestionFeedback(FeedbackType.NOOP);
+    }
+
+    if (isFeedbackAllowed && isAnswerCorrect) {
       setCurrentQuestionFeedback(FeedbackType.CORRECT);
       setCurrentQuestionErrors({});
       setShowFeedback(true);
-    } else {
+    } else if (isFeedbackAllowed && !isAnswerCorrect) {
       setCurrentQuestionFeedback(FeedbackType.INCORRECT);
       setShowFeedback(true);
       if (
@@ -511,6 +530,7 @@ const Questions: React.FC = () => {
                   setShowFeedback(false);
                   setCurrentQuestionFeedback(null);
                 }}
+                questionFeedback={currentQuestionFeedback}
               />
             ) : (
               ''
@@ -553,7 +573,7 @@ const Questions: React.FC = () => {
         onPrevClick={handlePrevClick}
         onSkipClicked={handleSkipClicked}
         currentQuestionFeedback={currentQuestionFeedback}
-        showFeedback={showFeedback}
+        showFeedback={Boolean(isFeedbackAllowed && showFeedback)}
       />
     </>
   );
