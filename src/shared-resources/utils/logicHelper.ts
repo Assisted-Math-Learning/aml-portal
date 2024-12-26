@@ -1,5 +1,5 @@
 /* eslint-disable no-continue */
-import { QuestionType } from 'models/enums/QuestionType.enum';
+import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 import { QuestionPropsType } from 'shared-resources/components/questionUtils';
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { LearnerResponse, replaceAt } from './helpers';
@@ -183,7 +183,14 @@ const addFIBAnswer = (
   question: QuestionPropsType,
   answer: LearnerResponse
 ): ValidationResult => {
-  const { numbers } = question;
+  const {
+    numbers,
+    answers: { fib_type: fibType, result },
+  } = question;
+
+  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
+    return { result: answer.result?.toString() === result.toString() };
+  }
 
   const [fibNumber1, fibNumber2] = Object.values(numbers).map((num) =>
     parseInt(num, 10)
@@ -196,7 +203,14 @@ const subFIBAnswer = (
   question: QuestionPropsType,
   answer: LearnerResponse
 ): ValidationResult => {
-  const { numbers } = question;
+  const {
+    numbers,
+    answers: { fib_type: fibType, result },
+  } = question;
+
+  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
+    return { result: answer.result === result.toString() };
+  }
 
   const [fibNumber1, fibNumber2] = Object.values(numbers).map((num) =>
     parseInt(num, 10)
@@ -270,7 +284,14 @@ const multiplicationFIBAnswer = (
   question: QuestionPropsType,
   answer: LearnerResponse
 ): ValidationResult => {
-  const { numbers } = question;
+  const {
+    numbers,
+    answers: { fib_type: fibType, result },
+  } = question;
+
+  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
+    return { result: answer.result === result.toString() };
+  }
 
   const [fibNumber1, fibNumber2] = Object.values(numbers).map((num) =>
     parseInt(num, 10)
@@ -544,8 +565,40 @@ const divisionFIBAnswer = (
 ): ValidationResult => {
   const {
     numbers,
-    answers: { fib_type: fibType },
+    answers: {
+      fib_type: fibType,
+      result: answerResult,
+      answerQuotient,
+      answerRemainder,
+    },
   } = question;
+
+  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
+    return { result: answer.result === answerResult.toString() };
+  }
+
+  if (fibType === FibType.FIB_QUOTIENT_REMAINDER_WITH_IMAGE) {
+    return {
+      result:
+        answer.quotient === answerQuotient.toString() &&
+        answer.remainder === answerRemainder.toString(),
+      correctAnswer: {
+        ...(answer.quotient !== answerQuotient.toString() && {
+          answerQuotient: {
+            result: false,
+            correctAnswer: answerQuotient,
+          },
+        }),
+        ...(answer.remainder !== answerRemainder.toString() && {
+          answerRemainder: {
+            result: false,
+            correctAnswer: answerRemainder,
+          },
+        }),
+      },
+    };
+  }
+
   const [dividend, divisor] = Object.values(numbers).map((num) =>
     parseInt(num, 10)
   );
@@ -553,7 +606,7 @@ const divisionFIBAnswer = (
   const result = Math.floor(dividend / divisor);
   const remainder = dividend % divisor;
 
-  if (fibType === '2') {
+  if (fibType === FibType.FIB_QUOTIENT_REMAINDER) {
     const isQuotientCorrect = answer.quotient === result.toString();
     const isRemainderCorrect = answer.remainder === remainder.toString();
 

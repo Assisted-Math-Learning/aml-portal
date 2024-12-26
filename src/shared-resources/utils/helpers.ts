@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
-import { QuestionType } from 'models/enums/QuestionType.enum';
+import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 import { QuestionPropsType } from 'shared-resources/components/questionUtils';
 
 export type LearnerResponse = {
@@ -268,7 +268,12 @@ export const convertLearnerResponseToSingleResponse = (
 
   if (question.questionType === QuestionType.FIB) {
     if (question.operation === ArithmaticOperations.DIVISION) {
-      if (question.answers.fib_type === '2') {
+      if (
+        [
+          FibType.FIB_QUOTIENT_REMAINDER,
+          FibType.FIB_QUOTIENT_REMAINDER_WITH_IMAGE,
+        ].includes(question.answers.fib_type!)
+      ) {
         answers.answerQuotient = questionData.learner_response.quotient;
         answers.answerRemainder = questionData.learner_response.remainder;
       } else {
