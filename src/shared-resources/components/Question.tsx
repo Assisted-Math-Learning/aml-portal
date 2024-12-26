@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { QuestionType } from 'models/enums/QuestionType.enum';
+import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import {
@@ -51,6 +51,23 @@ const Question = forwardRef(
     const [activeField, setActiveField] = useState<keyof FormValues | null>(
       null
     );
+
+    const isFibQuestion = question.questionType === QuestionType.FIB;
+    const isDivisionOperation =
+      question.operation === ArithmaticOperations.DIVISION;
+
+    const validateQuotientRemainderDivisionFib =
+      isFibQuestion &&
+      isDivisionOperation &&
+      (answers.fib_type === FibType.FIB_QUOTIENT_REMAINDER ||
+        answers.fib_type === FibType.FIB_QUOTIENT_REMAINDER_WITH_IMAGE);
+
+    const validateStandardFib =
+      (isFibQuestion && !isDivisionOperation) ||
+      (isFibQuestion &&
+        isDivisionOperation &&
+        (answers.fib_type === FibType.FIB_STANDARD ||
+          answers.fib_type === FibType.FIB_STANDARD_WITH_IMAGE));
 
     const validationSchema = Yup.object({
       topAnswer: Yup.array()
@@ -233,18 +250,11 @@ const Question = forwardRef(
         .test(
           'fibAnswer-required',
           'Answer is required for Fill in the Blank',
-          function (value) {
-            const { questionType } = this.parent; // Access parent context
+          (value) => {
             if (value === '.') {
               return false; // Invalid if only a period
             }
-            if (
-              (questionType === QuestionType.FIB &&
-                question.operation !== ArithmaticOperations.DIVISION) ||
-              (questionType === QuestionType.FIB &&
-                question.operation === ArithmaticOperations.DIVISION &&
-                answers.fib_type === '1')
-            ) {
+            if (validateStandardFib) {
               return !!value; // Return true if value is provided (not null or empty)
             }
             return true; // Skip validation if not 'fib'
@@ -273,11 +283,7 @@ const Question = forwardRef(
             }
 
             // Validation for other types (e.g., FIB)
-            if (
-              questionType === QuestionType.FIB &&
-              question.operation === ArithmaticOperations.DIVISION &&
-              answers.fib_type === '2'
-            ) {
+            if (validateQuotientRemainderDivisionFib) {
               if (typeof value === 'string') {
                 return value !== null && value !== '' && value !== '.'; // Must not be empty or invalid
               }
@@ -317,11 +323,7 @@ const Question = forwardRef(
             }
 
             // Validation for other types (e.g., FIB)
-            if (
-              questionType === QuestionType.FIB &&
-              question.operation === ArithmaticOperations.DIVISION &&
-              answers.fib_type === '2'
-            ) {
+            if (validateQuotientRemainderDivisionFib) {
               if (typeof value === 'string') {
                 return value !== null && value !== '' && value !== '.'; // Must not be empty or invalid
               }

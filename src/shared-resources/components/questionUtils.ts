@@ -1,5 +1,5 @@
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
-import { QuestionType } from 'models/enums/QuestionType.enum';
+import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 
 export interface FormValues {
   topAnswer: string[];
@@ -30,7 +30,7 @@ export interface QuestionPropsType {
     answerQuotient: string;
     answerRemainder: string;
     isIntermediatePrefill?: boolean;
-    fib_type?: '1' | '2';
+    fib_type?: FibType;
   };
   numbers: {
     [key: string]: string;
