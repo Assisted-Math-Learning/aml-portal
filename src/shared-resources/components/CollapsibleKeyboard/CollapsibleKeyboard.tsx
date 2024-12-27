@@ -31,8 +31,7 @@ const CollapsibleKeyboard: React.FC<Props> = ({
           {key}
         </KeyboardButton>
       )),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [onKeyClick]
   );
 
   return (
