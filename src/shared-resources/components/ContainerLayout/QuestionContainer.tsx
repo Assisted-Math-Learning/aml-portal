@@ -74,13 +74,13 @@ const QuestionContainer = ({
         <div className='relative w-full'>
           <div className='flex items-start justify-start min-h-[140px] text-2xl font-semibold text-headingTextColor'>
             {showAttemptCount && (
-              <div className='flex gap-0.5 items-center mt-1'>
+              <div className='flex gap-0.5 items-center mt-1.5'>
                 {currentQuestionIndex > 0 && (
                   <ChevronLeft
                     tabIndex={
                       currentQuestionIndex > 0 && showAttemptCount ? 0 : -1
                     }
-                    className='cursor-pointer text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md flex items-center'
+                    className='cursor-pointer text-primary outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md flex items-center'
                     onClick={onPrevClick}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -98,7 +98,7 @@ const QuestionContainer = ({
                     tabIndex={
                       currentQuestionIndex < lastAttemptedQuestionIndex ? 0 : -1
                     }
-                    className='cursor-pointer text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md flex items-center'
+                    className='cursor-pointer text-primary outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md flex items-center'
                     onClick={onSkipClicked}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
