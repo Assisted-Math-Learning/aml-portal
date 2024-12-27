@@ -18,8 +18,12 @@ export const ImageRenderer: React.FC<ImageRendererProps> = ({
   onImageLoad,
   onImageError,
 }) => (
-  <div>
-    {isImageLoading && <Loader />}
+  <div className='min-h-20 flex items-center justify-center relative'>
+    {isImageLoading && (
+      <div className='absolute'>
+        <Loader />
+      </div>
+    )}
     {isImageReady ? (
       <img
         className='w-auto min-w-[30%] max-w-full h-auto max-h-[80vh] !mb-6 object-contain'

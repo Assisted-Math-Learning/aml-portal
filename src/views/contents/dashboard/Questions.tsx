@@ -466,7 +466,7 @@ const Questions: React.FC = () => {
 
   if (isSyncing || isLogicEngineLoading)
     return (
-      <div className='flex justify-center items-center h-[80vh] '>
+      <div className='flex justify-center items-center w-full h-full '>
         <Loader />
       </div>
     );
