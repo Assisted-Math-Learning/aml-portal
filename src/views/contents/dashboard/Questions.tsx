@@ -221,15 +221,7 @@ const Questions: React.FC = () => {
   useEffect(() => {
     let timer: any;
     if (showFeedback) {
-      if (!isFeedbackAllowed) {
-        clickedButtonRef.current = ClickedButtonType.NEXT;
-        setShowFeedback(false);
-        handleNextClick();
-        return;
-      }
-
-      clearTimeout(timer);
-      timer = setTimeout(async () => {
+      const skipFunction = async () => {
         const isLatestQuestion =
           currentQuestionIndex === lastAttemptedQuestionIndex.current;
 
@@ -247,7 +239,15 @@ const Questions: React.FC = () => {
           await handleNextClick();
           setShowFeedback(false);
         }
-      }, 2000);
+      };
+
+      if (!isFeedbackAllowed) {
+        skipFunction();
+        return;
+      }
+
+      clearTimeout(timer);
+      timer = setTimeout(skipFunction, 2000);
     }
   }, [
     currentQuestion?.questionType,
@@ -259,9 +259,10 @@ const Questions: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (!isFeedbackAllowed) return;
-
-    if (currentQuestionIndex < lastAttemptedQuestionIndex.current) {
+    if (
+      !isFeedbackAllowed ||
+      currentQuestionIndex < lastAttemptedQuestionIndex.current
+    ) {
       clickedButtonRef.current = ClickedButtonType.CHECK;
       setTimeout(() => {
         questionRef.current?.submitForm();
@@ -272,12 +273,10 @@ const Questions: React.FC = () => {
 
   const handleQuestionSubmit = () => {
     questionRef.current?.resetForm();
-
     if (currentQuestionIndex === lastAttemptedQuestionIndex.current) {
       lastAttemptedQuestionIndex.current = currentQuestionIndex + 1;
       setCurrentQuestionIndex((prev) => prev + 1);
     }
-    setCurrentQuestionErrors({});
     resetFeedbackStates();
   };
 

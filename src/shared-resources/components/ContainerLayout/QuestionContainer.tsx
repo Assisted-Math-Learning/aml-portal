@@ -74,7 +74,7 @@ const QuestionContainer = ({
         <div className='relative w-full'>
           <div className='flex items-start justify-start min-h-[140px] text-2xl font-semibold text-headingTextColor'>
             {showAttemptCount && (
-              <div className='flex items-center'>
+              <div className='flex gap-0.5 items-center mt-1'>
                 {currentQuestionIndex > 0 && (
                   <ChevronLeft
                     tabIndex={
