@@ -4,6 +4,9 @@ import { QuestionPropsType } from 'shared-resources/components/questionUtils';
 import { ArithmaticOperations } from 'models/enums/ArithmaticOperations.enum';
 import { LearnerResponse, replaceAt } from './helpers';
 
+// TODO: Only leave intermediate steps calculation in Grid 1 questions
+// check final result with BE result data
+
 type ValidationResult = {
   result: boolean;
   correctAnswer?: {
@@ -192,19 +195,10 @@ const addFIBAnswer = (
   answer: LearnerResponse
 ): ValidationResult => {
   const {
-    numbers,
-    answers: { fib_type: fibType, result },
+    answers: { result },
   } = question;
 
-  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
-    return { result: answer.result?.toString() === result.toString() };
-  }
-
-  const [fibNumber1, fibNumber2] = Object.values(numbers).map((num) =>
-    parseInt(num, 10)
-  );
-
-  return { result: (fibNumber1 + fibNumber2).toString() === answer.result };
+  return { result: answer.result?.toString() === result.toString() };
 };
 
 const subFIBAnswer = (
@@ -212,19 +206,10 @@ const subFIBAnswer = (
   answer: LearnerResponse
 ): ValidationResult => {
   const {
-    numbers,
-    answers: { fib_type: fibType, result },
+    answers: { result },
   } = question;
 
-  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
-    return { result: answer.result === result.toString() };
-  }
-
-  const [fibNumber1, fibNumber2] = Object.values(numbers).map((num) =>
-    parseInt(num, 10)
-  );
-
-  return { result: (fibNumber1 - fibNumber2).toString() === answer.result };
+  return { result: answer.result === result.toString() };
 };
 
 const multiplicationGrid1Answer = (
@@ -293,19 +278,10 @@ const multiplicationFIBAnswer = (
   answer: LearnerResponse
 ): ValidationResult => {
   const {
-    numbers,
-    answers: { fib_type: fibType, result },
+    answers: { result },
   } = question;
 
-  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
-    return { result: answer.result === result.toString() };
-  }
-
-  const [fibNumber1, fibNumber2] = Object.values(numbers).map((num) =>
-    parseInt(num, 10)
-  );
-
-  return { result: (fibNumber1 * fibNumber2).toString() === answer.result };
+  return { result: answer.result === result.toString() };
 };
 
 const grid2Answer = (
@@ -584,75 +560,46 @@ const divisionFIBAnswer = (
   answer: LearnerResponse
 ): ValidationResult => {
   const {
-    numbers,
-    answers: {
-      fib_type: fibType,
-      result: answerResult,
-      answerQuotient,
-      answerRemainder,
-    },
+    answers: { fib_type: fibType, result },
   } = question;
 
-  if (fibType === FibType.FIB_STANDARD_WITH_IMAGE) {
-    return { result: answer.result === answerResult.toString() };
+  if (
+    [FibType.FIB_STANDARD_WITH_IMAGE, FibType.FIB_STANDARD].includes(fibType!)
+  ) {
+    return { result: answer.result === result.toString() };
   }
 
-  if (fibType === FibType.FIB_QUOTIENT_REMAINDER_WITH_IMAGE) {
+  const quotient = (
+    result as { quotient: string; remainder: string }
+  )?.quotient?.toString();
+  const remainder = (
+    result as { quotient: string; remainder: string }
+  )?.remainder?.toString();
+
+  if (
+    [
+      FibType.FIB_QUOTIENT_REMAINDER_WITH_IMAGE,
+      FibType.FIB_QUOTIENT_REMAINDER,
+    ].includes(fibType!)
+  ) {
     return {
-      result:
-        answer.quotient === answerQuotient.toString() &&
-        answer.remainder === answerRemainder.toString(),
+      result: answer.quotient === quotient && answer.remainder === remainder,
       correctAnswer: {
-        ...(answer.quotient !== answerQuotient.toString() && {
+        ...(answer.quotient !== quotient && {
           answerQuotient: {
             result: false,
-            correctAnswer: answerQuotient,
+            correctAnswer: remainder,
           },
         }),
-        ...(answer.remainder !== answerRemainder.toString() && {
+        ...(answer.remainder !== remainder && {
           answerRemainder: {
             result: false,
-            correctAnswer: answerRemainder,
+            correctAnswer: quotient,
           },
         }),
       },
     };
   }
-
-  const [dividend, divisor] = Object.values(numbers).map((num) =>
-    parseInt(num, 10)
-  );
-
-  const result = Math.floor(dividend / divisor);
-  const remainder = dividend % divisor;
-
-  if (fibType === FibType.FIB_QUOTIENT_REMAINDER) {
-    const isQuotientCorrect = answer.quotient === result.toString();
-    const isRemainderCorrect = answer.remainder === remainder.toString();
-
-    return {
-      result: isQuotientCorrect && isRemainderCorrect,
-      correctAnswer: {
-        ...(!isQuotientCorrect && {
-          answerQuotient: {
-            result: false,
-            correctAnswer: result.toString(),
-          },
-        }),
-        ...(!isRemainderCorrect && {
-          answerRemainder: {
-            result: false,
-            correctAnswer: remainder.toString(),
-          },
-        }),
-      },
-    };
-  }
-
-  if (answer.result !== result.toString())
-    return {
-      result: false,
-    };
 
   return { result: true };
 };

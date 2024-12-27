@@ -6,7 +6,7 @@ import {
   ArithmaticOperations,
   operationMap,
 } from 'models/enums/ArithmaticOperations.enum';
-import { QuestionType } from 'models/enums/QuestionType.enum';
+import { FibType, QuestionType } from 'models/enums/QuestionType.enum';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Confetti from 'react-confetti';
 import { useDispatch, useSelector } from 'react-redux';
@@ -309,7 +309,10 @@ const Questions: React.FC = () => {
         ) ||
         (currentQuestion?.questionType === QuestionType.FIB &&
           currentQuestion?.operation === ArithmaticOperations.DIVISION &&
-          currentQuestion?.answers?.fib_type === '2')
+          [
+            FibType.FIB_QUOTIENT_REMAINDER,
+            FibType.FIB_QUOTIENT_REMAINDER_WITH_IMAGE,
+          ].includes(currentQuestion?.answers?.fib_type))
       ) {
         setCurrentQuestionErrors(
           getQuestionErrors(
