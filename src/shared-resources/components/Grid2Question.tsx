@@ -7,6 +7,7 @@ import {
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
 import { DIGIT_PLACES } from 'constant/constants';
+import cn from 'classnames';
 import AmlInput from './AmlInput';
 
 interface Grid2QuestionProps {
@@ -14,12 +15,23 @@ interface Grid2QuestionProps {
   maxLength: number;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
+  errors: {
+    [key: string]: boolean[] | boolean[][];
+  };
 }
 
 const Grid2Question: React.FC<Grid2QuestionProps> = (
   props: Grid2QuestionProps
 ) => {
-  const { question, setActiveField, maxLength, formik } = props;
+  const { question, setActiveField, maxLength, formik, errors } = props;
+
+  const row1Errors = Array(maxLength - (errors.row1Answers?.length ?? 0))
+    .fill(false)
+    .concat(errors.row1Answers ?? []);
+
+  const row2Errors = Array(maxLength - (errors.row2Answers?.length ?? 0))
+    .fill(false)
+    .concat(errors.row2Answers ?? []);
 
   return (
     <>
@@ -48,6 +60,10 @@ const Grid2Question: React.FC<Grid2QuestionProps> = (
                 autoFocus={index === 0}
                 value={formik.values?.row1Answers?.[index]}
                 onChange={formik.handleChange}
+                className={cn(
+                  row1Errors[index] &&
+                    '!text-red-500 !border-red-500 !focus:border-red-500'
+                )}
               />
             </div>
           ))}
@@ -68,6 +84,10 @@ const Grid2Question: React.FC<Grid2QuestionProps> = (
                 }
                 value={formik.values?.row2Answers?.[index]}
                 onChange={formik.handleChange}
+                className={cn(
+                  row2Errors[index] &&
+                    '!text-red-500 !border-red-500 !focus:border-red-500'
+                )}
               />
             </div>
           ))}

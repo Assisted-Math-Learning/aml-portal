@@ -230,11 +230,7 @@ const Questions: React.FC = () => {
             currentQuestionFeedback === FeedbackType.NOOP) &&
           isLatestQuestion;
 
-        const isLatestQuestionMCQ =
-          currentQuestion?.questionType === QuestionType.MCQ &&
-          isLatestQuestion;
-
-        if (isLatestQuestionCorrectOrNoOP || isLatestQuestionMCQ) {
+        if (isLatestQuestionCorrectOrNoOP) {
           clickedButtonRef.current = ClickedButtonType.NEXT;
           await handleNextClick();
           setShowFeedback(false);
@@ -306,8 +302,11 @@ const Questions: React.FC = () => {
     } else if (isFeedbackAllowed && !isAnswerCorrect) {
       setCurrentQuestionFeedback(FeedbackType.INCORRECT);
       setShowFeedback(true);
+
       if (
-        currentQuestion?.questionType === QuestionType.GRID_1 ||
+        [QuestionType.GRID_1, QuestionType.GRID_2].includes(
+          currentQuestion?.questionType!
+        ) ||
         (currentQuestion?.questionType === QuestionType.FIB &&
           currentQuestion?.operation === ArithmaticOperations.DIVISION &&
           currentQuestion?.answers?.fib_type === '2')
@@ -562,9 +561,7 @@ const Questions: React.FC = () => {
               lastAttemptedQuestionIndex.current !== currentQuestionIndex
             }
             showSkipQuestionButton={
-              !isCompleted &&
-              currentQuestion?.questionType !== QuestionType.MCQ &&
-              currentQuestionFeedback === FeedbackType.INCORRECT
+              !isCompleted && currentQuestionFeedback === FeedbackType.INCORRECT
             }
           />
         }

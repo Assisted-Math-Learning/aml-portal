@@ -593,6 +593,7 @@ const Question = forwardRef(
             maxLength={maxLength}
             question={question}
             setActiveField={setActiveField}
+            errors={errors}
           />
         )}
 

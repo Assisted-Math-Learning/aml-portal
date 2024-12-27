@@ -27,6 +27,14 @@ type ValidationResult = {
       result: boolean;
       correctAnswer?: string;
     };
+    row1Answers?: {
+      result: boolean;
+      correctAnswer?: string;
+    };
+    row2Answers?: {
+      result: boolean;
+      correctAnswer?: string;
+    };
   };
 };
 
@@ -308,10 +316,22 @@ const grid2Answer = (
 
   const [n1, n2] = Object.values(numbers);
 
-  if (n2 === answer.answer_top && n1 === answer.result) return { result: true };
   if (n1 === answer.answer_top && n2 === answer.result) return { result: true };
+  if (n2 === answer.answer_top && n1 === answer.result) return { result: true };
 
-  return { result: false };
+  return {
+    result: false,
+    correctAnswer: {
+      row1Answers: {
+        result: false,
+        correctAnswer: n1,
+      },
+      row2Answers: {
+        result: false,
+        correctAnswer: n2,
+      },
+    },
+  };
 };
 
 const mcqAnswer = (
@@ -684,15 +704,18 @@ const validationResToLearnerResMap: Record<
   answerQuotient: 'quotient',
   answerRemainder: 'remainder',
   answerIntermediate: 'answerIntermediate',
+  row1Answers: 'answer_top',
+  row2Answers: 'result',
 };
 
 const compareStrings = (s1: string = '', s2: string = ''): boolean[] => {
   const result: boolean[] = [];
 
   const updatedS1 = s1.padStart(s2.length, '#');
+  const updatedS2 = s2.padStart(s1.length, '#');
 
-  for (let i = 0; i < s2.length; i += 1) {
-    result.push(updatedS1[i] !== s2[i]);
+  for (let i = 0; i < updatedS2.length; i += 1) {
+    result.push(updatedS1[i] !== updatedS2[i]);
   }
 
   return result;
