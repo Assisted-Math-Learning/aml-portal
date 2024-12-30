@@ -369,7 +369,7 @@ const Question = forwardRef(
       const firstNonEmptyIndex = arr.findIndex((e) => e !== '');
       if (firstNonEmptyIndex === -1) return '';
       return arr.map((val, index) =>
-        index > firstNonEmptyIndex && val === '' ? '0' : val
+        index > firstNonEmptyIndex && val === '' ? '#' : val
       );
     };
 
@@ -584,6 +584,9 @@ const Question = forwardRef(
             maxLength={maxLength}
             question={question}
             setActiveField={setActiveField}
+            showErrors={Boolean(
+              questionFeedback && questionFeedback !== FeedbackType.NOOP
+            )}
           />
         )}
 
@@ -594,6 +597,9 @@ const Question = forwardRef(
             question={question}
             setActiveField={setActiveField}
             errors={errors}
+            showErrors={Boolean(
+              questionFeedback && questionFeedback !== FeedbackType.NOOP
+            )}
           />
         )}
 
@@ -604,6 +610,9 @@ const Question = forwardRef(
             setActiveField={setActiveField}
             errors={errors}
             isAnswerIncorrect={questionFeedback === FeedbackType.INCORRECT}
+            showErrors={Boolean(
+              questionFeedback && questionFeedback !== FeedbackType.NOOP
+            )}
           />
         )}
 
@@ -612,6 +621,10 @@ const Question = forwardRef(
             formik={formik}
             question={question}
             setQuestionFeedback={setQuestionFeedback}
+            showErrors={Boolean(
+              questionFeedback && questionFeedback !== FeedbackType.NOOP
+            )}
+            isAnswerIncorrect={questionFeedback === FeedbackType.INCORRECT}
           />
         )}
       </form>

@@ -14,10 +14,18 @@ interface MCQQuestionProps {
   question: QuestionPropsType;
   formik: FormikProps<FormValues>;
   setQuestionFeedback: () => void;
+  showErrors: boolean;
+  isAnswerIncorrect: boolean;
 }
 
 const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
-  const { question, formik, setQuestionFeedback } = props;
+  const {
+    question,
+    formik,
+    setQuestionFeedback,
+    showErrors,
+    isAnswerIncorrect,
+  } = props;
 
   const {
     isImageLoading,
@@ -26,6 +34,17 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
     handleImageLoad,
     setImgError,
   } = useImageLoader(question?.questionImageUrl);
+
+  const styles = {
+    backgroundColor: isAnswerIncorrect
+      ? '#DDA886 !important'
+      : '#87B0AB !important',
+    color: 'black !important',
+    borderColor: isAnswerIncorrect
+      ? '#B64D1D !important'
+      : '#3F605B !important',
+    borderStyle: 'solid !important',
+  };
 
   return (
     <div>
@@ -52,6 +71,7 @@ const MCQQuestion: React.FC<MCQQuestionProps> = (props: MCQQuestionProps) => {
               formik.setFieldValue('mcqAnswer', val);
             }}
             options={question.options}
+            styles={showErrors ? styles : {}}
           />
         </div>
       )}

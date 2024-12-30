@@ -2,6 +2,7 @@ import React from 'react';
 import MatToggleButton from '@mui/material/ToggleButton';
 import MatToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import './ToggleButtonGroup.scss';
+import classNames from 'classnames';
 import { ToggleButtonGroupProps } from '../../types/ToggleButtonGroup.type';
 
 const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
@@ -9,6 +10,7 @@ const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
   selectedValue,
   setSelectedValue,
   error,
+  styles,
 }) => {
   const isOdd = options.length % 2 !== 0;
 
@@ -39,14 +41,16 @@ const ToggleButtonGroup: React.FC<ToggleButtonGroupProps> = ({
             <MatToggleButton
               key={option}
               value={option}
-              className={`w-[236px] !py-2 !border-2 !m-0 !border-black !rounded-2xl !text-4xl !font-semibold !text-black !font-publicSans 
-                  ${
-                    isOdd && index === options.length - 1
-                      ? 'col-span-2 justify-self-center'
-                      : ''
-                  }
-                `}
+              className={classNames(
+                `w-[236px] !py-2 !border-2 !m-0 !border-black !rounded-2xl !text-4xl !font-semibold !text-black !font-publicSans`,
+                isOdd && index === options.length - 1
+                  ? 'col-span-2 justify-self-center'
+                  : ''
+              )}
               disableRipple
+              sx={{
+                '&.Mui-selected': styles,
+              }}
             >
               {renderOption(option)}
             </MatToggleButton>

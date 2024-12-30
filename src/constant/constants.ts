@@ -14,10 +14,6 @@ export const KEYBOARD_KEYS = [
 
 export const DIGIT_PLACES = ['U', 'T', 'H', 'Th', 'TTh', 'L', 'TL', 'C', 'TC'];
 
-export const CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS = [
-  ['Correct!', 'Great Job.'],
-];
+export const CORRECT_ANSWER_FEEDBACK_PLACEHOLDERS = [['Correct']];
 
-export const INCORRECT_ANSWER_FEEDBACK_PLACEHOLDERS = [
-  ['OOPS!', "Let's try one more"],
-];
+export const INCORRECT_ANSWER_FEEDBACK_PLACEHOLDERS = [['Try Again']];

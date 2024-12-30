@@ -22,6 +22,7 @@ interface FIBQuestionProps {
     [key: string]: boolean[] | boolean[][];
   };
   isAnswerIncorrect: boolean;
+  showErrors: boolean;
 }
 
 const FIBQuestion = ({
@@ -30,6 +31,7 @@ const FIBQuestion = ({
   setActiveField,
   errors,
   isAnswerIncorrect,
+  showErrors,
 }: FIBQuestionProps) => {
   const { answers } = question;
   const {
@@ -95,9 +97,10 @@ const FIBQuestion = ({
                 value={formik.values.answerQuotient}
                 className={cx(
                   '!w-[236px]',
-                  errors.answerQuotient && errors.answerQuotient.some(Boolean)
-                    ? 'border-red-500 focus:border-red-500 text-red-500'
-                    : ''
+                  showErrors &&
+                    (errors.answerQuotient
+                      ? 'showWrongInput'
+                      : 'showCorrectInput')
                 )}
               />
             </div>
@@ -112,9 +115,10 @@ const FIBQuestion = ({
                 maxLength={9}
                 className={cx(
                   '!w-[236px]',
-                  errors.answerRemainder && errors.answerRemainder.some(Boolean)
-                    ? 'border-red-500 focus:border-red-500 text-red-500'
-                    : ''
+                  showErrors &&
+                    (errors.answerRemainder
+                      ? 'showWrongInput'
+                      : 'showCorrectInput')
                 )}
               />
             </div>
@@ -139,8 +143,8 @@ const FIBQuestion = ({
               maxLength={9}
               className={cx(
                 '!w-full',
-                isAnswerIncorrect &&
-                  'border-red-500 focus:border-red-500 text-red-500'
+                showErrors &&
+                  (isAnswerIncorrect ? 'showWrongInput' : 'showCorrectInput')
               )}
             />
           </div>

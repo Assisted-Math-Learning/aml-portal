@@ -6,7 +6,6 @@ import {
   ArithmaticOperations,
   operationMap,
 } from 'models/enums/ArithmaticOperations.enum';
-
 import {
   FormValues,
   isFieldAnswerValid,
@@ -24,6 +23,7 @@ interface Grid1QuestionProps {
   maxLength: number;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
+  showErrors: boolean;
 }
 
 const Grid1Question = ({
@@ -32,6 +32,7 @@ const Grid1Question = ({
   setActiveField,
   maxLength,
   errors,
+  showErrors,
 }: Grid1QuestionProps) => {
   const { answers, numbers } = question;
 
@@ -113,9 +114,10 @@ const Grid1Question = ({
                 question.operation === ArithmaticOperations.SUBTRACTION ? 2 : 1
               } // Allow multiple digits for subtraction
               className={cx(
-                errors.topAnswer &&
-                  errors.topAnswer[index] &&
-                  '!text-red-500 !border-red-500 !focus:border-red-500',
+                showErrors &&
+                  (errors.topAnswer && errors.topAnswer[index]
+                    ? 'showWrongInput'
+                    : 'showCorrectInput'),
                 question.operation === ArithmaticOperations.SUBTRACTION
                   ? '!text-[24px]'
                   : 'text-[36px]'
@@ -189,13 +191,14 @@ const Grid1Question = ({
                   value={formik.values?.answerIntermediate?.[flatIndex]}
                   onChange={formik.handleChange}
                   disabled={isIntermediateInputDisabled(char)}
-                  className={
-                    errors.answerIntermediate &&
-                    errors.answerIntermediate[rowIndex] &&
-                    (errors.answerIntermediate[rowIndex] as boolean[])[index]
-                      ? '!text-red-500 !border-red-500 !focus:border-red-500'
-                      : ''
-                  }
+                  className={cx(
+                    showErrors &&
+                      (errors.answerIntermediate &&
+                      errors.answerIntermediate[rowIndex] &&
+                      (errors.answerIntermediate[rowIndex] as boolean[])[index]
+                        ? 'showWrongInput'
+                        : 'showCorrectInput')
+                  )}
                 />
               );
             })}
@@ -220,11 +223,12 @@ const Grid1Question = ({
             value={formik.values?.resultAnswer?.[index]}
             onChange={formik.handleChange}
             disabled={isResultAnswerDisabled(value, index)}
-            className={
-              errors.resultAnswer && errors.resultAnswer[index]
-                ? '!text-red-500 !border-red-500 !focus:border-red-500'
-                : ''
-            }
+            className={cx(
+              showErrors &&
+                (errors.resultAnswer && errors.resultAnswer[index]
+                  ? 'showWrongInput'
+                  : 'showCorrectInput')
+            )}
           />
         </div>
       ))}

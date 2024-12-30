@@ -7,7 +7,7 @@ export type LearnerResponse = {
   result?: string;
   quotient?: string;
   remainder?: string;
-  answer_top?: string;
+  answerTop?: string;
   answerIntermediate?: string;
   answerQuotient?: string;
   answerRemainder?: string;
@@ -207,7 +207,7 @@ export function convertSingleResponseToLearnerResponse(
   }
 
   if (answer_top) {
-    learner_response.answer_top = answer_top;
+    learner_response.answerTop = answer_top;
   }
 
   if (answerIntermediate) {
@@ -287,13 +287,13 @@ export const convertLearnerResponseToSingleResponse = (
 
   if (question.questionType === QuestionType.GRID_2) {
     answers.row2Answers = questionData.learner_response.result?.split('');
-    answers.row1Answers = questionData.learner_response.answer_top?.split('');
+    answers.row1Answers = questionData.learner_response.answerTop?.split('');
     return answers;
   }
 
   if (question.operation === ArithmaticOperations.ADDITION) {
     if (question.answers.isPrefil) {
-      answers.topAnswer = questionData.learner_response.answer_top?.split('');
+      answers.topAnswer = questionData.learner_response.answerTop?.split('');
     }
     answers.resultAnswer = questionData.learner_response.result?.split('');
     return answers;
@@ -301,7 +301,7 @@ export const convertLearnerResponseToSingleResponse = (
 
   if (question.operation === ArithmaticOperations.SUBTRACTION) {
     if (question.answers.isPrefil) {
-      answers.topAnswer = questionData.learner_response.answer_top?.split('|');
+      answers.topAnswer = questionData.learner_response.answerTop?.split('|');
     }
     answers.resultAnswer = questionData.learner_response.result?.split('');
     return answers;

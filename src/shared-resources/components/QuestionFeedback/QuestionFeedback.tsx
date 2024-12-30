@@ -29,9 +29,6 @@ const QuestionFeedback = ({ answerType }: QuestionFeedbackProps) => {
           <p className='text-green-500 text-xl font-bold'>
             {randomCorrectFeedback[0]}
           </p>
-          <p className='text-green-500 text-xl font-bold'>
-            {randomCorrectFeedback[1]}
-          </p>
         </div>
       </div>
     );
@@ -48,9 +45,6 @@ const QuestionFeedback = ({ answerType }: QuestionFeedbackProps) => {
       <div>
         <p className='text-black text-xl font-bold'>
           {randomIncorrectFeedback[0]}
-        </p>
-        <p className='text-black text-xl font-bold'>
-          {randomIncorrectFeedback[1]}
         </p>
       </div>
     </div>

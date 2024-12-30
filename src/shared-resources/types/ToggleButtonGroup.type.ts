@@ -3,4 +3,5 @@ export interface ToggleButtonGroupProps {
   selectedValue: string;
   setSelectedValue: (selectedValue?: string) => void;
   error?: string;
+  styles?: any;
 }

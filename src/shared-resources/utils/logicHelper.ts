@@ -41,6 +41,13 @@ type ValidationResult = {
   };
 };
 
+const addPaddingToDifference = (n1: number, n2: number) =>
+  !(
+    n1.toString().length === 2 &&
+    n2.toString().length === 1 &&
+    (n1 - n2).toString().length === 1
+  );
+
 const addGrid1Answer = (
   question: QuestionPropsType,
   answer: LearnerResponse
@@ -71,7 +78,7 @@ const addGrid1Answer = (
     }
     carryString = carryString.slice(carryString.length - answerTop.length);
 
-    if (carryString !== answer.answer_top?.replace(/#/g, '0'))
+    if (carryString !== answer.answerTop?.replace(/#/g, '0'))
       return {
         result: false,
         correctAnswer: {
@@ -162,9 +169,13 @@ const subGrid1Answer = (
   result = n1 - n2;
 
   const answerTop: string = getSubGrid1AnswerTop(n1, n2).join('|');
-  const resultStr = result.toString();
 
-  if (isPrefil && answerTop !== answer.answer_top)
+  const addPaddingToResult = addPaddingToDifference(n1, n2);
+  const resultStr = addPaddingToResult
+    ? result.toString().padStart(n1Str.length, '0')
+    : result.toString();
+
+  if (isPrefil && answerTop !== answer.answerTop)
     return {
       result: false,
       correctAnswer: {
@@ -288,23 +299,60 @@ const grid2Answer = (
   question: QuestionPropsType,
   answer: LearnerResponse
 ): ValidationResult => {
-  const { numbers } = question;
+  const { numbers, operation } = question;
 
   const [n1, n2] = Object.values(numbers);
 
-  if (n1 === answer.answer_top && n2 === answer.result) return { result: true };
-  if (n2 === answer.answer_top && n1 === answer.result) return { result: true };
+  let isR1Correct = false;
+  let isR2Correct = false;
+
+  if (n1 === n2 && n1 === answer.answerTop && n1 === answer.result)
+    return { result: true };
+
+  if (operation === ArithmaticOperations.SUBTRACTION) {
+    if (n1 === answer.answerTop && n2 === answer.result)
+      return { result: true };
+
+    return {
+      result: false,
+      correctAnswer: {
+        row1Answers: {
+          result: n1 === answer.answerTop,
+          correctAnswer: n1,
+        },
+        row2Answers: {
+          result: n2 === answer.result,
+          correctAnswer: n2,
+        },
+      },
+    };
+  }
+
+  const correctNumberInR1Index = [n1, n2].indexOf(answer.answerTop ?? '');
+  const correctNumberInR2Index = [n1, n2].indexOf(answer.result ?? '');
+
+  if (correctNumberInR1Index > -1) isR1Correct = true;
+  if (answer.answerTop !== answer.result && correctNumberInR2Index > -1)
+    isR2Correct = true;
+
+  if (isR1Correct && isR2Correct) return { result: true };
 
   return {
     result: false,
     correctAnswer: {
       row1Answers: {
-        result: false,
-        correctAnswer: n1,
+        result: isR1Correct,
+        correctAnswer:
+          !isR1Correct && isR2Correct
+            ? [n1, n2][1 - correctNumberInR2Index]
+            : n1,
       },
       row2Answers: {
-        result: false,
-        correctAnswer: n2,
+        result: isR2Correct,
+        correctAnswer:
+          !isR2Correct && isR1Correct
+            ? [n1, n2][1 - correctNumberInR1Index]
+            : n2,
       },
     },
   };
@@ -314,13 +362,6 @@ const mcqAnswer = (
   question: QuestionPropsType,
   answer: LearnerResponse
 ): ValidationResult => ({ result: question.correct_option === answer.result });
-
-const addPaddingToDifference = (n1: number, n2: number) =>
-  !(
-    n1.toString().length === 2 &&
-    n2.toString().length === 1 &&
-    (n1 - n2).toString().length === 1
-  );
 
 const getDivGrid1IntermediateStepsQuotientAndRemainder = (
   dividend: number,
@@ -646,12 +687,12 @@ const validationResToLearnerResMap: Record<
   keyof Required<ValidationResult>['correctAnswer'],
   string
 > = {
-  topAnswer: 'answer_top',
+  topAnswer: 'answerTop',
   resultAnswer: 'result',
   answerQuotient: 'quotient',
   answerRemainder: 'remainder',
   answerIntermediate: 'answerIntermediate',
-  row1Answers: 'answer_top',
+  row1Answers: 'answerTop',
   row2Answers: 'result',
 };
 

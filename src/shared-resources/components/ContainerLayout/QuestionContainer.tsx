@@ -72,7 +72,7 @@ const QuestionContainer = ({
           </div>
         </div>
         <div className='relative w-full'>
-          <div className='flex items-start justify-start min-h-[140px] text-2xl font-semibold text-headingTextColor'>
+          <div className='flex items-start justify-start min-h-[100px] text-2xl font-semibold text-headingTextColor'>
             {showAttemptCount && (
               <div className='flex gap-0.5 items-center mt-1.5 min-h-12'>
                 {currentQuestionIndex > 0 && (

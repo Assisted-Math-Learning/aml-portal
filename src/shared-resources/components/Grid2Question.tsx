@@ -15,6 +15,7 @@ interface Grid2QuestionProps {
   maxLength: number;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
+  showErrors: boolean;
   errors: {
     [key: string]: boolean[] | boolean[][];
   };
@@ -23,7 +24,8 @@ interface Grid2QuestionProps {
 const Grid2Question: React.FC<Grid2QuestionProps> = (
   props: Grid2QuestionProps
 ) => {
-  const { question, setActiveField, maxLength, formik, errors } = props;
+  const { question, setActiveField, maxLength, formik, errors, showErrors } =
+    props;
 
   const row1Errors = Array(maxLength - (errors.row1Answers?.length ?? 0))
     .fill(false)
@@ -58,11 +60,11 @@ const Grid2Question: React.FC<Grid2QuestionProps> = (
                   setActiveField(`row1Answers.${index}` as keyof FormValues)
                 }
                 autoFocus={index === 0}
-                value={formik.values?.row1Answers?.[index]}
+                value={formik.values?.row1Answers?.[index] === '#' ? '' : value}
                 onChange={formik.handleChange}
                 className={cn(
-                  row1Errors[index] &&
-                    '!text-red-500 !border-red-500 !focus:border-red-500'
+                  showErrors &&
+                    (row1Errors[index] ? 'showWrongInput' : 'showCorrectInput')
                 )}
               />
             </div>
@@ -82,11 +84,11 @@ const Grid2Question: React.FC<Grid2QuestionProps> = (
                 onFocus={() =>
                   setActiveField(`row2Answers.${index}` as keyof FormValues)
                 }
-                value={formik.values?.row2Answers?.[index]}
+                value={formik.values?.row2Answers?.[index] === '#' ? '' : value}
                 onChange={formik.handleChange}
                 className={cn(
-                  row2Errors[index] &&
-                    '!text-red-500 !border-red-500 !focus:border-red-500'
+                  showErrors &&
+                    (row2Errors[index] ? 'showWrongInput' : 'showCorrectInput')
                 )}
               />
             </div>
