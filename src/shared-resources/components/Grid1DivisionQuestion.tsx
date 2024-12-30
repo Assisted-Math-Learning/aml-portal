@@ -11,6 +11,7 @@ import {
   isFieldAnswerValid,
   QuestionPropsType,
 } from 'shared-resources/components/questionUtils';
+import cn from 'classnames';
 import AmlInput from './AmlInput';
 
 interface Grid1QuestionProps {
@@ -20,6 +21,7 @@ interface Grid1QuestionProps {
   question: QuestionPropsType;
   formik: FormikProps<FormValues>;
   setActiveField: React.Dispatch<React.SetStateAction<keyof FormValues | null>>;
+  showErrors: boolean;
 }
 
 const Grid1DivisionQuestion = ({
@@ -27,6 +29,7 @@ const Grid1DivisionQuestion = ({
   question,
   formik,
   setActiveField,
+  showErrors,
 }: Grid1QuestionProps) => {
   const { answers, numbers } = question;
 
@@ -57,11 +60,12 @@ const Grid1DivisionQuestion = ({
                 value={formik.values?.answerQuotient?.[index] || ''}
                 autoFocus
                 onChange={formik.handleChange}
-                className={
-                  errors.answerQuotient && errors.answerQuotient[index]
-                    ? 'border-red-500 focus:border-red-500 text-red-500'
-                    : ''
-                }
+                className={cn(
+                  showErrors &&
+                    (errors.answerQuotient && errors.answerQuotient[index]
+                      ? 'showWrongInput'
+                      : 'showCorrectInput')
+                )}
                 disabled={isDisabled}
               />
             </div>
@@ -106,11 +110,12 @@ const Grid1DivisionQuestion = ({
               }
               value={formik.values?.answerRemainder?.[index] || ''}
               onChange={formik.handleChange}
-              className={
-                errors.answerRemainder && errors.answerRemainder[index]
-                  ? 'border-red-500 focus:border-red-500 text-red-500'
-                  : ''
-              }
+              className={cn(
+                showErrors &&
+                  (errors.answerRemainder && errors.answerRemainder[index]
+                    ? 'showWrongInput'
+                    : 'showCorrectInput')
+              )}
             />
           );
         })}
@@ -182,11 +187,10 @@ const Grid1DivisionQuestion = ({
                   : step
               }
               onChange={formik.handleChange}
-              className={
-                isInputIncorrect
-                  ? 'border-red-500 focus:border-red-500 text-red-500'
-                  : ''
-              }
+              className={cn(
+                showErrors &&
+                  (isInputIncorrect ? 'showWrongInput' : 'showCorrectInput')
+              )}
               disabled={!isEditable}
             />
           </div>

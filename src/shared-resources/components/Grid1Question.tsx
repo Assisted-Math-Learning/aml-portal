@@ -240,6 +240,7 @@ const Grid1Question = ({
       {shouldRenderDivisionGrid1 && (
         <Grid1DivisionQuestion
           errors={errors}
+          showErrors={showErrors}
           formik={formik}
           question={question}
           setActiveField={setActiveField}
