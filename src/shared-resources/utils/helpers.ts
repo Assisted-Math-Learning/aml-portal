@@ -11,6 +11,9 @@ export type LearnerResponse = {
   answerIntermediate?: string;
   answerQuotient?: string;
   answerRemainder?: string;
+
+  answerTopRow?: string;
+  answerBottomRow?: string;
 };
 
 type QuestionData = {
@@ -148,14 +151,23 @@ export function convertSingleResponseToLearnerResponse(
   let answerIntermediate = '';
   let quotient = '';
   let remainder = '';
+  let row1Answers = '';
+  let row2Answers = '';
+
   if (answers?.resultAnswer) {
     result = answers.resultAnswer.join('');
   } else if (answers?.fibAnswer) {
     result = answers.fibAnswer;
   } else if (answers?.mcqAnswer) {
     result = answers.mcqAnswer;
-  } else if (answers?.row2Answers) {
-    result = answers.row2Answers.join('');
+  }
+
+  if (answers?.row1Answers) {
+    row1Answers = answers.row1Answers.join('');
+  }
+
+  if (answers?.row2Answers) {
+    row2Answers = answers.row2Answers.join('');
   }
 
   if (answers?.answerQuotient) {
@@ -196,8 +208,6 @@ export function convertSingleResponseToLearnerResponse(
       operation === ArithmaticOperations.SUBTRACTION
         ? answers.topAnswer.join('|')
         : answers.topAnswer.join('');
-  } else if (answers?.row1Answers) {
-    answer_top = answers.row1Answers.join('');
   }
   // Build the learner response
   const learner_response: LearnerResponse = {};
@@ -219,6 +229,15 @@ export function convertSingleResponseToLearnerResponse(
   if (remainder) {
     learner_response.remainder = remainder;
   }
+
+  if (row1Answers) {
+    learner_response.answerTopRow = row1Answers;
+  }
+
+  if (row2Answers) {
+    learner_response.answerBottomRow = row2Answers;
+  }
+
   // Return the transformed question data
   return {
     question_id: questionId,
@@ -286,8 +305,9 @@ export const convertLearnerResponseToSingleResponse = (
   }
 
   if (question.questionType === QuestionType.GRID_2) {
-    answers.row2Answers = questionData.learner_response.result?.split('');
-    answers.row1Answers = questionData.learner_response.answerTop?.split('');
+    answers.row2Answers =
+      questionData.learner_response.answerBottomRow?.split('');
+    answers.row1Answers = questionData.learner_response.answerTopRow?.split('');
     return answers;
   }
 

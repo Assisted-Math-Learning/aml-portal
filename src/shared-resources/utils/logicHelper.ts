@@ -306,33 +306,36 @@ const grid2Answer = (
   let isR1Correct = false;
   let isR2Correct = false;
 
-  if (n1 === n2 && n1 === answer.answerTop && n1 === answer.result)
+  if (n1 === n2 && n1 === answer.answerTopRow && n1 === answer.answerBottomRow)
     return { result: true };
 
   if (operation === ArithmaticOperations.SUBTRACTION) {
-    if (n1 === answer.answerTop && n2 === answer.result)
+    if (n1 === answer.answerTopRow && n2 === answer.answerBottomRow)
       return { result: true };
 
     return {
       result: false,
       correctAnswer: {
         row1Answers: {
-          result: n1 === answer.answerTop,
+          result: n1 === answer.answerTopRow,
           correctAnswer: n1,
         },
         row2Answers: {
-          result: n2 === answer.result,
+          result: n2 === answer.answerBottomRow,
           correctAnswer: n2,
         },
       },
     };
   }
 
-  const correctNumberInR1Index = [n1, n2].indexOf(answer.answerTop ?? '');
-  const correctNumberInR2Index = [n1, n2].indexOf(answer.result ?? '');
+  const correctNumberInR1Index = [n1, n2].indexOf(answer.answerTopRow ?? '');
+  const correctNumberInR2Index = [n1, n2].indexOf(answer.answerBottomRow ?? '');
 
   if (correctNumberInR1Index > -1) isR1Correct = true;
-  if (answer.answerTop !== answer.result && correctNumberInR2Index > -1)
+  if (
+    answer.answerTopRow !== answer.answerBottomRow &&
+    correctNumberInR2Index > -1
+  )
     isR2Correct = true;
 
   if (isR1Correct && isR2Correct) return { result: true };
@@ -692,8 +695,8 @@ const validationResToLearnerResMap: Record<
   answerQuotient: 'quotient',
   answerRemainder: 'remainder',
   answerIntermediate: 'answerIntermediate',
-  row1Answers: 'answerTop',
-  row2Answers: 'result',
+  row1Answers: 'answerTopRow',
+  row2Answers: 'answerBottomRow',
 };
 
 const compareStrings = (s1: string = '', s2: string = ''): boolean[] => {
