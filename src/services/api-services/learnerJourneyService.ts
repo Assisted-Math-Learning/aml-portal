@@ -11,7 +11,7 @@ class LearnerJourneyService {
     learner_id: string;
   }): Promise<LearnerJourney> {
     return baseApiService.get(
-      `/api/v1/learner/journey/read/${data.learner_id}`
+      `/api/v1/portal/learner/journey/read/${data.learner_id}`
     );
   }
 
@@ -25,7 +25,7 @@ class LearnerJourneyService {
     }[]
   > {
     return baseApiService.get(
-      `/api/v1/learner/journey/latest-responses/${data.learnerId}`
+      `/api/v1/portal/learner/journey/latest-responses/${data.learnerId}`
     );
   }
 }

@@ -10,21 +10,29 @@ class AuthService {
     username: string;
     password: string;
   }): Promise<{ user: User }> {
-    return baseApiService.post('/api/v1/auth/login', 'api.auth.login', data, {
-      extras: { useAuth: false },
-    });
+    return baseApiService.post(
+      '/api/v1/portal/auth/login',
+      'api.learner.auth.login',
+      data,
+      {
+        extras: { useAuth: false },
+      }
+    );
   }
 
   async fetchMe(): Promise<{ user: User }> {
-    return baseApiService.get('/api/v1/learner/read');
+    return baseApiService.get('/api/v1/portal/learner/read');
   }
 
   async fetchCSRFToken(): Promise<{ token: string }> {
-    return baseApiService.get('/api/v1/auth/csrf-token');
+    return baseApiService.get('/api/v1/portal/auth/csrf-token');
   }
 
   async logout() {
-    return baseApiService.post('/api/v1/auth/logout', 'api.auth.logout');
+    return baseApiService.post(
+      '/api/v1/portal/auth/logout',
+      'api.learner.auth.logout'
+    );
   }
 }
 

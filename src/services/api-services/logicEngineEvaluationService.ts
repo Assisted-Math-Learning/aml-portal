@@ -9,7 +9,7 @@ class LogicEngineEvalutionService {
     learner_id: string;
   }): Promise<{ data: { question_set_id: string } }> {
     return baseApiService.post(
-      `/api/v1/learner/evaluate/${data.learner_id}`,
+      `/api/v1/portal/learner/evaluate/${data.learner_id}`,
       'api.learner.evaluate'
     );
   }

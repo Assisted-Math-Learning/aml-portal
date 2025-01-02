@@ -10,7 +10,7 @@ class QuestionSetService {
     question_set_id: string;
   }): Promise<QuestionSet> {
     return baseApiService.get(
-      `/api/v1/question-set/read/${data.question_set_id}`
+      `/api/v1/portal/question-set/read/${data.question_set_id}`
     );
   }
 }
