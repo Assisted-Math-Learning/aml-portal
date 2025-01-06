@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { navigationPathSelector } from 'store/selectors/navigation.selector';
 import { syncLearnerResponse } from 'store/actions/syncLearnerResponse.action';
+import { syncTelemetryData } from '../../store/actions/telemetryData.action';
 
 // Define props for NavigationHandler
 type NavigationHandlerProps = {
@@ -16,7 +17,8 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
 
   const navigationPath = useSelector(navigationPathSelector);
 
-  const intervalRef = useRef<any>(null);
+  const learnerAttemptSyncIntervalRef = useRef<any>(null);
+  const telemetrySyncIntervalRef = useRef<any>(null);
   // const timeoutRef = useRef<any>(null);
 
   const location = useLocation();
@@ -34,10 +36,16 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
     dispatch(syncLearnerResponse());
   };
 
+  // Function to sync learner telemetry data
+  const syncLearnerTelemetryData = () => {
+    console.log('syncLearnerTelemetry');
+    dispatch(syncTelemetryData());
+  };
+
   const clearCallBackQueue = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (learnerAttemptSyncIntervalRef.current) {
+      clearInterval(learnerAttemptSyncIntervalRef.current);
+      learnerAttemptSyncIntervalRef.current = null;
     }
     // if (timeoutRef.current) {
     //   clearTimeout(timeoutRef.current);
@@ -69,8 +77,21 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
     //     syncLearnerResponseData();
     //   }, 120000);
     // }
-    if (!intervalRef.current && !location.pathname.includes('login')) {
-      intervalRef.current = setInterval(syncLearnerResponseData, 120000);
+    if (
+      !learnerAttemptSyncIntervalRef.current &&
+      !location.pathname.includes('login')
+    ) {
+      learnerAttemptSyncIntervalRef.current = setInterval(
+        syncLearnerResponseData,
+        120000
+      );
+    }
+
+    if (!telemetrySyncIntervalRef.current) {
+      telemetrySyncIntervalRef.current = setInterval(
+        syncLearnerTelemetryData,
+        60000
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);

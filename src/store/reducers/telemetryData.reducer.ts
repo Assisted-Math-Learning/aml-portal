@@ -3,11 +3,12 @@ import { Reducer } from 'redux';
 import { TelemetryDataActionType } from 'store/actions/actions.constants';
 
 export interface TelemetryDataState {
-  unSyncedData: any[];
+  loading: boolean;
+  error?: string;
 }
 
 const initialState: TelemetryDataState = {
-  unSyncedData: [],
+  loading: false,
 };
 
 export const telemetryDataReducer: Reducer<TelemetryDataState> = (
@@ -17,8 +18,17 @@ export const telemetryDataReducer: Reducer<TelemetryDataState> = (
 ) =>
   produce(state, (draft: TelemetryDataState) => {
     switch (action.type) {
-      case TelemetryDataActionType.PUSH_TELEMETRY_DATA: {
-        draft.unSyncedData = [...draft.unSyncedData, action.payload];
+      case TelemetryDataActionType.SYNC_TELEMETRY_DATA: {
+        draft.loading = true;
+        break;
+      }
+      case TelemetryDataActionType.SYNC_TELEMETRY_DATA_COMPLETE: {
+        draft.loading = false;
+        break;
+      }
+      case TelemetryDataActionType.SYNC_TELEMETRY_DATA_ERROR: {
+        draft.loading = false;
+        draft.error = action.payload;
         break;
       }
       default: {
