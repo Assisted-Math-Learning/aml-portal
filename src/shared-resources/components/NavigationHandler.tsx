@@ -17,7 +17,7 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
   const navigationPath = useSelector(navigationPathSelector);
 
   const intervalRef = useRef<any>(null);
-  const timeoutRef = useRef<any>(null);
+  // const timeoutRef = useRef<any>(null);
 
   const location = useLocation();
 
@@ -39,10 +39,10 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    // if (timeoutRef.current) {
+    //   clearTimeout(timeoutRef.current);
+    //   timeoutRef.current = null;
+    // }
   };
 
   useEffect(() => {
@@ -59,15 +59,18 @@ const NavigationHandler: React.FC<NavigationHandlerProps> = ({ children }) => {
   );
 
   useEffect(() => {
-    if (
-      !timeoutRef.current &&
-      !intervalRef.current &&
-      !location.pathname.includes('login')
-    ) {
-      timeoutRef.current = setTimeout(() => {
-        intervalRef.current = setInterval(syncLearnerResponseData, 120000);
-        syncLearnerResponseData();
-      }, 120000);
+    // if (
+    //   !timeoutRef.current &&
+    //   !intervalRef.current &&
+    //   !location.pathname.includes('login')
+    // ) {
+    //   timeoutRef.current = setTimeout(() => {
+    //     intervalRef.current = setInterval(syncLearnerResponseData, 120000);
+    //     syncLearnerResponseData();
+    //   }, 120000);
+    // }
+    if (!intervalRef.current && !location.pathname.includes('login')) {
+      intervalRef.current = setInterval(syncLearnerResponseData, 120000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
