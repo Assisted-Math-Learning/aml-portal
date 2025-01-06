@@ -1,4 +1,3 @@
-import ENV_CONFIG from 'constant/env.config';
 import React, { Suspense, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import store from 'store';
@@ -6,8 +5,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NavigationHandler from 'shared-resources/components/NavigationHandler';
 import { ToastContainer } from 'react-toastify';
-import * as Sentry from '@sentry/react';
-import { Integrations } from '@sentry/tracing';
 import { LanguageProvider } from 'context/LanguageContext';
 import { errorBoundaryHelper } from './utils/helpers/errorBoundary.helper';
 import ErrorFallbackComponent from './utils/components/ErrorFallbackComponent';

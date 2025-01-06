@@ -8,7 +8,6 @@ import Axios, {
   RawAxiosRequestHeaders,
 } from 'axios';
 import * as uuid from 'uuid';
-import * as Sentry from '@sentry/react';
 import { toastService } from 'services/ToastService';
 import { removeCookie } from 'shared-resources/utils/helpers';
 import { getTranslatedString } from 'shared-resources/components/MultiLangText/MultiLangText';

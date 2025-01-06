@@ -9,18 +9,23 @@ import { csrfTokenReducer } from './csrfToken.reducer';
 import { syncResponseReducer } from './syncResponse.reducer';
 import { logicEngineReducer } from './logicEngine.reducer';
 import { boardReducer } from './board.reducer';
+import { telemetryDataReducer } from './telemetryData.reducer';
+import { arrangeObjectKeysInAlphabeticOrder } from '../../shared-resources/utils/helpers';
 
-const appReducer = combineReducers({
-  auth: authReducer,
-  user: userReducer,
-  questionSet: questionSetReducer,
-  learnerJourney: learnerJourneyReducer,
-  navigationReducer,
-  csrfTokenReducer,
-  syncResponseReducer,
-  logicEngineReducer,
-  boardReducer,
-});
+const appReducer = combineReducers(
+  arrangeObjectKeysInAlphabeticOrder({
+    auth: authReducer,
+    user: userReducer,
+    questionSet: questionSetReducer,
+    learnerJourney: learnerJourneyReducer,
+    navigationReducer,
+    csrfTokenReducer,
+    syncResponseReducer,
+    logicEngineReducer,
+    boardReducer,
+    telemetryDataReducer,
+  })
+);
 
 export const rootReducer = (state: any, action: any) => {
   if (action.type === AuthActionType.LOGOUT) {

@@ -538,8 +538,8 @@ const Question = forwardRef(
           updatedValue = updatedValue.slice(0, -1);
         } else if (isKeyPressed) {
           // eslint-disable-next-line no-nested-ternary
-          const maxLength = isTopAnswerField ? (isSubtraction ? 2 : 1) : 9;
-          if (updatedValue.length < maxLength) {
+          const maximumLength = isTopAnswerField ? (isSubtraction ? 2 : 1) : 9;
+          if (updatedValue.length < maximumLength) {
             updatedValue += keyPressed.key;
           }
 
@@ -551,6 +551,7 @@ const Question = forwardRef(
           backSpacePressed.isBackSpaced = false;
         }
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [keyPressed, backSpacePressed, activeField]);
 
     // Expose the submitForm method to the parent component

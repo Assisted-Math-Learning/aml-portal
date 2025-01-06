@@ -4,6 +4,7 @@ import {
   CONTENT_LANG,
   localStorageService,
 } from 'services/LocalStorageService';
+// eslint-disable-next-line import/no-cycle
 import { learnerIdSelector } from 'store/selectors/auth.selector';
 import { supportedLanguages } from 'store/selectors/board.selector';
 import { SupportedLanguages } from 'types/enum';

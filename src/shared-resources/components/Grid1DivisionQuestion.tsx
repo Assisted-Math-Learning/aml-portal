@@ -131,8 +131,8 @@ const Grid1DivisionQuestion = ({
         const isBlank = step === '#';
 
         // Common logic for determining if an index is even and step is a number or 'B'
-        const isEvenAndNumberOrBlank = (step: string, idx: number) =>
-          (step === 'B' || /[0-9]/.test(step)) && idx % 2 === 0;
+        const isEvenAndNumberOrBlank = (_step: string, _idx: number) =>
+          (_step === 'B' || /[0-9]/.test(_step)) && _idx % 2 === 0;
 
         // Determine if a dash should be rendered at this step
         const renderMinusSign =

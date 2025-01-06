@@ -367,3 +367,8 @@ export const convertLearnerResponseToSingleResponse = (
 
   return answers;
 };
+
+export const arrangeObjectKeysInAlphabeticOrder = <T>(reducers: T): T =>
+  Object.keys(reducers as any)
+    .sort()
+    .reduce((obj: any, key) => ({ ...obj, [key]: (reducers as any)[key] }), {});

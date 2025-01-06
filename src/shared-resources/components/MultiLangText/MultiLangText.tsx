@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import { useLanguage } from 'context/LanguageContext';
 import React, { ElementType } from 'react';
 import { SupportedLanguages } from 'types/enum';

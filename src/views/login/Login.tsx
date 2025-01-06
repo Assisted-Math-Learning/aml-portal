@@ -15,8 +15,13 @@ import { useLanguage } from 'context/LanguageContext';
 import { authLoginAction } from '../../store/actions/auth.action';
 import FormikInput from '../../shared-resources/components/Input/FormikInput';
 import Button from '../../shared-resources/components/Button/Button';
+import withTelemetry from '../../HOC/withTelemetry';
 
-const Login: React.FC = () => {
+type Props = {
+  assess?: Function;
+};
+
+const Login: React.FC<Props> = ({ assess }) => {
   const dispatch = useDispatch();
   const errorCode = useSelector(authErrorSelector);
   const [showError, setShowError] = useState(false);
@@ -33,21 +38,6 @@ const Login: React.FC = () => {
       setShowError(false);
     }
   }, [errorCode]);
-
-  const csrfTokenDeleted = (attemptCount = 0): boolean => {
-    if (attemptCount >= 10) {
-      return false;
-    }
-    if (
-      localStorageService.getCSRFToken() ||
-      document.cookie.includes('_csrf')
-    ) {
-      localStorageService.removeCSRFToken();
-      document.cookie = '_csrf=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      return csrfTokenDeleted(attemptCount + 1);
-    }
-    return true;
-  };
 
   useEffect(() => {
     localStorageService.removeCSRFToken();
@@ -67,6 +57,7 @@ const Login: React.FC = () => {
       password: values.password,
       username: values.username?.toLowerCase(),
     };
+    assess?.(loginValues);
     dispatch(authLoginAction(loginValues));
   };
 
@@ -184,4 +175,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default withTelemetry(Login);

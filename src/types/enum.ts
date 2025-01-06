@@ -26,3 +26,8 @@ export enum SupportedLanguagesLabels {
   kn = 'ಕನ್ನಡ',
   hi = 'हिंदी',
 }
+
+export enum IDBStores {
+  LEARNER_DATA = 'learner_data',
+  TELEMETRY_DATA = 'telemetry_data',
+}

@@ -55,3 +55,7 @@ export enum FetchBoardActionType {
   FETCH_BOARD_COMPLETED = 'fetch/board/completed',
   FETCH_BOARD_ERROR = 'fetch/board/error',
 }
+
+export enum TelemetryDataActionType {
+  PUSH_TELEMETRY_DATA = 'push/telemetry/data',
+}

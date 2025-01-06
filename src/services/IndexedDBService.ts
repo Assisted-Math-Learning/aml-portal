@@ -1,9 +1,9 @@
 import { IDBPDatabase, openDB } from 'idb';
-import { IDBDataStatus } from '../types/enum';
+import { IDBDataStatus, IDBStores } from '../types/enum';
 
 const DB_NAME = 'aml_portal';
-const STORE_NAME = 'learner_data';
-const DB_VERSION = 1;
+const STORE_NAMES = Object.values(IDBStores);
+const DB_VERSION = 2;
 
 class IndexedDbService {
   private dbPromise: Promise<IDBPDatabase<unknown> | null> | null;
@@ -16,12 +16,14 @@ class IndexedDbService {
     if (!this.dbPromise) {
       this.dbPromise = openDB(DB_NAME, DB_VERSION, {
         upgrade(db) {
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME, {
-              keyPath: 'id',
-              autoIncrement: true,
-            });
-          }
+          STORE_NAMES.forEach((storeName) => {
+            if (!db.objectStoreNames.contains(storeName)) {
+              db.createObjectStore(storeName, {
+                keyPath: 'id',
+                autoIncrement: true,
+              });
+            }
+          });
         },
       }).catch((error) => {
         console.error('Error opening IndexedDB:', error);
@@ -39,30 +41,39 @@ class IndexedDbService {
     return this.dbPromise;
   };
 
-  addObject = async (object: any) => {
+  addObject = async (object: any, storeName = IDBStores.LEARNER_DATA) => {
     const db = await this.getDB();
-    await db?.add(STORE_NAME, object);
+    await db?.add(storeName, object);
   };
 
-  getObjectById = async (id: IDBKeyRange | IDBValidKey) => {
+  getObjectById = async (
+    id: IDBKeyRange | IDBValidKey,
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
-    return db?.get(STORE_NAME, id);
+    return db?.get(storeName, id);
   };
 
-  deleteObjectById = async (id: IDBValidKey | IDBKeyRange) => {
+  deleteObjectById = async (
+    id: IDBValidKey | IDBKeyRange,
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
-    await db?.delete(STORE_NAME, id);
+    await db?.delete(storeName, id);
   };
 
-  deleteObjectsByIds = async (ids: number[]) => {
+  deleteObjectsByIds = async (
+    ids: number[],
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
     if (!db) {
       console.error('IndexedDB is not initialized');
       return;
     }
 
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
+    const transaction = db.transaction(storeName, 'readwrite');
+    const store = transaction.objectStore(storeName);
 
     try {
       // eslint-disable-next-line no-restricted-syntax
@@ -76,24 +87,31 @@ class IndexedDbService {
     }
   };
 
-  getAllObjects = async () => {
+  getAllObjects = async (storeName = IDBStores.LEARNER_DATA) => {
     const db = await this.getDB();
-    return db?.getAll(STORE_NAME);
+    return db?.getAll(storeName);
   };
 
-  queryObjectsByKey = async (key: string | number, value: any) => {
+  queryObjectsByKey = async (
+    key: string | number,
+    value: any,
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
-    const tx = db?.transaction(STORE_NAME, 'readonly');
-    const store = tx?.objectStore(STORE_NAME);
+    const tx = db?.transaction(storeName, 'readonly');
+    const store = tx?.objectStore(storeName);
     const allObjects = await store?.getAll();
 
     return allObjects?.filter((object) => object[key] === value);
   };
 
-  queryObjectsByKeys = async (criteria: any) => {
+  queryObjectsByKeys = async (
+    criteria: any,
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
-    const tx = db?.transaction(STORE_NAME, 'readonly');
-    const store = tx?.objectStore(STORE_NAME);
+    const tx = db?.transaction(storeName, 'readonly');
+    const store = tx?.objectStore(storeName);
     const allObjects = await store?.getAll();
 
     // Filter objects based on all key-value pairs in the criteria
@@ -102,10 +120,14 @@ class IndexedDbService {
     );
   };
 
-  updateObjectById = async (id: number, updates: any) => {
+  updateObjectById = async (
+    id: number,
+    updates: any,
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
-    const tx = db?.transaction(STORE_NAME, 'readwrite');
-    const store = tx?.objectStore(STORE_NAME);
+    const tx = db?.transaction(storeName, 'readwrite');
+    const store = tx?.objectStore(storeName);
 
     // Retrieve the existing object by id
     const object = await store?.get(id);
@@ -120,15 +142,19 @@ class IndexedDbService {
     await tx?.done;
   };
 
-  updateStatusByIds = async (ids: number[], newStatus: IDBDataStatus) => {
+  updateStatusByIds = async (
+    ids: number[],
+    newStatus: IDBDataStatus,
+    storeName = IDBStores.LEARNER_DATA
+  ) => {
     const db = await this.getDB();
     if (!db) {
       console.error('IndexedDB is not initialized');
       return;
     }
 
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
+    const transaction = db.transaction(storeName, 'readwrite');
+    const store = transaction.objectStore(storeName);
 
     try {
       // eslint-disable-next-line no-restricted-syntax
@@ -150,9 +176,9 @@ class IndexedDbService {
     }
   };
 
-  clearStore = async () => {
+  clearStore = async (storeName = IDBStores.LEARNER_DATA) => {
     const db = await this.getDB();
-    await db?.clear(STORE_NAME);
+    await db?.clear(storeName);
   };
 }
 

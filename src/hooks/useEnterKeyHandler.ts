@@ -13,6 +13,7 @@ const useEnterKeyHandler = (
         event.preventDefault();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [callback, ...dependencies]
   );
 

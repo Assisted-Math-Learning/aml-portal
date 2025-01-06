@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect';
-import { QuestionSetState } from 'store/reducers/questionSet.reducer';
 import { NavigationState } from 'store/reducers/NavigationReducer';
 import { AppState } from '../reducers';
 

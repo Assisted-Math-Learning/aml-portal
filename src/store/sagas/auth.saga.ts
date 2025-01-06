@@ -19,7 +19,6 @@ import {
 } from 'services/LocalStorageService';
 import { fetchLearnerJourney } from 'store/actions/learnerJourney.actions';
 import { navigateTo } from 'store/actions/navigation.action';
-import * as Sentry from '@sentry/react';
 import {
   fetchCSRFTokenCompleted,
   fetchCSRFTokenFailed,

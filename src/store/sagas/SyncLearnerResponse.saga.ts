@@ -204,7 +204,6 @@ function* SyncLearnerResponseSaga({
 function* SyncFinalLearnerResponseSaga(): any {
   const learnerId = yield select(learnerIdSelector);
   const questionSet = yield select(questionsSetSelector);
-  const isSyncing = yield select(isSyncInProgressSelector);
   const isIntermediateSyncing = yield select(
     isIntermediateSyncInProgressSelector
   );
