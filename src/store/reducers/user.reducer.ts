@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { User } from 'models/entities/User';
+import { User } from 'models/entities/Learner';
 import { Reducer } from 'redux';
 import { AuthActionType } from 'store/actions/actions.constants';
 

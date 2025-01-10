@@ -1,13 +1,15 @@
 import produce from 'immer';
 import { Reducer } from 'redux';
 import { AuthActionType } from 'store/actions/actions.constants';
-import { User } from '../../models/entities/User';
+import { Learner } from '../../models/entities/Learner';
+import { Tenant } from '../../models/entities/Tenant';
 
 export interface AuthState {
   learnerId?: string;
   loading?: boolean;
   error?: string;
-  user?: User;
+  learner?: Learner;
+  tenant?: Tenant;
   isLoggingOut: boolean;
 }
 
@@ -29,8 +31,13 @@ export const authReducer: Reducer<AuthState> = (
       }
       case AuthActionType.LOGIN_COMPLETED:
       case AuthActionType.FETCH_ME_COMPLETED: {
-        draft.learnerId = action.payload.identifier;
-        draft.user = action.payload;
+        const { learner, tenant } = action.payload as {
+          learner: Learner;
+          tenant: Tenant;
+        };
+        draft.learnerId = learner.identifier;
+        draft.learner = learner;
+        draft.tenant = tenant;
         draft.loading = false;
         draft.error = undefined;
         break;

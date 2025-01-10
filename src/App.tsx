@@ -18,6 +18,7 @@ import Login from './views/login/Login';
 import AML404Component from './utils/components/AML404Component';
 import 'react-toastify/dist/ReactToastify.css';
 import { indexedDBService } from './services/IndexedDBService';
+import withTelemetry from './HOC/withTelemetry';
 
 // Sentry.init({
 //   dsn: ENV_CONFIG.VITE_SENTRY_DSN,
@@ -67,7 +68,9 @@ const App: React.FC = () => {
                           key={route.key}
                           Component={
                             route.component &&
-                            AuthenticatedRouteHOC(route.component)
+                            AuthenticatedRouteHOC(
+                              withTelemetry(route.component)
+                            )
                           }
                         />
                       ))}

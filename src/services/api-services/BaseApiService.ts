@@ -33,11 +33,11 @@ export class BaseApiService {
 
   private requestMap = new Map<string, CancelTokenSource>();
 
-  private constructor() {
+  constructor(baseURL = BASE_URL, withCredentials = true) {
     // Set up Axios instance with interceptor
     this.axiosInstance = Axios.create({
-      baseURL: BASE_URL,
-      withCredentials: true,
+      baseURL,
+      withCredentials,
     });
 
     this.axiosInstance.interceptors.response.use(
@@ -149,6 +149,31 @@ export class BaseApiService {
         method: 'POST',
         url,
         data: payload,
+        headers: { ...opts?.headers },
+        params: opts?.params,
+        requestId: opts?.extras?.requestId,
+      },
+      opts?.extras?.useAuth
+    );
+  }
+
+  public postTelemetry<T = any>(
+    url: string,
+    data?: any,
+    opts?: {
+      headers?: AxiosRequestHeaders;
+      params?: QueryParams;
+      extras?: {
+        requestId?: string;
+        useAuth?: boolean;
+      };
+    }
+  ) {
+    return this.request<T>(
+      {
+        method: 'POST',
+        url,
+        data,
         headers: { ...opts?.headers },
         params: opts?.params,
         requestId: opts?.extras?.requestId,

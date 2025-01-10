@@ -28,15 +28,20 @@ import { getTranslatedString } from 'shared-resources/components/MultiLangText/M
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { SupportedLanguages } from 'types/enum';
 import { fetchBoard } from 'store/actions/board.action';
+import { Learner } from '../../models/entities/Learner';
+import { Tenant } from '../../models/entities/Tenant';
 
 interface LoginSagaPayloadType extends SagaPayloadType {
   payload: AuthLoginActionPayloadType;
 }
 function* loginSaga(data: LoginSagaPayloadType): any {
   try {
-    const response = yield call(authService.login, data.payload);
+    const response: {
+      responseCode: any;
+      result: { data: { learner: Learner; tenant: Tenant } };
+    } = yield call(authService.login, data.payload);
     if (response.responseCode === 'OK' && response?.result?.data) {
-      if (response?.result?.data?.username) {
+      if (response?.result?.data?.learner.username) {
         // Sentry.setUser({
         //   id: response?.result?.data?.identifier,
         //   username: response?.result?.data?.username,
@@ -49,14 +54,22 @@ function* loginSaga(data: LoginSagaPayloadType): any {
       toastService.showSuccess(
         getTranslatedString(language, multiLangLabels.logged_in_successfully)
       );
-      yield put(authLoginCompletedAction(response?.result?.data));
+      yield put(
+        authLoginCompletedAction({
+          learner: response?.result?.data.learner,
+          tenant: response?.result?.data.tenant,
+        })
+      );
 
-      const boardId = response?.result?.data?.taxonomy?.board?.identifier;
+      const boardId =
+        response?.result?.data?.learner?.taxonomy?.board?.identifier;
       if (boardId) {
         yield put(fetchBoard(boardId));
       }
 
-      yield put(fetchLearnerJourney(response?.result?.data?.identifier));
+      yield put(
+        fetchLearnerJourney(response?.result?.data?.learner.identifier)
+      );
     }
   } catch (e: any) {
     toastService.showError(`${e?.response?.data?.error?.message}`);
@@ -68,9 +81,12 @@ function* loginSaga(data: LoginSagaPayloadType): any {
 
 function* fetchLoggedInUserSaga(): any {
   try {
-    const response = yield call(authService.fetchMe);
+    const response: {
+      responseCode: any;
+      result: { data: { learner: Learner; tenant: Tenant } };
+    } = yield call(authService.fetchMe);
     if (response.responseCode === 'OK' && response?.result?.data) {
-      if (response?.result?.data?.username) {
+      if (response?.result?.data?.learner?.username) {
         // Sentry.setUser({
         //   id: response?.result?.data?.identifier,
         //   username: response?.result?.data?.username,
@@ -78,12 +94,15 @@ function* fetchLoggedInUserSaga(): any {
       }
       yield put(authFetchMeCompletedAction(response?.result?.data));
 
-      const boardId = response?.result?.data?.taxonomy?.board?.identifier;
+      const boardId =
+        response?.result?.data?.learner?.taxonomy?.board?.identifier;
       if (boardId) {
         yield put(fetchBoard(boardId));
       }
 
-      yield put(fetchLearnerJourney(response?.result?.data?.identifier));
+      yield put(
+        fetchLearnerJourney(response?.result?.data?.learner?.identifier)
+      );
     }
   } catch (e: any) {
     localStorageService.removeAuthToken();

@@ -15,13 +15,8 @@ import { useLanguage } from 'context/LanguageContext';
 import { authLoginAction } from '../../store/actions/auth.action';
 import FormikInput from '../../shared-resources/components/Input/FormikInput';
 import Button from '../../shared-resources/components/Button/Button';
-import withTelemetry from '../../HOC/withTelemetry';
 
-type Props = {
-  assess?: Function;
-};
-
-const Login: React.FC<Props> = ({ assess }) => {
+const Login: React.FC = () => {
   const dispatch = useDispatch();
   const errorCode = useSelector(authErrorSelector);
   const [showError, setShowError] = useState(false);
@@ -57,7 +52,6 @@ const Login: React.FC<Props> = ({ assess }) => {
       password: values.password,
       username: values.username?.toLowerCase(),
     };
-    assess?.(loginValues);
     dispatch(authLoginAction(loginValues));
   };
 
@@ -175,4 +169,4 @@ const Login: React.FC<Props> = ({ assess }) => {
   );
 };
 
-export default withTelemetry(Login);
+export default Login;

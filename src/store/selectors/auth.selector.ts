@@ -26,10 +26,15 @@ export const authErrorSelector = createSelector(
 
 export const loggedInUserSelector = createSelector(
   [authState],
-  (state: AuthState) => state.user
+  (state: AuthState) => state.learner
 );
 
 export const learnerIdSelector = createSelector(
   [authState],
   (state: AuthState) => state.learnerId
+);
+
+export const enableTelemetrySelector = createSelector(
+  [authState],
+  (state: AuthState) => state.tenant?.enable_telemetry
 );

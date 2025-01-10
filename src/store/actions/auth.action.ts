@@ -1,5 +1,6 @@
-import { User } from 'models/entities/User';
+import { Learner } from 'models/entities/Learner';
 import { AuthActionType } from './actions.constants';
+import { Tenant } from '../../models/entities/Tenant';
 
 // TODO: MOVE TO SPECIFIC TYPE FILE
 export interface AuthLoginActionPayloadType {
@@ -12,9 +13,12 @@ export const authLoginAction = (payload: AuthLoginActionPayloadType) => ({
   payload,
 });
 
-export const authLoginCompletedAction = (user: User) => ({
+export const authLoginCompletedAction = (data: {
+  learner: Learner;
+  tenant: Tenant;
+}) => ({
   type: AuthActionType.LOGIN_COMPLETED,
-  payload: user,
+  payload: data,
 });
 
 export const authLoginErrorAction = (message: string) => ({
@@ -24,9 +28,12 @@ export const authLoginErrorAction = (message: string) => ({
 
 export const authFetchMeAction = () => ({ type: AuthActionType.FETCH_ME });
 
-export const authFetchMeCompletedAction = (user: User) => ({
+export const authFetchMeCompletedAction = (data: {
+  learner: Learner;
+  tenant: Tenant;
+}) => ({
   type: AuthActionType.FETCH_ME_COMPLETED,
-  payload: user,
+  payload: data,
 });
 
 export const authFetchMeErrorAction = (message: string) => ({

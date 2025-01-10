@@ -57,5 +57,8 @@ export enum FetchBoardActionType {
 }
 
 export enum TelemetryDataActionType {
-  PUSH_TELEMETRY_DATA = 'push/telemetry/data',
+  INCREMENT_DATA_COUNT = 'increment/data/count',
+  SYNC_TELEMETRY_DATA = 'sync/telemetry/data',
+  SYNC_TELEMETRY_DATA_COMPLETE = 'sync/telemetry/data/complete',
+  SYNC_TELEMETRY_DATA_ERROR = 'sync/telemetry/data/error',
 }
