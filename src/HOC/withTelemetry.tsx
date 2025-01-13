@@ -6,14 +6,19 @@ import {
 } from '../store/actions/telemetryData.action';
 import { telemetryDataCountSelector } from '../store/selectors/telemetryData.selector';
 import { TELEMETRY_DATA_SYNC_BATCH_SIZE } from '../constant/constants';
-import { enableTelemetrySelector } from '../store/selectors/auth.selector';
+import {
+  enableTelemetrySelector,
+  loggedInUserSelector,
+} from '../store/selectors/auth.selector';
 import telemetryService from '../services/TelemetryService';
+import { TelemetryDataEventType } from '../models/enums/telemetryDataEventType.enum';
 
 const withTelemetry = <P extends object>(Component: React.FC<P>) => {
   const WrappedComponent: React.FC<P> = ({ ...props }) => {
     const dispatch = useDispatch();
     const enableTelemetry = useSelector(enableTelemetrySelector);
     const telemetryDataCount = useSelector(telemetryDataCountSelector);
+    const learner = useSelector(loggedInUserSelector);
 
     const [telemetryProps, setTelemetryProps] = useState({});
 
@@ -27,15 +32,19 @@ const withTelemetry = <P extends object>(Component: React.FC<P>) => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [enableTelemetry, telemetryDataCount]);
 
-    const onAssess = async (data: any) => {
-      await telemetryService.assess(data);
+    const onAssess = async (eventType: TelemetryDataEventType, data: any) => {
+      await telemetryService.assess({
+        learner_id: learner?.identifier,
+        event_type: eventType,
+        data,
+      });
       dispatch(incrementTelemetryDataCount());
     };
 
     useEffect(() => {
       if (enableTelemetry) {
         setTelemetryProps({
-          assess: onAssess,
+          onAssess,
         });
       } else {
         setTelemetryProps({});

@@ -5,14 +5,14 @@ const TELEMETRY_BASE_URL = ENV_CONFIG.TELEMETRY_SERVICE_BACKEND_URL as string;
 
 const baseApiService = new BaseApiService(TELEMETRY_BASE_URL, false);
 
-class TelemetryService {
+class TelemetryApiService {
   static getInstance() {
-    return new TelemetryService();
+    return new TelemetryApiService();
   }
 
   async syncData(data: any) {
-    return baseApiService.postTelemetry('/v1/telemetry', data);
+    return baseApiService.postTelemetry('/v1/telemetry', { events: data });
   }
 }
 
-export const telemetryService = TelemetryService.getInstance();
+export const telemetryService = TelemetryApiService.getInstance();

@@ -1,26 +1,58 @@
-import { all, call, select, takeLatest } from 'redux-saga/effects';
+import { all, call, takeLatest } from 'redux-saga/effects';
 import { TelemetryDataActionType } from 'store/actions/actions.constants';
-import { isSyncInProgressSelector } from '../selectors/telemetryData.selector';
 import { indexedDBService } from '../../services/IndexedDBService';
-import { IDBStores } from '../../types/enum';
-import { telemetryService } from '../../services/api-services/TelemetryService';
+import { IDBDataStatus, IDBStores } from '../../types/enum';
+import { telemetryService } from '../../services/api-services/TelemetryApiService';
+import { StoreAction } from '../../models/StoreAction';
 
-function* SyncLearnerTelemetryDataSaga(): any {
-  const isSyncing = yield select(isSyncInProgressSelector);
-
-  if (isSyncing) {
-    console.log('SKIPPING SYNC, SYNC ALREADY IN PROGRESS');
-    return;
-  }
+function* SyncLearnerTelemetryDataSaga({
+  payload,
+}: StoreAction<TelemetryDataActionType>): any {
+  const { clearStoreAfterSync } = payload;
 
   const allLearnerTelemetryData = yield call(
-    indexedDBService.getAllObjects,
+    indexedDBService.queryObjectsByKey,
+    'status',
+    IDBDataStatus.NOOP,
     IDBStores.TELEMETRY_DATA
   );
 
-  console.log('allLearnerTelemetryData', allLearnerTelemetryData);
+  const itemIds = allLearnerTelemetryData.map((data: any) => data.id);
 
-  yield call(telemetryService.syncData, allLearnerTelemetryData);
+  if (!itemIds.length) {
+    if (clearStoreAfterSync) {
+      yield call(indexedDBService.clearStore, IDBStores.TELEMETRY_DATA);
+    }
+    return;
+  }
+
+  yield call(
+    indexedDBService.updateStatusByIds,
+    itemIds,
+    IDBDataStatus.SYNCING,
+    IDBStores.TELEMETRY_DATA
+  );
+
+  const dataForPayload = allLearnerTelemetryData.map((data: any) => {
+    delete data.id;
+    delete data.status;
+    return data;
+  });
+
+  const response = yield call(telemetryService.syncData, dataForPayload);
+
+  if (response && response.responseCode === 'SUCCESS') {
+    yield call(
+      indexedDBService.updateStatusByIds,
+      itemIds,
+      IDBDataStatus.SYNCED,
+      IDBStores.TELEMETRY_DATA
+    );
+
+    if (clearStoreAfterSync) {
+      yield call(indexedDBService.clearStore, IDBStores.TELEMETRY_DATA);
+    }
+  }
 }
 
 function* syncLearnerTelemetryDataSaga() {

@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { AuthActionType } from 'store/actions/actions.constants';
 import { authReducer } from './auth.reducer';
-import { userReducer } from './user.reducer';
+import { learnerReducer } from './learner.reducer';
 import { questionSetReducer } from './questionSet.reducer';
 import { learnerJourneyReducer } from './learnerJourney.reducer';
 import { navigationReducer } from './NavigationReducer';
@@ -15,7 +15,7 @@ import { arrangeObjectKeysInAlphabeticOrder } from '../../shared-resources/utils
 const appReducer = combineReducers(
   arrangeObjectKeysInAlphabeticOrder({
     auth: authReducer,
-    user: userReducer,
+    learner: learnerReducer,
     questionSet: questionSetReducer,
     learnerJourney: learnerJourneyReducer,
     navigationReducer,

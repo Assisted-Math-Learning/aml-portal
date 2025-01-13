@@ -36,5 +36,5 @@ export const learnerIdSelector = createSelector(
 
 export const enableTelemetrySelector = createSelector(
   [authState],
-  (state: AuthState) => state.tenant?.enable_telemetry
+  (state: AuthState) => state.tenant?.enable_telemetry || false
 );

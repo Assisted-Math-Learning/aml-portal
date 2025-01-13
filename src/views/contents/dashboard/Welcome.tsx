@@ -10,9 +10,10 @@ import MultiLangText, {
 import { loggedInUserSelector } from 'store/selectors/auth.selector';
 import { questionsSetSelector } from 'store/selectors/questionSet.selector';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { TelemetryDataEventType } from '../../../models/enums/telemetryDataEventType.enum';
 
 type Props = {
-  assess?: (data: any) => void;
+  onAssess?: (eventType: TelemetryDataEventType, data: any) => void;
 };
 
 const Welcome: React.FC<Props> = (props) => {
@@ -31,7 +32,9 @@ const Welcome: React.FC<Props> = (props) => {
 
   const handleStartClick = () => {
     navigate('/instructions'); // Redirect to instructions
-    props?.assess?.({ event: 'Start clicked' });
+    props?.onAssess?.(TelemetryDataEventType.QUESTION_ATTEMPTED, {
+      event: 'Start clicked',
+    });
   };
 
   useEnterKeyHandler(handleStartClick);

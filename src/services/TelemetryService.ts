@@ -7,12 +7,8 @@ class TelemetryService {
   }
 
   async assess(data: any) {
-    console.log('data', data);
     await indexedDBService.addObject(
-      {
-        data,
-        status: IDBDataStatus.NOOP,
-      },
+      { ...data, status: IDBDataStatus.NOOP },
       IDBStores.TELEMETRY_DATA
     );
   }
