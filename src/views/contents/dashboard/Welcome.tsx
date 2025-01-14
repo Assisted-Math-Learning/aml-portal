@@ -13,10 +13,10 @@ import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { TelemetryDataEventType } from '../../../models/enums/telemetryDataEventType.enum';
 
 type Props = {
-  onAssess?: (eventType: TelemetryDataEventType, data: any) => void;
+  onAssess?: (eventType: TelemetryDataEventType, data?: any) => void;
 };
 
-const Welcome: React.FC<Props> = (props) => {
+const Welcome: React.FC<Props> = ({ onAssess }) => {
   const navigate = useNavigate();
   const userSelector = useSelector(loggedInUserSelector);
   const questionsSet = useSelector(questionsSetSelector);
@@ -31,10 +31,10 @@ const Welcome: React.FC<Props> = (props) => {
   }, [questionsSet]);
 
   const handleStartClick = () => {
-    navigate('/instructions'); // Redirect to instructions
-    props?.onAssess?.(TelemetryDataEventType.QUESTION_ATTEMPTED, {
-      event: 'Start clicked',
+    onAssess?.(TelemetryDataEventType.START_BUTTON_CLICKED, {
+      currentQuestionSet: questionsSet?.identifier,
     });
+    navigate('/instructions'); // Redirect to instructions
   };
 
   useEnterKeyHandler(handleStartClick);

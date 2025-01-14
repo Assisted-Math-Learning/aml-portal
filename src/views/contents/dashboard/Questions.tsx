@@ -45,8 +45,13 @@ import {
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
 import { indexedDBService } from '../../../services/IndexedDBService';
 import { IDBDataStatus } from '../../../types/enum';
+import { TelemetryDataEventType } from '../../../models/enums/telemetryDataEventType.enum';
 
-const Questions: React.FC = () => {
+type Props = {
+  onAssess?: (eventType: TelemetryDataEventType, data?: any) => void;
+};
+
+const Questions: React.FC<Props> = ({ onAssess }) => {
   const { language } = useLanguage();
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -397,12 +402,17 @@ const Questions: React.FC = () => {
   const handleKeyDown = (event: KeyboardEvent) => {
     if (isCompleted) {
       clickedButtonRef.current = ClickedButtonType.NEXT;
+      onAssess?.(TelemetryDataEventType.NEXT_SET_BUTTON_CLICKED);
       handleNextClick();
       return;
     }
     if (questionRef.current && !isSyncing && !currentQuestionFeedback) {
       resetFeedbackStates();
-
+      onAssess?.(TelemetryDataEventType.SUBMIT_BUTTON_CLICKED, {
+        currentQuestionSet: questionSet?.identifier,
+        currentQuestion: currentQuestion?.identifier,
+        currentQuestionIndex,
+      });
       clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
       questionRef.current.submitForm();
     }
@@ -433,6 +443,11 @@ const Questions: React.FC = () => {
   const handlePrevClick = () => {
     if (currentQuestionIndex > 0) {
       resetFeedbackStates();
+      onAssess?.(TelemetryDataEventType.PREVIOUS_ARROW_BUTTON_CLICKED, {
+        currentQuestionSet: questionSet?.identifier,
+        currentQuestion: currentQuestion?.identifier,
+        currentQuestionIndex,
+      });
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
@@ -447,14 +462,26 @@ const Questions: React.FC = () => {
   const handlePrimaryButtonClicked = useCallback(() => {
     setShowFeedback(false);
     if (isCompleted) {
+      onAssess?.(TelemetryDataEventType.NEXT_SET_BUTTON_CLICKED);
       handleNextClick();
       return;
     }
     if (!currentQuestionFeedback) {
+      onAssess?.(TelemetryDataEventType.SUBMIT_BUTTON_CLICKED, {
+        currentQuestionSet: questionSet?.identifier,
+        currentQuestion: currentQuestion?.identifier,
+        currentQuestionIndex,
+      });
       clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
       questionRef.current?.submitForm();
     }
-  }, [currentQuestionFeedback, handleNextClick, isCompleted]);
+  }, [
+    isCompleted,
+    currentQuestionFeedback,
+    questionSet?.identifier,
+    currentQuestion?.identifier,
+    currentQuestionIndex,
+  ]);
 
   const handleSkipQuestionClicked = useCallback(() => {
     setShowFeedback(false);
@@ -558,8 +585,25 @@ const Questions: React.FC = () => {
             }
             disabledSecondaryButtons={isSyncing}
             onPrimaryButtonClicked={handlePrimaryButtonClicked}
-            onSkipQuestionClicked={handleSkipQuestionClicked}
-            onSkipToCurrentClick={handleSkipToCurrentClicked}
+            onSkipQuestionClicked={() => {
+              onAssess?.(TelemetryDataEventType.SKIP_BUTTON_CLICKED, {
+                currentQuestionSet: questionSet?.identifier,
+                currentQuestion: currentQuestion?.identifier,
+                currentQuestionIndex,
+              });
+              handleSkipQuestionClicked();
+            }}
+            onSkipToCurrentClick={() => {
+              onAssess?.(
+                TelemetryDataEventType.SKIP_TO_CURRENT_BUTTON_CLICKED,
+                {
+                  currentQuestionSet: questionSet?.identifier,
+                  currentQuestion: currentQuestion?.identifier,
+                  currentQuestionIndex,
+                }
+              );
+              handleSkipToCurrentClicked();
+            }}
             showSkipToCurrentButton={
               lastAttemptedQuestionIndex.current !== currentQuestionIndex
             }
@@ -570,7 +614,14 @@ const Questions: React.FC = () => {
         }
         lastAttemptedQuestionIndex={lastAttemptedQuestionIndex.current}
         onPrevClick={handlePrevClick}
-        onSkipClicked={handleSkipClicked}
+        onSkipClicked={() => {
+          onAssess?.(TelemetryDataEventType.NEXT_ARROW_BUTTON_CLICKED, {
+            currentQuestionSet: questionSet?.identifier,
+            currentQuestion: currentQuestion?.identifier,
+            currentQuestionIndex,
+          });
+          handleSkipClicked();
+        }}
         currentQuestionFeedback={currentQuestionFeedback}
         showFeedback={Boolean(isFeedbackAllowed && showFeedback)}
       />

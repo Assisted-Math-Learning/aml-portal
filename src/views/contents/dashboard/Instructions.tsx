@@ -14,8 +14,13 @@ import MultiLangText, {
 } from 'shared-resources/components/MultiLangText/MultiLangText';
 import { useLanguage } from 'context/LanguageContext';
 import { multiLangLabels } from 'utils/constants/multiLangLabels.constants';
+import { TelemetryDataEventType } from '../../../models/enums/telemetryDataEventType.enum';
 
-const Instructions: React.FC = () => {
+type Props = {
+  onAssess?: (eventType: TelemetryDataEventType, data?: any) => void;
+};
+
+const Instructions: React.FC<Props> = ({ onAssess }) => {
   const navigate = useNavigate();
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const questionSet = useSelector(questionsSetSelector);
@@ -51,6 +56,9 @@ const Instructions: React.FC = () => {
 
   const handleStartClick = () => {
     if (!mediaURLs.length || (!!mediaURLs.length && hasWatchedEnough)) {
+      onAssess?.(
+        TelemetryDataEventType.NEXT_BUTTON_CLICKED_ON_INSTRUCTIONS_PAGE
+      );
       navigate('/questions');
     }
   };
