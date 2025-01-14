@@ -6,15 +6,23 @@ import {
   questionSetFetchErrorAction,
 } from 'store/actions/questionSet.actions';
 import { questionSetService } from 'services/api-services/QuestionSetService';
+import { QuestionSet } from '../../models/entities/QuestionSet';
 
 function* QuestionSetFetchSaga({
   payload,
 }: StoreAction<QuestionSetActionType>): any {
   try {
-    const response = yield call(questionSetService.fetchQuestionSet, {
-      question_set_id: payload,
-    });
-    yield put(questionSetFetchCompletedAction(response.result));
+    const response: { result: { question_set: QuestionSet } } = yield call(
+      questionSetService.fetchQuestionSet,
+      {
+        question_set_id: payload,
+      }
+    );
+    yield put(
+      questionSetFetchCompletedAction({
+        questionSet: response.result.question_set,
+      })
+    );
   } catch (e: any) {
     yield put(
       questionSetFetchErrorAction(

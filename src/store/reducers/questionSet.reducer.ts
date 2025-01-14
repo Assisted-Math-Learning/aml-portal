@@ -26,8 +26,8 @@ export const questionSetReducer: Reducer<QuestionSetState> = (
         break;
       }
       case QuestionSetActionType.FETCH_QUESTION_SET_COMPLETED: {
-        const questoinSet: QuestionSet = action.payload as QuestionSet;
-        draft.questionSet = { ...questoinSet };
+        const { questionSet } = action.payload as { questionSet: QuestionSet };
+        draft.questionSet = { ...questionSet };
         draft.loading = false;
         break;
       }
