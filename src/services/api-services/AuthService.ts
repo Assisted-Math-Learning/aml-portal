@@ -1,15 +1,11 @@
 import { baseApiService } from './BaseApiService';
-import { User } from '../../models/entities/Learner';
 
 class AuthService {
   static getInstance(): AuthService {
     return new AuthService();
   }
 
-  async login(data: {
-    username: string;
-    password: string;
-  }): Promise<{ user: User }> {
+  async login(data: { username: string; password: string }) {
     return baseApiService.post(
       '/api/v1/portal/auth/login',
       'api.learner.auth.login',
@@ -20,7 +16,7 @@ class AuthService {
     );
   }
 
-  async fetchMe(): Promise<{ user: User }> {
+  async fetchMe() {
     return baseApiService.get('/api/v1/portal/learner/read');
   }
 
