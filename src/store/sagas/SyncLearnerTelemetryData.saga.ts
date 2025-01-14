@@ -39,19 +39,28 @@ function* SyncLearnerTelemetryDataSaga({
     return data;
   });
 
-  const response = yield call(telemetryService.syncData, dataForPayload);
+  try {
+    const response = yield call(telemetryService.syncData, dataForPayload);
 
-  if (response && response.responseCode === 'SUCCESS') {
+    if (response && response.responseCode === 'SUCCESS') {
+      yield call(
+        indexedDBService.updateStatusByIds,
+        itemIds,
+        IDBDataStatus.SYNCED,
+        IDBStores.TELEMETRY_DATA
+      );
+
+      if (clearStoreAfterSync) {
+        yield call(indexedDBService.clearStore, IDBStores.TELEMETRY_DATA);
+      }
+    }
+  } catch (e) {
     yield call(
       indexedDBService.updateStatusByIds,
       itemIds,
-      IDBDataStatus.SYNCED,
+      IDBDataStatus.NOOP,
       IDBStores.TELEMETRY_DATA
     );
-
-    if (clearStoreAfterSync) {
-      yield call(indexedDBService.clearStore, IDBStores.TELEMETRY_DATA);
-    }
   }
 }
 
