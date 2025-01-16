@@ -1,9 +1,10 @@
-import { all, call, takeLatest } from 'redux-saga/effects';
+import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { TelemetryDataActionType } from 'store/actions/actions.constants';
 import { indexedDBService } from '../../services/IndexedDBService';
 import { IDBDataStatus, IDBStores } from '../../types/enum';
 import { telemetryService } from '../../services/api-services/TelemetryApiService';
 import { StoreAction } from '../../models/StoreAction';
+import { resetTelemetryDataCount } from '../actions/telemetryData.action';
 
 function* SyncLearnerTelemetryDataSaga({
   payload,
@@ -43,6 +44,7 @@ function* SyncLearnerTelemetryDataSaga({
     const response = yield call(telemetryService.syncData, dataForPayload);
 
     if (response && response.responseCode === 'SUCCESS') {
+      yield put(resetTelemetryDataCount());
       yield call(
         indexedDBService.updateStatusByIds,
         itemIds,

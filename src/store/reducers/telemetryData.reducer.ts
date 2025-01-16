@@ -20,6 +20,10 @@ export const telemetryDataReducer: Reducer<TelemetryDataState> = (
 ) =>
   produce(state, (draft: TelemetryDataState) => {
     switch (action.type) {
+      case TelemetryDataActionType.RESET_DATA_COUNT: {
+        draft.dataCount = 0;
+        break;
+      }
       case TelemetryDataActionType.INCREMENT_DATA_COUNT: {
         draft.dataCount += 1;
         break;

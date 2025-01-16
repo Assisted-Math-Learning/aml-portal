@@ -410,7 +410,7 @@ const Questions: React.FC<Props> = ({ onAssess }) => {
       resetFeedbackStates();
       onAssess?.(TelemetryDataEventType.SUBMIT_BUTTON_CLICKED, {
         currentQuestionSet: questionSet?.identifier,
-        currentQuestion: currentQuestion?.identifier,
+        currentQuestion: currentQuestion?.questionId,
         currentQuestionIndex,
       });
       clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
@@ -445,7 +445,7 @@ const Questions: React.FC<Props> = ({ onAssess }) => {
       resetFeedbackStates();
       onAssess?.(TelemetryDataEventType.PREVIOUS_ARROW_BUTTON_CLICKED, {
         currentQuestionSet: questionSet?.identifier,
-        currentQuestion: currentQuestion?.identifier,
+        currentQuestion: currentQuestion?.questionId,
         currentQuestionIndex,
       });
       setCurrentQuestionIndex((prev) => prev - 1);
@@ -469,7 +469,7 @@ const Questions: React.FC<Props> = ({ onAssess }) => {
     if (!currentQuestionFeedback) {
       onAssess?.(TelemetryDataEventType.SUBMIT_BUTTON_CLICKED, {
         currentQuestionSet: questionSet?.identifier,
-        currentQuestion: currentQuestion?.identifier,
+        currentQuestion: currentQuestion?.questionId,
         currentQuestionIndex,
       });
       clickedButtonRef.current = ClickedButtonType.CHECK_AND_SUBMIT;
@@ -588,7 +588,7 @@ const Questions: React.FC<Props> = ({ onAssess }) => {
             onSkipQuestionClicked={() => {
               onAssess?.(TelemetryDataEventType.SKIP_BUTTON_CLICKED, {
                 currentQuestionSet: questionSet?.identifier,
-                currentQuestion: currentQuestion?.identifier,
+                currentQuestion: currentQuestion?.questionId,
                 currentQuestionIndex,
               });
               handleSkipQuestionClicked();
@@ -598,7 +598,7 @@ const Questions: React.FC<Props> = ({ onAssess }) => {
                 TelemetryDataEventType.SKIP_TO_CURRENT_BUTTON_CLICKED,
                 {
                   currentQuestionSet: questionSet?.identifier,
-                  currentQuestion: currentQuestion?.identifier,
+                  currentQuestion: currentQuestion?.questionId,
                   currentQuestionIndex,
                 }
               );
@@ -617,7 +617,7 @@ const Questions: React.FC<Props> = ({ onAssess }) => {
         onSkipClicked={() => {
           onAssess?.(TelemetryDataEventType.NEXT_ARROW_BUTTON_CLICKED, {
             currentQuestionSet: questionSet?.identifier,
-            currentQuestion: currentQuestion?.identifier,
+            currentQuestion: currentQuestion?.questionId,
             currentQuestionIndex,
           });
           handleSkipClicked();
