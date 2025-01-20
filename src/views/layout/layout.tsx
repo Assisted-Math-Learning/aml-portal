@@ -22,7 +22,6 @@ import {
 } from '../../store/selectors/syncResponseSelector';
 import { toastService } from '../../services/ToastService';
 import { questionsSetSelector } from '../../store/selectors/questionSet.selector';
-import { syncTelemetryData } from '../../store/actions/telemetryData.action';
 
 const Layout: React.FC = () => {
   const navigate = useNavigate();
@@ -65,7 +64,6 @@ const Layout: React.FC = () => {
   };
 
   const onLogout = () => {
-    dispatch(syncTelemetryData(true));
     if (allSetsCompleted) {
       dispatch(authLogoutAction());
       return;

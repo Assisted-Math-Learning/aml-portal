@@ -28,7 +28,7 @@ const appReducer = combineReducers(
 );
 
 export const rootReducer = (state: any, action: any) => {
-  if (action.type === AuthActionType.LOGOUT) {
+  if (action.type === AuthActionType.LOGOUT_COMPLETED) {
     // eslint-disable-next-line
     state = {};
   }

@@ -1,4 +1,7 @@
 export enum TelemetryDataEventType {
+  LEARNER_LOGGED_IN = 'learner_logged_in',
+  LEARNER_RESUMED_SESSION = 'learner_resumed_session',
+  LEARNER_SINGED_OUT = 'learner_signed_out',
   SUBMIT_BUTTON_CLICKED = 'submit_button_clicked',
   SKIP_BUTTON_CLICKED = 'skip_button_clicked',
   SKIP_TO_CURRENT_BUTTON_CLICKED = 'skip_to_current_button_clicked',

@@ -1,5 +1,5 @@
 import { SagaPayloadType } from 'types/SagaPayload.type';
-import { all, call, put, takeLatest } from 'redux-saga/effects';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   AuthActionType,
   CSRFTokenActionType,
@@ -30,6 +30,10 @@ import { SupportedLanguages } from 'types/enum';
 import { fetchBoard } from 'store/actions/board.action';
 import { Learner } from '../../models/entities/Learner';
 import { Tenant } from '../../models/entities/Tenant';
+import telemetryService from '../../services/TelemetryService';
+import { TelemetryDataEventType } from '../../models/enums/telemetryDataEventType.enum';
+import { learnerIdSelector } from '../selectors/auth.selector';
+import { syncTelemetryData } from '../actions/telemetryData.action';
 
 interface LoginSagaPayloadType extends SagaPayloadType {
   payload: AuthLoginActionPayloadType;
@@ -41,6 +45,15 @@ function* loginSaga(data: LoginSagaPayloadType): any {
       result: { data: { learner: Learner; tenant: Tenant } };
     } = yield call(authService.login, data.payload);
     if (response.responseCode === 'OK' && response?.result?.data) {
+      const date = new Date();
+      yield call(telemetryService.assess, {
+        learner_id: response.result.data.learner?.identifier,
+        event_type: TelemetryDataEventType.LEARNER_LOGGED_IN,
+        data: {
+          event_timestamp: date.toLocaleString(),
+          event_timestamp_epoch: date.getTime(),
+        },
+      });
       if (response?.result?.data?.learner.username) {
         // Sentry.setUser({
         //   id: response?.result?.data?.identifier,
@@ -86,6 +99,15 @@ function* fetchLoggedInUserSaga(): any {
       result: { data: { learner: Learner; tenant: Tenant } };
     } = yield call(authService.fetchMe);
     if (response.responseCode === 'OK' && response?.result?.data) {
+      const date = new Date();
+      yield call(telemetryService.assess, {
+        learner_id: response.result.data.learner?.identifier,
+        event_type: TelemetryDataEventType.LEARNER_RESUMED_SESSION,
+        data: {
+          event_timestamp: date.toLocaleString(),
+          event_timestamp_epoch: date.getTime(),
+        },
+      });
       if (response?.result?.data?.learner?.username) {
         // Sentry.setUser({
         //   id: response?.result?.data?.identifier,
@@ -123,8 +145,18 @@ function* fetchCSRFTokenSaga(): any {
 
 function* logoutSaga(): any {
   try {
+    const learnerId = yield select(learnerIdSelector);
     const response = yield call(authService.logout);
     if (response) {
+      const date = new Date();
+      yield call(telemetryService.assess, {
+        learner_id: learnerId,
+        event_type: TelemetryDataEventType.LEARNER_SINGED_OUT,
+        data: {
+          event_timestamp: date.toLocaleString(),
+          event_timestamp_epoch: date.getTime(),
+        },
+      });
       const language =
         (localStorageService.getLocalStorageValue(
           CONTENT_LANG
@@ -132,6 +164,7 @@ function* logoutSaga(): any {
       localStorageService.removeCSRFToken();
       yield put(navigateTo('/login'));
       yield put(authLogoutCompletedAction());
+      yield put(syncTelemetryData(true));
       // Sentry.setUser(null);
       toastService.showSuccess(
         getTranslatedString(language, multiLangLabels.logged_out_successfully)
